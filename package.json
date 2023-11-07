@@ -42,7 +42,7 @@
     ],
     "repository": "https://github.com/OpenRhapsody/adrop-ads-react-native",
     "author": "OpenRhapsody <dev@openrhapsody.com> (https://github.com/OpenRhapsody)",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "bugs": {
         "url": "https://github.com/OpenRhapsody/adrop-ads-react-native/issues"
     },
