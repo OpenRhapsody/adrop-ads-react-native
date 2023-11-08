@@ -2,6 +2,7 @@
 
 Adrop Ads SDK for React Native
 
+[![npm version](https://badge.fury.io/js/adrop-ads-react-native.svg)](https://badge.fury.io/js/adrop-ads-react-native)
 
 Prerequisites
 -------------
