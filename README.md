@@ -58,6 +58,12 @@ installer.pods_project.targets.each do |target|
 end
 ```
 
+
+> ***Notes***: React-Native-Firebase uses ```use_frameworks```, which has compatibility issues with Flipper.
+>
+> Flipper: ```use_frameworks``` [is not compatible with Flipper](https://github.com/reactwg/react-native-releases/discussions/21#discussioncomment-2924919). You need to disable Flipper by commenting out the ```:flipper_configuration``` line in your Podfile.
+
+
 ### 3. Initialize
 ```js
 import { AdropAds } from 'adrop-ads-react-native';
