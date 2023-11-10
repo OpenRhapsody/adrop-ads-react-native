@@ -79,19 +79,16 @@ AdropAds.initialize(production);
 ```js
 const YourComponent: React.FC = () => {
     return (
-        <View style={{ width: '100%', height: 80 }}>
-            <AdropBanner
-                unitId={unitId}
-                style={{
-                    width: Dimensions.get('window').width,
-                    height: 80,
-                }}
-                onAdClicked={(unitId) => console.log("ad clicked", unitId)}
-                onAdReceived={(unitId) => console.log("ad received", unitId)}
-                onAdFailedToReceive={(unitId, error) => console.log("ad failed to receive, ", unitId, error)}
-            />
-
-        </View>
+        <AdropBanner
+            unitId={unitId}
+            style={{
+                width: Dimensions.get('window').width,
+                height: 80,
+            }}
+            onAdClicked={(unitId) => console.log("ad clicked", unitId)}
+            onAdReceived={(unitId) => console.log("ad received", unitId)}
+            onAdFailedToReceive={(unitId, error) => console.log("ad failed to receive, ", unitId, error)}
+        />
     )
 }
 
@@ -110,13 +107,11 @@ const YourComponent: React.FC = () => {
     return (
         <View>
             <Button title="reload" onPress={reload}/>
-            <View style={{ width: '100%', height: 80 }}>
-                <AdropBanner
-                    ref={ref}
-                    unitId={unitId}
-                    style={{ width: Dimensions.get('window').width, height: 80, }}
-                />
-            </View>
+            <AdropBanner
+                ref={ref}
+                unitId={unitId}
+                style={{ width: Dimensions.get('window').width, height: 80, }}
+            />
         </View>
     )
 }

@@ -1,6 +1,6 @@
 PODS:
-  - adrop-ads (0.1.0)
-  - adrop-ads-react-native (0.1.0):
+  - adrop-ads (0.1.1)
+  - adrop-ads-react-native (0.1.1):
     - adrop-ads
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
@@ -568,8 +568,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  adrop-ads: 37073d9b21a1d32c98bd08021c730f47966dcecc
-  adrop-ads-react-native: 9863f5cfe03fde2203e72e80c1ae2b97faf236ed
+  adrop-ads: 50dc8b19fd3b7b95262e973acb4434d3ad319816
+  adrop-ads-react-native: c9ab3467ec80d217d6894ff1709123fc3b871bd7
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 748c0ef74f2bf4b36cfcccf37916806940a64c32
