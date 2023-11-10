@@ -66,12 +66,12 @@ end
 
 ### 3. Initialize
 ```js
-import { AdropAds } from 'adrop-ads-react-native';
+import { Adrop } from 'adrop-ads-react-native';
 
 // ...
 
 let production = false; // TODO set true for production mode
-AdropAds.initialize(production);
+Adrop.initialize(production);
 ```
 
 ### 4. Display Ads
