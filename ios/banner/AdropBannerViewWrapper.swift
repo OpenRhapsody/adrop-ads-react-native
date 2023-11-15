@@ -1,9 +1,3 @@
-//
-//  AdropBannerViewWrapper.swift
-//  adrop-ads-react-native
-//
-//  Created by 민우임 on 11/1/23.
-//
 import UIKit
 import React
 import AdropAds
@@ -22,7 +16,7 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
     }
 
     func onAdFailedToReceive(_ banner: AdropBanner, _ error: AdropErrorCode) {
-        sendEvent(method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, message: error.rawValue)
+        sendEvent(method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, message: AdropErrorCodeToString(code: error))
     }
 
     init (bridge: RCTBridge) {

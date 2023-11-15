@@ -3,6 +3,7 @@ import * as React from 'react'
 import { StyleSheet, View, Button, Dimensions } from 'react-native'
 import { Adrop, AdropBanner } from 'adrop-ads-react-native'
 import { useEffect, useRef } from 'react'
+import { testUnitId_50 } from './TestUnitIds'
 
 
 export default function App() {
@@ -33,9 +34,8 @@ export default function App() {
             </View>
 
             <AdropBanner
-                autoLoad={false}
                 ref={bannerRef}
-                unitId={'ADROP_PUBLIC_TEST_UNIT_ID'}
+                unitId={testUnitId_50}
                 style={{
                     width: Dimensions.get('window').width,
                     height: 80,
