@@ -75,30 +75,27 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
 
         const handleAdClicked = useCallback(
             (event: any) => {
-                if (event.channel !== bannerChannel() || onAdClicked === null)
+                if (event.channel !== bannerChannel())
                     return
-                onAdClicked!(unitId)
+                onAdClicked?.(unitId)
             },
             [bannerChannel, onAdClicked, unitId],
         )
 
         const handleAdReceived = useCallback(
             (event: any) => {
-                if (event.channel !== bannerChannel() || onAdReceived === null)
+                if (event.channel !== bannerChannel())
                     return
-                onAdReceived!(unitId)
+                onAdReceived?.(unitId)
             },
             [bannerChannel, onAdReceived, unitId],
         )
 
         const handleAdFailedReceive = useCallback(
             (event: any) => {
-                if (
-                    event.channel !== bannerChannel() ||
-                    onAdFailedToReceive === null
-                )
+                if (event.channel !== bannerChannel())
                     return
-                onAdFailedToReceive!(unitId, event.message)
+                onAdFailedToReceive?.(unitId, event.message)
             },
             [bannerChannel, onAdFailedToReceive, unitId],
         )
