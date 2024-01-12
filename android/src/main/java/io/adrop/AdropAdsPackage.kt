@@ -9,7 +9,11 @@ import io.adrop.banner.AdropBannerViewManager
 
 class AdropAdsPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-        return listOf(AdropAdsModule(reactContext))
+        return listOf(
+            AdropAdsModule(reactContext),
+            AdropInterstitialAdModule(reactContext),
+            AdropRewardedAdModule(reactContext)
+        )
     }
 
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {

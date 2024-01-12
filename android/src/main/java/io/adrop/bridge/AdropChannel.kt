@@ -2,7 +2,8 @@ package io.adrop.bridge
 
 object AdropChannel {
     private const val METHOD_CHANNEL = "io.adrop.adrop-ads"
-    const val METHOD_BANNER_CHANNEL = "$METHOD_CHANNEL/banner"
+    const val invokeBannerChannel = "$METHOD_CHANNEL/banner"
 
-    fun methodBannerChannelOf(id: Int): String = "${METHOD_BANNER_CHANNEL}_${id}"
+    fun invokeInterstitialChannel(id: String): String = "${METHOD_CHANNEL}/interstitial_${id}"
+    fun invokeRewardedChannelOf(id: String): String = "${METHOD_CHANNEL}/rewarded_${id}"
 }

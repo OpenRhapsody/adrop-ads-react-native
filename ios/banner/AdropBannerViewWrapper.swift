@@ -4,53 +4,52 @@ import AdropAds
 
 @objc
 class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
-    var bridge: RCTBridge
-    var banner: AdropBanner?
-
+    private var bridge: RCTBridge
+    private var banner: AdropBanner?
+    
     func onAdReceived(_ banner: AdropBanner) {
         sendEvent(method: AdropMethod.DID_RECEIVE_AD)
     }
-
+    
     func onAdClicked(_ banner: AdropBanner) {
         sendEvent(method: AdropMethod.DID_CLICK_AD)
     }
-
-    func onAdFailedToReceive(_ banner: AdropBanner, _ error: AdropErrorCode) {
-        sendEvent(method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, message: AdropErrorCodeToString(code: error))
+    
+    func onAdFailedToReceive(_ banner: AdropBanner, _ errorCode: AdropErrorCode) {
+        sendEvent(method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode: AdropErrorCodeToString(code: errorCode))
     }
-
+    
     init (bridge: RCTBridge) {
         self.bridge = bridge
         super.init(frame: .zero)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         self.banner?.frame = frame
     }
-
+    
     @objc
     func setUnitId(_ unitId: NSString) {
         banner = AdropBanner(unitId: unitId as String)
         banner?.delegate = self
         self.addSubview(banner!)
-
+        
         sendEvent(method: AdropMethod.DID_CREATED_BANNER)
     }
-
+    
     func load() {
         self.banner?.load()
     }
-
-    private func sendEvent(method: String, message: String? = nil) {
-        let channel = AdropChannel.methodBannerChannelOf(id: self.reactTag as! Int)
+    
+    private func sendEvent(method: String, errorCode: String? = nil) {
         if let eventEmitter = bridge.module(for: BannerEventEmitter.self) as? BannerEventEmitter {
-            eventEmitter.sendEvent(withName: AdropChannel.METHOD_BANNER_CHANNEL,
-                                   body: [ "method": method, "channel": channel, "message": message ?? "", "tag": self.reactTag ?? 0 ])
+            eventEmitter.sendEvent(withName: AdropChannel.invokeBannerChannel,
+                                   body: [ "method": method, "errorCode": errorCode ?? "", "tag": self.reactTag ?? 0 ])
         }
     }
 }
@@ -62,7 +61,7 @@ class BannerEventEmitter: RCTEventEmitter {
         return true
     }
     override func supportedEvents() -> [String]! {
-        return [AdropChannel.METHOD_BANNER_CHANNEL]
+        return [AdropChannel.invokeBannerChannel]
     }
-
+    
 }

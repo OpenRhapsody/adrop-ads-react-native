@@ -1,63 +1,39 @@
+import { NavigationContainer } from '@react-navigation/native'
+import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
 
-import { StyleSheet, View, Button, Dimensions } from 'react-native'
-import { Adrop, AdropBanner } from 'adrop-ads-react-native'
-import { useEffect, useRef } from 'react'
-import { testUnitId_50 } from './TestUnitIds'
+import BannerExample from './views/BannerExample'
+import Home from './views/Home'
+import InterstitialAdHookExample from './views/InterstitialAdHookExample'
+import InterstitialAdClassExample from './views/InterstitialAdClassExample'
+import RewardedAdHookExample from './views/RewardedAdHookExample'
+import RewardedAdClassExample from './views/RewardedAdClassExample'
 
+const Stack = createStackNavigator()
 
 export default function App() {
-    const bannerRef = useRef(null)
-
-    useEffect(() => {
-        Adrop.initialize(false)
-    }, [])
-
-    const loadBanner = () => bannerRef.current?.load()
-
-    const onAdClicked = (unitId: string) => {
-        console.log('banner clicked', unitId)
-    }
-
-    const onAdReceived = (unitId: string) => {
-        console.log('banner received', unitId)
-    }
-
-    const onAdFailedToReceive = (unitId: string, error?: string) => {
-        console.log('banner onAdFailedToReceive', unitId, error)
-    }
-
     return (
-        <View style={styles.container}>
-            <View>
-                <Button title={'Request Ad!'} onPress={loadBanner} />
-            </View>
-
-            <AdropBanner
-                ref={bannerRef}
-                unitId={testUnitId_50}
-                style={{
-                    width: Dimensions.get('window').width,
-                    height: 80,
-                }}
-                onAdClicked={onAdClicked}
-                onAdReceived={onAdReceived}
-                onAdFailedToReceive={onAdFailedToReceive}
-            />
-        </View>
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName="Home">
+                <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="BannerExample" component={BannerExample} />
+                <Stack.Screen
+                    name="InterstitialAdHookExample"
+                    component={InterstitialAdHookExample}
+                />
+                <Stack.Screen
+                    name="InterstitialAdClassExample"
+                    component={InterstitialAdClassExample}
+                />
+                <Stack.Screen
+                    name="RewardedAdHookExample"
+                    component={RewardedAdHookExample}
+                />
+                <Stack.Screen
+                    name="RewardedAdClassExample"
+                    component={RewardedAdClassExample}
+                />
+            </Stack.Navigator>
+        </NavigationContainer>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginVertical: 50,
-    },
-    box: {
-        width: 60,
-        height: 60,
-        marginVertical: 20,
-    },
-})

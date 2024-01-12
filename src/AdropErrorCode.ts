@@ -5,5 +5,9 @@ export enum AdropErrorCode {
     invalidUnit = 'ERROR_CODE_INVALID_UNIT',
     inactive = 'ERROR_CODE_AD_INACTIVE',
     adNoFill = 'ERROR_CODE_AD_NO_FILL',
+    adDuplicated = 'ERROR_CODE_AD_LOAD_DUPLICATED',
+    adLoading = 'ERROR_CODE_AD_LOADING',
+    adEmpty = 'ERROR_CODE_AD_EMPTY',
+    adShown = 'ERROR_CODE_AD_SHOWN',
     undefined = 'UNDEFINED',
 }

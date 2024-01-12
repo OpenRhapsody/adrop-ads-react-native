@@ -27,7 +27,7 @@ Prerequisites
 &nbsp;
 
 ### Step 1: Create a Adrop project
-Before you can add Adrop to your React Native app, you need to [create a Adrop project](https://adrop.gitbook.io/adrop-docs/guides/get-started-with-adrop#create-a-app-container-publisher-project) to connect to your app.
+Before you can add Adrop to your React Native app, you need to [create a Adrop project](https://docs.adrop.io/fundamentals/get-started-with-adrop#create-an-app-container) to connect to your app.
 
 ### Step 2: Register your app with Adrop
 To use Adrop in your React Native app, you need to register your app with your Adrop project. Registering your app is often called "adding" your app to your project.
@@ -122,8 +122,31 @@ post_install do |installer|
 end
 ```
 
-### Display AdropBanner
+---
 
+
+### Creating Ad units
+To create a new Ad unit:
+1. From the left navigation menu, select **Ad Units**.
+2. Select **Create Ad unit** to bring up the ad unit builder.
+3. Enter an Ad unit name, then select your app (iOS or Android) and [Ad format](https://docs.adrop.io/fundamentals/create-your-ad-unit#a-d-formats) (Banner, Interstitial, or Rewarded).
+4. Select **Create** to save your Ad unit.
+
+### Ad unit ID
+The Ad unit’s unique identifier to reference in your code. This setting is read-only.
+
+> **Note** These are unit ids for test
+> * PUBLIC_TEST_UNIT_ID_320_50
+> * PUBLIC_TEST_UNIT_ID_375_80
+> * PUBLIC_TEST_UNIT_ID_320_100
+> * PUBLIC_TEST_UNIT_ID_INTERSTITIAL
+> * PUBLIC_TEST_UNIT_ID_REWARDED
+
+### Display Ads
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Banner</summary>
+
+Initialize AdropBanner with Ad unit ID, then load ad.
 ```js
 const YourComponent: React.FC = () => {
     const ref = useRef(null)
@@ -147,3 +170,162 @@ const YourComponent: React.FC = () => {
     )
 }
 ```
+</details>
+
+<br/>
+
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Interstitial Ad (Class)</summary>
+
+Step 1: (Optional) Construct event listener
+```js
+const listener = {
+        onAdReceived: (ad: AdropInterstitialAd) =>
+            console.log(`Adrop interstitial Ad load with unitId ${ad.unitId}!`),
+        onAdFailedToReceive: (ad: AdropInterstitialAd, errorCode: string) =>
+            console.log(`error in ${ad.unitId} while load: ${errorCode}`),
+        onAdFailedToShowFullScreen: (ad: AdropInterstitialAd, errorCode: string) =>
+            console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
+        ...
+    }
+```
+
+Step 2: Display an interstitial ad
+```js
+const YourComponent: React.FC = () => {
+    const [interstitialAd, setInterstitialAd] = useState<AdropInterstitialAd>(null)
+
+    useEffect(() => {
+        let adropInterstitialAd = new AdropInterstitialAd('YOUR_UNIT_ID')
+        adropInterstitialAd.listener = listener
+        adropInterstitialAd.load()
+        setInterstitialAd(adropInterstitialAd)
+    }, []);
+
+    const show = () => {
+        if (interstitialAd?.isLoaded) {
+            interstitialAd?.show()
+        } else {
+            console.log('interstitial ad is loading...')
+        }
+    }
+
+    return (
+        <View>
+            <Button title="display ad" onPress={show}/>
+        </View>
+    )
+
+}
+```
+
+AdropInterstitialAd must be destroyed of when access to it is no longer needed.
+
+```js
+interstitialAd.destroy()
+```
+</details>
+
+<br/>
+
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Interstitial Ad (Hook)</summary>
+
+```js
+const YourComponent: React.FC = () => {
+    const { load, show, isLoaded } =
+        useAdropInterstitialAd('YOUR_UNIT_ID')
+
+    const handleShow = () => {
+        if (isLoaded) show()
+    }
+
+    return (
+        <View>
+            <Button title="load ad" onPress={load}/>
+            <Button title="display ad" onPress={handleShow}/>
+        </View>
+    )
+}
+```
+</details>
+
+<br/>
+
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Rewarded Ad (Class)</summary>
+
+Step 1: (Optional) Construct event listener
+```js
+const listener = {
+        onAdReceived: (ad: AdropRewardedAd) =>
+            console.log(`Adrop rewarded Ad load with unitId ${ad.unitId}!`),
+        onAdFailedToReceive: (ad: AdropRewardedAd, errorCode: string) =>
+            console.log(`error in ${ad.unitId} while load: ${errorCode}`),
+        onAdFailedToShowFullScreen: (ad: AdropRewardedAd, errorCode: string) =>
+            console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
+        onAdEarnRewardHandler: (ad: AdropRewardedAd, type: number, amount: number) =>
+            console.log(`Adrop rewarded Ad earn rewards: ${ad.unitId}, ${type}, ${amount}`),
+        ...
+    }
+```
+
+Step 2: Display a rewarded ad
+```js
+const YourComponent: React.FC = () => {
+    const [rewardedAd, setRewardedAd] = useState<AdropRewardedAd>(null)
+
+    useEffect(() => {
+        let adropRewardedAd = new AdropRewardedAd('YOUR_UNIT_ID')
+        adropRewardedAd.listener = listener
+        adropRewardedAd.load()
+        setRewardedAd(adropRewardedAd)
+    }, []);
+
+    const show = () => {
+        if (rewardedAd?.isLoaded) {
+            rewardedAd?.show()
+        } else {
+            console.log('rewarded ad is loading...')
+        }
+    }
+
+    return (
+        <View>
+            <Button title="display ad" onPress={show}/>
+        </View>
+    )
+
+}
+```
+
+AdropRewardedAd must be destroyed of when access to it is no longer needed.
+```js
+rewardedAd.destroy()
+```
+</details>
+
+<br/>
+
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Rewarded Ad (Hook)</summary>
+
+```js
+const YourComponent: React.FC = () => {
+    const { load, show, isLoaded } =
+        useAdropRewardedAd('YOUR_UNIT_ID')
+
+    const handleShow = () => {
+        if (isLoaded) show()
+    }
+
+    return (
+        <View>
+            <Button title="load ad" onPress={load}/>
+            <Button title="display ad" onPress={handleShow}/>
+        </View>
+    )
+}
+```
+
+</details>

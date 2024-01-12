@@ -1,10 +1,8 @@
-import { Adrop, AdropErrorCode } from '../index'
+import { Adrop, AdropErrorCode, AdropBanner } from '../src'
 import { act, fireEvent, render, screen } from '@testing-library/react-native'
-import AdropBanner from '../banner/AdropBanner'
 import React, { useRef, useState } from 'react'
 import { Button, DeviceEventEmitter, Text, View } from 'react-native'
-import { AdropChannel } from '../bridge/AdropChannel'
-import { AdropMethod } from '../bridge/AdropMethod'
+import { AdropChannel, AdropMethod } from '../src/bridge'
 
 interface IAdropBanner {
     load: () => void
@@ -69,10 +67,15 @@ jest.mock('react-native', () => {
     RN.NativeModules.AdropAds = {
         initialize: jest.fn(),
     }
-    RN.NativeModules.BannerEventEmitter = {
+    const eventEmitter = {
         addListener: jest.fn(),
         removeListeners: jest.fn(),
     }
+
+    RN.NativeModules.BannerEventEmitter = eventEmitter
+    RN.NativeModules.EventEmitter = eventEmitter
+    RN.NativeModules.AdropInterstitialAd = eventEmitter
+    RN.NativeModules.AdropRewardedAd = eventEmitter
 
     RN.UIManager.getViewManagerConfig = (name: string) => {
         if (name === 'AdropAds') {
@@ -84,11 +87,10 @@ jest.mock('react-native', () => {
 })
 
 describe('AdropBanner Test', () => {
-    const unitId = 'ADROP_PUBLIC_TEST_UNIT_ID'
+    const unitId = 'PUBLIC_TEST_UNIT_ID_320_50'
     const invalidId = 'INVALID_TEST_UNIT_ID'
     const onClickMock = jest.fn()
     let tag = 3
-    let bannerChannel = AdropChannel.methodBannerChannelOf(tag)
 
     const checkStatus = (status: string) => {
         const element = screen.getByTestId('status')
@@ -99,20 +101,17 @@ describe('AdropBanner Test', () => {
         Adrop.initialize(false)
     })
 
-    afterEach(() => {
-        bannerChannel = AdropChannel.methodBannerChannelOf(++tag)
-    })
+    afterEach(() => ++tag)
 
     test('auto load successfully', () => {
         render(<Example unitId={unitId} onClickLoad={onClickMock} />)
         // onAdBannerCreated callback
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didReceiveAd,
-            channel: bannerChannel,
             tag,
         })
 
@@ -127,7 +126,7 @@ describe('AdropBanner Test', () => {
                 autoLoad={false}
             />
         )
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -143,7 +142,7 @@ describe('AdropBanner Test', () => {
                 autoLoad={false}
             />
         )
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -151,9 +150,9 @@ describe('AdropBanner Test', () => {
         checkStatus('')
 
         fireEvent.press(screen.getByTestId('requestAd'))
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didReceiveAd,
-            channel: bannerChannel,
+
             tag,
         })
 
@@ -163,7 +162,7 @@ describe('AdropBanner Test', () => {
 
     test('banner when app has no campaigns (inactive from remote config) ', () => {
         render(<Example unitId={unitId} onClickLoad={onClickMock} />)
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -171,10 +170,11 @@ describe('AdropBanner Test', () => {
         fireEvent.press(screen.getByTestId('requestAd'))
         expect(onClickMock).toHaveBeenCalled()
 
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didFailToReceiveAd,
-            channel: bannerChannel,
-            message: AdropErrorCode.inactive,
+
+            errorCode: AdropErrorCode.inactive,
+            tag,
         })
 
         checkStatus(AdropErrorCode.inactive)
@@ -182,7 +182,7 @@ describe('AdropBanner Test', () => {
 
     test('banner when app has no campaigns (active from remote config) ', () => {
         render(<Example unitId={unitId} onClickLoad={onClickMock} />)
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -190,10 +190,11 @@ describe('AdropBanner Test', () => {
         fireEvent.press(screen.getByTestId('requestAd'))
         expect(onClickMock).toHaveBeenCalled()
 
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didFailToReceiveAd,
-            channel: bannerChannel,
-            message: AdropErrorCode.adNoFill,
+
+            errorCode: AdropErrorCode.adNoFill,
+            tag,
         })
 
         checkStatus(AdropErrorCode.adNoFill)
@@ -201,7 +202,7 @@ describe('AdropBanner Test', () => {
 
     test('banner received ad successfully', () => {
         render(<Example unitId={unitId} onClickLoad={onClickMock} />)
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -209,9 +210,10 @@ describe('AdropBanner Test', () => {
         fireEvent.press(screen.getByTestId('requestAd'))
         expect(onClickMock).toHaveBeenCalled()
 
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didReceiveAd,
-            channel: bannerChannel,
+
+            tag,
         })
 
         checkStatus('received')
@@ -219,7 +221,7 @@ describe('AdropBanner Test', () => {
 
     test('banner receive to fail with invalid unitId', () => {
         render(<Example unitId={invalidId} onClickLoad={onClickMock} />)
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -227,10 +229,11 @@ describe('AdropBanner Test', () => {
         fireEvent.press(screen.getByTestId('requestAd'))
         expect(onClickMock).toHaveBeenCalled()
 
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didFailToReceiveAd,
-            channel: bannerChannel,
-            message: AdropErrorCode.adNoFill,
+
+            errorCode: AdropErrorCode.adNoFill,
+            tag,
         })
 
         checkStatus(AdropErrorCode.adNoFill)
@@ -238,7 +241,7 @@ describe('AdropBanner Test', () => {
 
     test('banner receive to fail with empty unitId', () => {
         render(<Example unitId={''} onClickLoad={onClickMock} />)
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -246,10 +249,11 @@ describe('AdropBanner Test', () => {
         fireEvent.press(screen.getByTestId('requestAd'))
         expect(onClickMock).toHaveBeenCalled()
 
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didFailToReceiveAd,
-            channel: bannerChannel,
-            message: AdropErrorCode.inactive,
+
+            errorCode: AdropErrorCode.inactive,
+            tag,
         })
 
         checkStatus(AdropErrorCode.inactive)
@@ -257,7 +261,7 @@ describe('AdropBanner Test', () => {
 
     test('banner clicked', () => {
         render(<Example unitId={unitId} onClickLoad={onClickMock} />)
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didCreatedBanner,
             tag,
         })
@@ -265,23 +269,26 @@ describe('AdropBanner Test', () => {
         fireEvent.press(screen.getByTestId('requestAd'))
         expect(onClickMock).toHaveBeenCalled()
 
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didReceiveAd,
-            channel: bannerChannel,
+
+            tag,
         })
         checkStatus('received')
 
         // const bannerView = screen.getByTestId('bannerWrapper').props.children[0]    // press not work
         fireEvent.press(screen.getByTestId('bannerWrapper'))
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didClickAd,
-            channel: bannerChannel,
+
+            tag,
         })
         checkStatus('clicked')
 
-        DeviceEventEmitter.emit(AdropChannel.methodBannerChannel, {
+        DeviceEventEmitter.emit(AdropChannel.bannerEventListenerChannel, {
             method: AdropMethod.didReceiveAd,
-            channel: bannerChannel,
+
+            tag,
         })
         checkStatus('received')
     })

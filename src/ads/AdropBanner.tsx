@@ -10,11 +10,10 @@ import {
     requireNativeComponent,
     NativeModules,
     NativeEventEmitter,
-    UIManager, View,
+    UIManager,
+    View,
 } from 'react-native'
-import { AdropChannel } from '../bridge/AdropChannel'
-import { AdropMethod } from '../bridge/AdropMethod'
-
+import { AdropChannel, AdropMethod } from '../bridge'
 
 type AdropBannerNativeProp = {
     style: { height: number; width: number | string }
@@ -25,7 +24,7 @@ type AdropBannerProp = AdropBannerNativeProp & {
     autoLoad?: boolean
     onAdReceived?: (unitId: string) => void
     onAdClicked?: (unitId: string) => void
-    onAdFailedToReceive?: (unitId: string, error?: any) => void
+    onAdFailedToReceive?: (unitId: string, errorCode?: any) => void
 }
 
 const ComponentName = 'AdropBannerView'
@@ -42,21 +41,17 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             onAdReceived,
             style,
         },
-        ref,
+        ref
     ) => {
         const bannerRef = useRef(null)
 
         const getViewTag = useCallback(
             () => findNodeHandle(bannerRef.current) ?? 0,
-            [],
+            []
         )
         const validateView = useCallback(
             (viewTag: number) => viewTag === getViewTag(),
-            [getViewTag],
-        )
-        const bannerChannel = useCallback(
-            () => AdropChannel.methodBannerChannelOf(getViewTag()),
-            [getViewTag],
+            [getViewTag]
         )
 
         const load = useCallback(() => {
@@ -70,55 +65,55 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                 if (!validateView(viewTag)) return
                 if (autoLoad) load()
             },
-            [autoLoad, load, validateView],
+            [autoLoad, load, validateView]
         )
 
         const handleAdClicked = useCallback(
             (event: any) => {
-                if (event.channel !== bannerChannel())
-                    return
+                if (!validateView(event.tag)) return
                 onAdClicked?.(unitId)
             },
-            [bannerChannel, onAdClicked, unitId],
+            [onAdClicked, validateView, unitId]
         )
 
         const handleAdReceived = useCallback(
             (event: any) => {
-                if (event.channel !== bannerChannel())
-                    return
+                if (!validateView(event.tag)) return
                 onAdReceived?.(unitId)
             },
-            [bannerChannel, onAdReceived, unitId],
+            [onAdReceived, validateView, unitId]
         )
 
         const handleAdFailedReceive = useCallback(
             (event: any) => {
-                if (event.channel !== bannerChannel())
-                    return
-                onAdFailedToReceive?.(unitId, event.message)
+                if (!validateView(event.tag)) return
+                onAdFailedToReceive?.(unitId, event.errorCode)
             },
-            [bannerChannel, onAdFailedToReceive, unitId],
+            [onAdFailedToReceive, validateView, unitId]
         )
 
         useEffect(() => {
             const eventListener = new NativeEventEmitter(
-                NativeModules.BannerEventEmitter,
-            ).addListener(AdropChannel.methodBannerChannel, (event: any) => {
-                switch (event.method) {
-                    case AdropMethod.didCreatedBanner:
-                        handleCreated(event.tag)
-                        break
-                    case AdropMethod.didClickAd:
-                        handleAdClicked(event)
-                        break
-                    case AdropMethod.didReceiveAd:
-                        handleAdReceived(event)
-                        break
-                    case AdropMethod.didFailToReceiveAd:
-                        handleAdFailedReceive(event)
-                        break
+                NativeModules.BannerEventEmitter
+            ).addListener(
+                AdropChannel.bannerEventListenerChannel,
+                (event: any) => {
+                    switch (event.method) {
+                        case AdropMethod.didCreatedBanner:
+                            handleCreated(event.tag)
+                            break
+                        case AdropMethod.didClickAd:
+                            handleAdClicked(event)
+                            break
+                        case AdropMethod.didReceiveAd:
+                            handleAdReceived(event)
+                            break
+                        case AdropMethod.didFailToReceiveAd:
+                            handleAdFailedReceive(event)
+                            break
+                    }
                 }
-            })
+            )
 
             return () => {
                 eventListener.remove()
@@ -135,6 +130,6 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                 <BannerView ref={bannerRef} style={style} unitId={unitId} />
             </View>
         )
-    },
+    }
 )
 export default AdropBanner
