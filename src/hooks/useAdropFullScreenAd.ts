@@ -8,13 +8,13 @@ interface AdHookReturns {
 }
 
 interface AdStates {
-    isLoaded: boolean
-    isOpened: boolean
     isClicked: boolean
     isClosed: boolean
+    isEarnRewarded: boolean
+    isLoaded: boolean
+    isOpened: boolean
     errorCode?: string
     reward?: { type: number; amount: number }
-    isEarnRewarded: false
 }
 
 const initState: AdStates = {
@@ -58,7 +58,11 @@ function useAdropFullScreenAd<
                     setStates({ isClosed: true, errorCode: '' })
                 },
                 onAdEarnRewardHandler: (_, type, amount) => {
-                    setStates({ reward: { type, amount }, errorCode: '' })
+                    setStates({
+                        isEarnRewarded: true,
+                        reward: { type, amount },
+                        errorCode: '',
+                    })
                 },
                 onAdClicked: (_) => {
                     setStates({ isClicked: true, errorCode: '' })
