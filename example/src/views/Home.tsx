@@ -1,14 +1,18 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, StyleSheet, View } from 'react-native'
 import { Adrop } from 'adrop-ads-react-native'
 
 const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
     const [initialized, setInitialized] = useState(false)
 
-    const initialize = async () => {
+    const initialize = useCallback(async () => {
         await Adrop.initialize(false)
         setInitialized(true)
-    }
+    }, [])
+
+    useEffect(() => {
+        initialize()
+    }, [initialize])
 
     const showBannerExample = () => navigation.navigate('BannerExample')
 
@@ -24,15 +28,10 @@ const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
     const showRewardedAdClassExample = () =>
         navigation.navigate('RewardedAdClassExample')
 
+    const showPropertyExample = () => navigation.navigate('PropertyExample')
+
     return (
         <View style={styles.container}>
-            <View style={styles.button}>
-                <Button
-                    disabled={initialized}
-                    title={'Adrop Initialize'}
-                    onPress={initialize}
-                />
-            </View>
             <View style={styles.button}>
                 <Button
                     disabled={!initialized}
@@ -66,6 +65,12 @@ const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
                     disabled={!initialized}
                     title={'RewardedAd Class Example'}
                     onPress={showRewardedAdClassExample}
+                />
+            </View>
+            <View style={styles.button}>
+                <Button
+                    title={'Property Example'}
+                    onPress={showPropertyExample}
                 />
             </View>
         </View>

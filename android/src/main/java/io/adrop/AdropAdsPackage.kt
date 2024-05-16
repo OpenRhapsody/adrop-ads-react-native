@@ -12,7 +12,8 @@ class AdropAdsPackage : ReactPackage {
         return listOf(
             AdropAdsModule(reactContext),
             AdropInterstitialAdModule(reactContext),
-            AdropRewardedAdModule(reactContext)
+            AdropRewardedAdModule(reactContext),
+            AdropMetricsModule(reactContext)
         )
     }
 

@@ -2,12 +2,15 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
 
-import BannerExample from './views/BannerExample'
-import Home from './views/Home'
-import InterstitialAdHookExample from './views/InterstitialAdHookExample'
-import InterstitialAdClassExample from './views/InterstitialAdClassExample'
-import RewardedAdHookExample from './views/RewardedAdHookExample'
-import RewardedAdClassExample from './views/RewardedAdClassExample'
+import {
+    BannerExample,
+    Home,
+    InterstitialAdClassExample,
+    InterstitialAdHookExample,
+    PropertyExample,
+    RewardedAdClassExample,
+    RewardedAdHookExample,
+} from './views'
 
 const Stack = createStackNavigator()
 
@@ -32,6 +35,10 @@ export default function App() {
                 <Stack.Screen
                     name="RewardedAdClassExample"
                     component={RewardedAdClassExample}
+                />
+                <Stack.Screen
+                    name="PropertyExample"
+                    component={PropertyExample}
                 />
             </Stack.Navigator>
         </NavigationContainer>
