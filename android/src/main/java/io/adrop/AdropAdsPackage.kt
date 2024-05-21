@@ -13,7 +13,8 @@ class AdropAdsPackage : ReactPackage {
             AdropAdsModule(reactContext),
             AdropInterstitialAdModule(reactContext),
             AdropRewardedAdModule(reactContext),
-            AdropMetricsModule(reactContext)
+            AdropMetricsModule(reactContext),
+            AdropAdsPageTrackerModule(reactContext)
         )
     }
 

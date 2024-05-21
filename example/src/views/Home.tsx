@@ -1,18 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Button, StyleSheet, View } from 'react-native'
 import { Adrop } from 'adrop-ads-react-native'
 
 const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
-    const [initialized, setInitialized] = useState(false)
-
-    const initialize = useCallback(async () => {
-        await Adrop.initialize(false)
-        setInitialized(true)
-    }, [])
-
     useEffect(() => {
-        initialize()
-    }, [initialize])
+        Adrop.initialize(false)
+    }, [])
 
     const showBannerExample = () => navigation.navigate('BannerExample')
 
@@ -33,36 +26,28 @@ const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.button}>
-                <Button
-                    disabled={!initialized}
-                    title={'Banner Example'}
-                    onPress={showBannerExample}
-                />
+                <Button title={'Banner Example'} onPress={showBannerExample} />
             </View>
             <View style={styles.button}>
                 <Button
-                    disabled={!initialized}
                     title={'InterstitialAd Hook Example'}
                     onPress={showInterstitialAdHookExample}
                 />
             </View>
             <View style={styles.button}>
                 <Button
-                    disabled={!initialized}
                     title={'InterstitialAd Class Example'}
                     onPress={showInterstitialAdClassExample}
                 />
             </View>
             <View style={styles.button}>
                 <Button
-                    disabled={!initialized}
                     title={'RewardedAd Hook Example'}
                     onPress={showRewardedAdHookExample}
                 />
             </View>
             <View style={styles.button}>
                 <Button
-                    disabled={!initialized}
                     title={'RewardedAd Class Example'}
                     onPress={showRewardedAdClassExample}
                 />

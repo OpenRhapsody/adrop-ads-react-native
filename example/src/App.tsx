@@ -11,12 +11,15 @@ import {
     RewardedAdClassExample,
     RewardedAdHookExample,
 } from './views'
+import { AdropNavigatorObserver } from 'adrop-ads-react-native'
 
 const Stack = createStackNavigator()
 
 export default function App() {
     return (
-        <NavigationContainer>
+        <NavigationContainer
+            onStateChange={AdropNavigatorObserver.onStateChange}
+        >
             <Stack.Navigator initialRouteName="Home">
                 <Stack.Screen name="Home" component={Home} />
                 <Stack.Screen name="BannerExample" component={BannerExample} />

@@ -1,6 +1,6 @@
 {
     "name": "adrop-ads-react-native",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Adrop Ads",
     "main": "lib/commonjs/index",
     "module": "lib/module/index",

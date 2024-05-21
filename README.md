@@ -104,6 +104,13 @@ The final step is to add initialization code to your application.
     Adrop.initialize(production);
     ```
 
+2. Add **AdropNavigatorObserver** to measure the frequency of ad impressions if you use **@react-navigation**
+    ```js
+    <NavigationContainer
+        onStateChange={AdropNavigatorObserver.onStateChange}
+    >
+    ```
+
 ### (Optional) Troubleshooting
 ```shell
 # Add this line to your Podfile

@@ -1,5 +1,6 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
+import AdropNavigatorObserver from '../observer'
 
 export enum AdType {
     adropInterstitialAd = 'AdropInterstitialAd',
@@ -80,6 +81,7 @@ export abstract class AdropAd {
                 this.listener?.onAdFailedToReceive?.(this, event.errorCode)
                 break
             case AdropMethod.didImpression:
+                this.invokeAttach()
                 this.listener?.onAdImpression?.(this)
                 break
             case AdropMethod.willDismissFullScreen:
@@ -143,5 +145,12 @@ export abstract class AdropAd {
             })
             .join('')
         /* eslint-enable no-bitwise */
+    }
+
+    private invokeAttach() {
+        NativeModules.AdropPageTracker.attach(
+            AdropNavigatorObserver.last,
+            this.unitId
+        )
     }
 }

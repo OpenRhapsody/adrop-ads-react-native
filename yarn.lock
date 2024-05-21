@@ -3669,7 +3669,6 @@ __metadata:
     react-native-reanimated: ^3.6.1
     react-native-safe-area-context: ^4.8.2
     react-native-screens: ^3.29.0
-    react-navigation: ^5.0.0
   languageName: unknown
   linkType: soft
 
@@ -11253,13 +11252,6 @@ __metadata:
   bin:
     react-native: cli.js
   checksum: 3cf0af092c0d6b9b6e67795664e324136f6d1a41c6a889737fb612e5ddb93d0537c890fe733e751fe3bbc139cbb4f9f6d9eff4467e8d8dc67194ac8b382fa168
-  languageName: node
-  linkType: hard
-
-"react-navigation@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "react-navigation@npm:5.0.0"
-  checksum: 90a44a82e6b6cf39cde4a14b7ba3e6bef241af247b155c61a3cc00db694260e47a29bc617acad03cb98a7a70f215ee58a92902f988a4e52e444ff18fef545ea7
   languageName: node
   linkType: hard
 

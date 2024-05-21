@@ -12,8 +12,10 @@ import {
     NativeEventEmitter,
     UIManager,
     View,
+    Dimensions,
 } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
+import AdropNavigatorObserver from '../observer'
 
 type AdropBannerNativeProp = {
     style: { height: number; width: number | string }
@@ -29,7 +31,9 @@ type AdropBannerProp = AdropBannerNativeProp & {
 
 const ComponentName = 'AdropBannerView'
 
-const BannerView = requireNativeComponent<AdropBannerNativeProp>(ComponentName)
+const BannerView = requireNativeComponent<
+    AdropBannerNativeProp & { onLayout: any }
+>(ComponentName)
 
 const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
     (
@@ -44,11 +48,14 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
         ref
     ) => {
         const bannerRef = useRef(null)
+        const isVisible = useRef(false)
+        const isLoaded = useRef(false)
 
         const getViewTag = useCallback(
             () => findNodeHandle(bannerRef.current) ?? 0,
             []
         )
+
         const validateView = useCallback(
             (viewTag: number) => viewTag === getViewTag(),
             [getViewTag]
@@ -76,18 +83,30 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             [onAdClicked, validateView, unitId]
         )
 
+        const invoke = useCallback(() => {
+            if (!(isVisible.current && isLoaded.current)) return
+
+            NativeModules.AdropPageTracker.attach(
+                AdropNavigatorObserver.last,
+                unitId
+            )
+        }, [unitId])
+
         const handleAdReceived = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
                 onAdReceived?.(unitId)
+                isLoaded.current = true
+                invoke()
             },
-            [onAdReceived, validateView, unitId]
+            [invoke, onAdReceived, validateView, unitId]
         )
 
         const handleAdFailedReceive = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
                 onAdFailedToReceive?.(unitId, event.errorCode)
+                isLoaded.current = false
             },
             [onAdFailedToReceive, validateView, unitId]
         )
@@ -125,9 +144,32 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             handleAdFailedReceive,
         ])
 
+        const onLayout = useCallback(
+            (event) => {
+                const { x, y, width, height } = event.nativeEvent.layout
+                const { width: windowWidth, height: windowHeight } =
+                    Dimensions.get('window')
+                isVisible.current =
+                    width > 0 &&
+                    height > 0 &&
+                    x >= 0 &&
+                    x + width <= windowWidth &&
+                    y >= 0 &&
+                    y + height <= windowHeight
+
+                invoke()
+            },
+            [invoke]
+        )
+
         return (
             <View>
-                <BannerView ref={bannerRef} style={style} unitId={unitId} />
+                <BannerView
+                    ref={bannerRef}
+                    style={style}
+                    unitId={unitId}
+                    onLayout={onLayout}
+                />
             </View>
         )
     }
