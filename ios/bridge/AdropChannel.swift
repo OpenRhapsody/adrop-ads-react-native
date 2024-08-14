@@ -11,4 +11,12 @@ struct AdropChannel {
     static func invokeRewardedChannel(id: String) -> String {
         return "\(METHOD_CHANNEL)/rewarded_\(id)"
     }
+    
+    static func invokePopupChannel(id: String) -> String {
+        return "\(METHOD_CHANNEL)/popup_\(id)"
+    }
+    
+    static func invokeNativeChannel(id: String) -> String {
+        return "\(METHOD_CHANNEL)/native_\(id)"
+    }
 }

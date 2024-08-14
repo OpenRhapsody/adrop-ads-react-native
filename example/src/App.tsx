@@ -7,11 +7,13 @@ import {
     Home,
     InterstitialAdClassExample,
     InterstitialAdHookExample,
+    PopupAdClassExample,
     PropertyExample,
     RewardedAdClassExample,
     RewardedAdHookExample,
 } from './views'
 import { AdropNavigatorObserver } from 'adrop-ads-react-native'
+import NativeAdExample from './views/NativeAdExample'
 
 const Stack = createStackNavigator()
 
@@ -38,6 +40,14 @@ export default function App() {
                 <Stack.Screen
                     name="RewardedAdClassExample"
                     component={RewardedAdClassExample}
+                />
+                <Stack.Screen
+                    name="PopupAdClassExample"
+                    component={PopupAdClassExample}
+                />
+                <Stack.Screen
+                    name="NativeAdExample"
+                    component={NativeAdExample}
                 />
                 <Stack.Screen
                     name="PropertyExample"

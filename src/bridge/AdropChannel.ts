@@ -10,6 +10,10 @@ export default class AdropChannel {
                 return `${this.methodChannel}/interstitial_${id}`
             case AdType.adropRewardedAd:
                 return `${this.methodChannel}/rewarded_${id}`
+            case AdType.adropPopupAd:
+                return `${this.methodChannel}/popup_${id}`
+            case AdType.adropNativeAd:
+                return `${this.methodChannel}/native_${id}`
             default:
                 return ''
         }

@@ -21,6 +21,9 @@ const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
     const showRewardedAdClassExample = () =>
         navigation.navigate('RewardedAdClassExample')
 
+    const showPopupAdExample = () => navigation.navigate('PopupAdClassExample')
+
+    const showNativeAdExample = () => navigation.navigate('NativeAdExample')
     const showPropertyExample = () => navigation.navigate('PropertyExample')
 
     return (
@@ -50,6 +53,18 @@ const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
                 <Button
                     title={'RewardedAd Class Example'}
                     onPress={showRewardedAdClassExample}
+                />
+            </View>
+            <View style={styles.button}>
+                <Button
+                    title={'PopupAd Class Example'}
+                    onPress={showPopupAdExample}
+                />
+            </View>
+            <View style={styles.button}>
+                <Button
+                    title={'NativeAd Class Example'}
+                    onPress={showNativeAdExample}
                 />
             </View>
             <View style={styles.button}>

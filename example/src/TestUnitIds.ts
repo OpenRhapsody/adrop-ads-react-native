@@ -3,5 +3,8 @@ export const testUnitId_80 = 'PUBLIC_TEST_UNIT_ID_375_80'
 export const testUnitId_100 = 'PUBLIC_TEST_UNIT_ID_320_100'
 export const testUnitId_interstitialAd = 'PUBLIC_TEST_UNIT_ID_INTERSTITIAL'
 export const testUnitId_rewarded = 'PUBLIC_TEST_UNIT_ID_REWARDED'
+export const testUnitId_popup_bottom = 'PUBLIC_TEST_UNIT_ID_POPUP_BOTTOM'
+export const testUnitId_popup_dialog = 'PUBLIC_TEST_UNIT_ID_POPUP_CENTER'
 
+export const testUnitId_native = 'PUBLIC_TEST_UNIT_ID_NATIVE'
 export const testUnitId = 'TEST_UNIT_ID'

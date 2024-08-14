@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, StyleSheet, Text, View } from 'react-native'
-import { AdropRewardedAd } from 'adrop-ads-react-native'
+import { type AdropListener, AdropRewardedAd } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_rewarded } from '../TestUnitIds'
 import { descriptionOf } from '../utils/Utils'
 
@@ -11,7 +11,7 @@ const RewardedAdClassExample: React.FC = () => {
     const [rewardedAd, setRewardedAd] = useState<AdropRewardedAd>()
 
     const disabledReset = !(errorCode || isShown)
-    const listener: any = useMemo(() => {
+    const listener: AdropListener = useMemo(() => {
         return {
             onAdClicked: (ad: AdropRewardedAd) =>
                 console.log(`rewardedAd clicked ${ad.unitId}`),
@@ -36,7 +36,7 @@ const RewardedAdClassExample: React.FC = () => {
                 console.log(
                     `rewardedAd earn reward ${ad.unitId} ${type}, ${amount}`
                 ),
-        }
+        } as AdropListener
     }, [])
 
     useEffect(() => {

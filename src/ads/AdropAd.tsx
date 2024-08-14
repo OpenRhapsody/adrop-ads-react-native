@@ -1,21 +1,25 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
 import AdropNavigatorObserver from '../observer'
+import { nanoid } from '../utils/id'
 
 export enum AdType {
     adropInterstitialAd = 'AdropInterstitialAd',
     adropRewardedAd = 'AdropRewardedAd',
+    adropPopupAd = 'AdropPopupAd',
+    adropNativeAd = 'AdropNativeAd',
 }
 
 type AdropEvent = {
     unitId: string
     method: string
+    creativeId?: string
     errorCode?: string
     type?: number
     amount?: number
 }
 
-type AdropListener = {
+export type AdropListener = {
     onAdReceived?: (ad: AdropAd) => void
     onAdClicked?: (ad: AdropAd) => void
     onAdImpression?: (ad: AdropAd) => void
@@ -33,13 +37,14 @@ export abstract class AdropAd {
     protected _unitId: string
     protected _loaded: boolean
     protected _requestId: string = ''
+    protected _creativeId: string = ''
     public listener?: AdropListener
 
     protected constructor(adType: AdType, unitId: string) {
         this._adType = adType
         this._unitId = unitId
         this._loaded = false
-        this._requestId = this.nanoid()
+        this._requestId = nanoid()
 
         this.getNativeModule().create(this.unitId, this._requestId)
         new NativeEventEmitter(this.getEventEmitter()).addListener(
@@ -64,6 +69,10 @@ export abstract class AdropAd {
         this.getNativeModule().show(this.unitId, this._requestId)
     }
 
+    protected customize(data: Record<string, any>) {
+        this.getNativeModule().customize(this._requestId, data)
+    }
+
     public destroy() {
         this.getNativeModule().destroy(this._requestId)
     }
@@ -72,6 +81,7 @@ export abstract class AdropAd {
         switch (event.method) {
             case AdropMethod.didReceiveAd:
                 this._loaded = true
+                this._creativeId = event.creativeId ?? ''
                 this.listener?.onAdReceived?.(this)
                 break
             case AdropMethod.didClickAd:
@@ -124,27 +134,6 @@ export abstract class AdropAd {
 
     private getChannel(requestId: string): string {
         return AdropChannel.adropEventListenerChannel(this._adType, requestId)
-    }
-
-    private nanoid = (t: number = 21): string => {
-        const randomNumberList = []
-        for (let i = 0; i < t; i++) {
-            const randomNumber = Math.floor(Math.random() * 61) + 1
-            randomNumberList.push(randomNumber)
-        }
-
-        /* eslint-disable no-bitwise */
-        return Array.from(new Uint8Array(randomNumberList))
-            .map((e) => {
-                e &= 63
-                return e < 36
-                    ? e.toString(36)
-                    : e < 62
-                    ? (e - 26).toString(36).toUpperCase()
-                    : ''
-            })
-            .join('')
-        /* eslint-enable no-bitwise */
     }
 
     private invokeAttach() {

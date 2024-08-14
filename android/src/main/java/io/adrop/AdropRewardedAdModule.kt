@@ -4,6 +4,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.rewardedAd.AdropRewardedAd
@@ -50,6 +51,9 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun customize(requestId: String, data: ReadableMap? = null) {}
+
+    @ReactMethod
     fun destroy(requestId: String) {
         _rewardedAds.remove(requestId)?.let {
             it.destroy()
@@ -65,12 +69,14 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
         unitId: String,
         requestId: String,
         method: String,
+        creativeId: String? = null,
         errorCode: String? = null
     ) {
         reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
                 putString("unitId", unitId)
                 putString("method", method)
+                putString("creativeId", creativeId)
                 putString("errorCode", errorCode)
             })
     }
@@ -86,11 +92,11 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     }
 
     override fun onAdFailedToReceive(ad: AdropRewardedAd, errorCode: AdropErrorCode) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode.name)
+        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
     }
 
     override fun onAdReceived(ad: AdropRewardedAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_RECEIVE_AD)
+        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_RECEIVE_AD, creativeId = ad.creativeId)
     }
 
     override fun onAdClicked(ad: AdropRewardedAd) {
@@ -114,7 +120,7 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
             ad.unitId,
             requestIdFor(ad),
             AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-            errorCode.name
+            errorCode = errorCode.name
         )
     }
 

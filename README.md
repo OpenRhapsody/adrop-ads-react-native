@@ -148,6 +148,9 @@ The Ad unit’s unique identifier to reference in your code. This setting is rea
 > * PUBLIC_TEST_UNIT_ID_320_100
 > * PUBLIC_TEST_UNIT_ID_INTERSTITIAL
 > * PUBLIC_TEST_UNIT_ID_REWARDED
+> * PUBLIC_TEST_UNIT_ID_POPUP_BOTTOM
+> * PUBLIC_TEST_UNIT_ID_POPUP_CENTER
+> * PUBLIC_TEST_UNIT_ID_NATIVE
 
 ### Display Ads
 <details>
@@ -330,6 +333,157 @@ const YourComponent: React.FC = () => {
         <View>
             <Button title="load ad" onPress={load}/>
             <Button title="display ad" onPress={handleShow}/>
+        </View>
+    )
+}
+```
+
+</details>
+
+
+<br/>
+
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Rewarded Ad (Class)</summary>
+
+Step 1: (Optional) Construct event listener
+```js
+const listener = {
+        onAdReceived: (ad: AdropRewardedAd) =>
+            console.log(`Adrop rewarded Ad load with unitId ${ad.unitId}!`),
+        onAdFailedToReceive: (ad: AdropRewardedAd, errorCode: string) =>
+            console.log(`error in ${ad.unitId} while load: ${errorCode}`),
+        onAdFailedToShowFullScreen: (ad: AdropRewardedAd, errorCode: string) =>
+            console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
+        onAdEarnRewardHandler: (ad: AdropRewardedAd, type: number, amount: number) =>
+            console.log(`Adrop rewarded Ad earn rewards: ${ad.unitId}, ${type}, ${amount}`),
+        ...
+    }
+```
+
+Step 2: Display a rewarded ad
+```js
+const YourComponent: React.FC = () => {
+    const [rewardedAd, setRewardedAd] = useState<AdropRewardedAd>(null)
+
+    useEffect(() => {
+        let adropRewardedAd = new AdropRewardedAd('YOUR_UNIT_ID')
+        adropRewardedAd.listener = listener
+        adropRewardedAd.load()
+        setRewardedAd(adropRewardedAd)
+    }, []);
+
+    const show = () => {
+        if (rewardedAd?.isLoaded) {
+            rewardedAd?.show()
+        } else {
+            console.log('rewarded ad is loading...')
+        }
+    }
+
+    return (
+        <View>
+            <Button title="display ad" onPress={show}/>
+        </View>
+    )
+
+}
+```
+
+AdropRewardedAd must be destroyed of when access to it is no longer needed.
+```js
+rewardedAd.destroy()
+```
+</details>
+
+<br/>
+
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Popup Ad</summary>
+
+```js
+const YourComponent: React.FC = () => {
+    const [popupAd, setPopupAd] = useState<AdropPopupAd>()
+    const [isLoaded, setIsLoaded] = useState(false)
+
+    useEffect(() => {
+        let customColors: AdropPopupAdColors = {}
+        let adropPopupAd = new AdropPopupAd(unitId, customColors)
+        adropPopupAd.listener = {
+            onAdReceived: (ad: AdropPopupAd) => {
+                setIsLoaded(true)
+            }
+        }
+        adropPopupAd.load()
+        setPopupAd((prev) => {
+            prev?.destroy()
+            return adropPopupAd
+        })
+    }, [])
+
+    const show = () => {
+        if (popupAd?.isLoaded) {
+            popupAd?.show()
+        } else {
+            console.log('popupAd ad is loading...')
+        }
+    }
+
+    return (
+        <View>
+            <Button title="display ad" onPress={show}/>
+        </View>
+    )
+}
+```
+
+</details>
+
+<br/>
+
+<details>
+<summary style="font-size: 16px; font-weight: bold;">Native Ad</summary>
+
+```js
+const YourComponent: React.FC = () => {
+    const [nativeAd, setNativeAd] = useState<AdropNativeAd>()
+    const [isLoaded, setIsLoaded] = useState(false)
+
+    useEffect(() => {
+        let adropNativeAd = new AdropNativeAd(unitId)
+        adropNativeAd.listener = {
+            onAdReceived: (ad) => {
+                setIsLoaded(true)
+            },
+        }
+        adropNativeAd.load()
+        setNativeAd((prev) => {
+            prev?.destroy()
+            return adropNativeAd
+        })
+    }, [])
+
+    const nativeAdView = (
+        <AdropNativeAdView
+            nativeAd={nativeAd}
+            style={...}
+        >
+            <View>
+                <AdropProfileLogoView style={...}/>
+                <AdropProfileNameView style={...}/>
+            </View>
+
+            <AdropHeadLineView  style={...}/>
+            <AdropBodyView  style={...}/>
+
+            <AdropMediaView style={...}/>
+        </AdropNativeAdView>
+    )
+
+    return (
+        <View>
+            <Button title="load ad" onPress={load}/>
+            {isLoaded && nativeAdView}
         </View>
     )
 }

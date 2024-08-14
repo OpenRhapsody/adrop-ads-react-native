@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, StyleSheet, Text, View } from 'react-native'
-import { AdropInterstitialAd } from 'adrop-ads-react-native'
+import { AdropInterstitialAd, type AdropListener } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_interstitialAd } from '../TestUnitIds'
 import { descriptionOf } from '../utils/Utils'
 
@@ -12,7 +12,7 @@ const InterstitialAdClassExample: React.FC = () => {
 
     const disabledReset = !(errorCode || isShown)
 
-    const listener: any = useMemo(() => {
+    const listener: AdropListener = useMemo(() => {
         return {
             onAdClicked: (ad: AdropInterstitialAd) =>
                 console.log(`interstitialAd clicked ${ad.unitId}`),
@@ -31,7 +31,7 @@ const InterstitialAdClassExample: React.FC = () => {
                 console.log(`interstitialAd present ${ad.unitId}`),
             onAdFailedToShowFullScreen: (_: AdropInterstitialAd, error: any) =>
                 setErrorCode(error),
-        }
+        } as AdropListener
     }, [])
 
     useEffect(() => {

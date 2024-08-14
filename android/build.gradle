@@ -77,17 +77,19 @@ android {
     }
 }
 
-repositories {
-    mavenCentral()
-    google()
-}
-
 def kotlin_version = getExtOrDefault("kotlinVersion")
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
 
 dependencies {
     implementation "com.facebook.react:react-android:0.71.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    implementation "io.adrop:adrop-ads:0.4.4"
+    implementation "io.adrop:adrop-ads:0.5.5"
 }
 

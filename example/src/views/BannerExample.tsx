@@ -24,10 +24,10 @@ const BannerExample: React.FC = () => {
         setEmptyErrorCode('')
     }
 
-    const onAdClicked = (unitId: string) =>
-        console.log('banner clicked', unitId)
-    const onAdReceived = (unitId: string) =>
-        console.log('banner received', unitId)
+    const onAdClicked = (unitId: string, creativeId: string) =>
+        console.log('banner clicked', unitId, creativeId)
+    const onAdReceived = (unitId: string, creativeId: string) =>
+        console.log('banner received', unitId, creativeId)
     const onAdFailedToReceive = (unitId: string, error?: string) => {
         console.log('banner onAdFailedToReceive', unitId, error)
         setErrorCode(error ?? '')
@@ -57,7 +57,7 @@ const BannerExample: React.FC = () => {
             {errorCode && (
                 <>
                     <Text style={styles.error}>{errorCode}</Text>
-                    <Text>{descriptionOf(errorCode)}</Text>
+                    <Text style={styles.error}>{descriptionOf(errorCode)}</Text>
                 </>
             )}
 
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     error: {
         marginVertical: 2,
         color: 'black',
+        textAlign: 'center',
     },
     divider: {
         width: '100%',

@@ -24,8 +24,8 @@ type AdropBannerNativeProp = {
 
 type AdropBannerProp = AdropBannerNativeProp & {
     autoLoad?: boolean
-    onAdReceived?: (unitId: string) => void
-    onAdClicked?: (unitId: string) => void
+    onAdReceived?: (unitId: string, creativeId: string) => void
+    onAdClicked?: (unitId: string, creativeId: string) => void
     onAdFailedToReceive?: (unitId: string, errorCode?: any) => void
 }
 
@@ -78,7 +78,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
         const handleAdClicked = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
-                onAdClicked?.(unitId)
+                onAdClicked?.(unitId, event.creativeId ?? '')
             },
             [onAdClicked, validateView, unitId]
         )
@@ -95,7 +95,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
         const handleAdReceived = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
-                onAdReceived?.(unitId)
+                onAdReceived?.(unitId, event.creativeId ?? '')
                 isLoaded.current = true
                 invoke()
             },

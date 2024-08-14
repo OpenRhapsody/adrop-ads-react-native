@@ -4,6 +4,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import io.adrop.ads.interstitial.AdropInterstitialAd
 import io.adrop.ads.interstitial.AdropInterstitialAdListener
@@ -45,6 +46,9 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun customize(requestId: String, data: ReadableMap? = null) {}
+
+    @ReactMethod
     fun destroy(requestId: String) {
         _interstitialAds.remove(requestId)?.let {
             it.destroy()
@@ -60,22 +64,24 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
         unitId: String,
         requestId: String,
         method: String,
+        creativeId: String? = null,
         errorCode: String? = null
     ) {
         reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
                 putString("unitId", unitId)
                 putString("method", method)
+                putString("creativeId", creativeId)
                 putString("errorCode", errorCode)
             })
     }
 
     override fun onAdFailedToReceive(ad: AdropInterstitialAd, errorCode: AdropErrorCode) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode.name)
+        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
     }
 
     override fun onAdReceived(ad: AdropInterstitialAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_RECEIVE_AD)
+        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_RECEIVE_AD, creativeId = ad.creativeId)
     }
 
     override fun onAdClicked(ad: AdropInterstitialAd) {
@@ -99,7 +105,7 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
             ad.unitId,
             requestIdFor(ad),
             AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-            errorCode.name
+            errorCode = errorCode.name
         )
     }
 
