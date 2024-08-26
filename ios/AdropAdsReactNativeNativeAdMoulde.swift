@@ -40,7 +40,7 @@ class AdropAdsReactNativeNativeAdMoulde: RCTEventEmitter, AdropNativeAdDelegate 
                           "advertiser": ad.advertiser, "callToAction": ad.callToAction,
                           "creative": ad.creative, "creativeId": ad.creativeId,
                           "profileName": ad.profile.displayName, "profileLogo": ad.profile.displayLogo,
-                          "extra": dictionaryToJSONString(ad.extra)
+                          "extra": dictionaryToJSONString(ad.extra), "asset": ad.asset
                         ])
     }
 

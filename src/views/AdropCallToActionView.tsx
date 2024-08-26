@@ -15,8 +15,10 @@ const AdropCallToActionView: React.FC<TextProps> = (props) => {
     const callToActionRef = useRef(null)
     const onLayout = useCallback(() => {
         nativeAdView?.setNativeProps({
-            callToAction: findNodeHandle(callToActionRef.current) ?? 0,
-            requestId: { id: nativeAd?.requestId },
+            callToAction: {
+                tag: findNodeHandle(callToActionRef.current) ?? 0,
+                requestId: { id: nativeAd?.requestId },
+            },
         })
     }, [nativeAd, nativeAdView])
 

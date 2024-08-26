@@ -14,6 +14,7 @@ export type AdropNativeProperties = {
     headline?: string
     body?: string
     creative?: string
+    asset?: string
     destinationURL?: string
     advertiserURL?: string
     accountTag?: string
@@ -100,6 +101,7 @@ export default class AdropNativeAd {
                 displayName: (this._event as any).profileName ?? '',
                 displayLogo: (this._event as any).profileLogo ?? '',
             },
+            asset: this._event?.asset,
         }
     }
 

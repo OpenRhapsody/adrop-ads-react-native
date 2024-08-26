@@ -9,7 +9,7 @@ Prerequisites
 * Install your preferred [editor or IDE](https://reactnative.dev/docs/more-resources#ides).
 * Make sure that your app meets the following requirements:
     * React Native
-      * 0.71 or higher
+        * 0.71 or higher
     * **Android**
         * Targets API level 23 (M) or higher
         * Uses Android 6.0 or higher
@@ -39,9 +39,9 @@ To use Adrop in your React Native app, you need to register your app with your A
 1. Go to the Adrop console.
 2. In the center of the project app page, click the **React** icon button to launch the setup workflow.
 3. Enter your app's package name in the **React package name** field.
-   * A [package name](https://developer.android.com/studio/build/application-id) uniquely identifies your app on the device and in the Google Play Store or App Store.
-   * A package name is often referred to as an application ID.
-   * Be aware that the package name value is case-sensitive, and it cannot be changed for this Adrop React app after it's registered with your Adrop project.
+    * A [package name](https://developer.android.com/studio/build/application-id) uniquely identifies your app on the device and in the Google Play Store or App Store.
+    * A package name is often referred to as an application ID.
+    * Be aware that the package name value is case-sensitive, and it cannot be changed for this Adrop React app after it's registered with your Adrop project.
 4. Enter other app information: **App nickname**.
     * **App nickname**: An internal, convenience identifier that is only visible to you in the Adrop console
 5. Click **Register app** and then Android and Apple apps will be created respectively.
@@ -65,23 +65,23 @@ To use Adrop in your React Native app, you need to register your app with your A
     ```
 
 2. Altering CocoaPods to use frameworks
-Open the file ```./ios/Podfile``` and add this line inside your targets
+   Open the file ```./ios/Podfile``` and add this line inside your targets
 
     ```shell
     use_frameworks!
     ```
 
-    > **Note**
-    >
-    > **adrop-ads-react-native** uses use_frameworks, which has compatibility issues with Flipper.
-    >
-    > **Flipper**: use_frameworks [is not compatible with Flipper](https://github.com/reactwg/react-native-releases/discussions/21#discussioncomment-2924919). You need to disable Flipper by commenting out the :flipper_configuration line in your Podfile.
+   > **Note**
+   >
+   > **adrop-ads-react-native** uses use_frameworks, which has compatibility issues with Flipper.
+   >
+   > **Flipper**: use_frameworks [is not compatible with Flipper](https://github.com/reactwg/react-native-releases/discussions/21#discussioncomment-2924919). You need to disable Flipper by commenting out the :flipper_configuration line in your Podfile.
 
 3. Autolinking & rebuilding
 
-    Once the above steps have been completed, the React Native Adrop library must be linked to your project and your application needs to be rebuilt.
+   Once the above steps have been completed, the React Native Adrop library must be linked to your project and your application needs to be rebuilt.
 
-    Users on React Native 0.60+ automatically have access to "[autolinking](https://github.com/react-native-community/cli/blob/master/docs/autolinking.md)", requiring no further manual installation steps. To automatically link the package, rebuild your project:
+   Users on React Native 0.60+ automatically have access to "[autolinking](https://github.com/react-native-community/cli/blob/master/docs/autolinking.md)", requiring no further manual installation steps. To automatically link the package, rebuild your project:
 
     ```shell
     # Android apps
@@ -102,13 +102,6 @@ The final step is to add initialization code to your application.
 
     // ..
     Adrop.initialize(production);
-    ```
-
-2. Add **AdropNavigatorObserver** to measure the frequency of ad impressions if you use **@react-navigation**
-    ```js
-    <NavigationContainer
-        onStateChange={AdropNavigatorObserver.onStateChange}
-    >
     ```
 
 ### (Optional) Troubleshooting

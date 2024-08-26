@@ -51,6 +51,8 @@ const NativeAdExample: React.FC = () => {
                 prev?.destroy()
                 return adropNativeAd
             })
+            setIsLoaded(false)
+            setErrorCode('')
         },
         [listener]
     )
@@ -63,17 +65,10 @@ const NativeAdExample: React.FC = () => {
 
     const resetTestAd = () => {
         initialize(testUnitId_native)
-        resetState()
     }
 
     const resetEmptyAd = () => {
         initialize(testUnitId)
-        resetState()
-    }
-
-    const resetState = () => {
-        setIsLoaded(false)
-        setErrorCode('')
     }
 
     const adView = useMemo(() => {

@@ -17,7 +17,7 @@ const AdropProfileNameView: React.FC<TextProps> = (props) => {
         const tag = findNodeHandle(viewRef.current) ?? 0
         tag > 0 &&
             nativeAdView?.setNativeProps({
-                body: {
+                profileName: {
                     tag: findNodeHandle(viewRef.current) ?? 0,
                     requestId: nativeAd?.requestId,
                 },
@@ -32,10 +32,8 @@ const AdropProfileNameView: React.FC<TextProps> = (props) => {
         () => nativeAd?.properties.profile?.displayName,
         [nativeAd]
     )
-    console.log('profile name', nativeAd?.properties.profile, content)
 
     if (!content) return null
-
     return (
         <Text {...props} ref={viewRef} onLayout={onLayout}>
             {content}

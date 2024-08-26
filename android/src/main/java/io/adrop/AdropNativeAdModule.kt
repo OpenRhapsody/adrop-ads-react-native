@@ -69,6 +69,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
                 putString("profileName", ad.profile.displayName)
                 putString("profileLogo", ad.profile.displayLogo)
                 putString("extra", ad.extra.toString())
+                putString("asset", ad.asset)
             })
     }
 

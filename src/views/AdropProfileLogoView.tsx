@@ -36,7 +36,7 @@ const AdropProfileLogoView: React.FC<IconViewProps> = (props) => {
         () => nativeAd?.properties.profile?.displayLogo,
         [nativeAd]
     )
-    console.log('profile src', nativeAd?.properties.profile, src)
+
     if (!src) return null
     return (
         <Image

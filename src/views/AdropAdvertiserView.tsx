@@ -5,8 +5,8 @@ import React, {
     useMemo,
     useRef,
 } from 'react'
-import { findNodeHandle, Text } from 'react-native'
 import type { TextProps } from 'react-native'
+import { findNodeHandle, Text } from 'react-native'
 import { AdropNativeContext } from '../contexts/AdropNativeContext'
 
 const AdropAdvertiserView: React.FC<TextProps> = (props) => {
@@ -15,8 +15,10 @@ const AdropAdvertiserView: React.FC<TextProps> = (props) => {
     const advertiserRef = useRef(null)
     const onLayout = useCallback(() => {
         nativeAdView?.setNativeProps({
-            advertiser: findNodeHandle(advertiserRef.current) ?? 0,
-            requestId: nativeAd?.requestId,
+            advertiser: {
+                tag: findNodeHandle(advertiserRef.current) ?? 0,
+                requestId: nativeAd?.requestId,
+            },
         })
     }, [nativeAd, nativeAdView])
 
