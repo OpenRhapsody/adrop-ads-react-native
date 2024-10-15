@@ -1,5 +1,5 @@
-import React from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useState } from 'react'
+import { Button, StyleSheet, Text, TextInput, View } from 'react-native'
 import {
     AdropMetrics,
     AdropGender,
@@ -7,6 +7,42 @@ import {
 } from 'adrop-ads-react-native'
 
 const PropertyExample: React.FC<{ navigation: any }> = () => {
+    const [key, setKey] = useState('')
+    const [value, setValue] = useState('')
+
+    const onChangeKey = useCallback((text: string) => {
+        console.log('key', text)
+        setKey(text)
+    }, [])
+
+    const onChangeValue = useCallback((text: string) => {
+        console.log('value', text)
+        setValue(text)
+    }, [])
+
+    const sendProperty = useCallback(async () => {
+        if (value.trim() === '') {
+            await AdropMetrics.setProperty(key, null)
+        } else if (
+            value.toLowerCase() === 'true' ||
+            value.toLowerCase() === 'false'
+        ) {
+            console.log('boolean value', value)
+            await AdropMetrics.setProperty(key, value.toLowerCase() === 'true')
+        } else if (
+            !isNaN(parseInt(value, 10)) &&
+            Number.isInteger(Number(value))
+        ) {
+            console.log('int value', value)
+            await AdropMetrics.setProperty(key, parseInt(value, 10))
+        } else if (!isNaN(parseFloat(value))) {
+            console.log('float value', value)
+            await AdropMetrics.setProperty(key, parseFloat(value))
+        } else {
+            await AdropMetrics.setProperty(key, value)
+        }
+    }, [key, value])
+
     const setAge = (age: number) => {
         AdropMetrics.setProperty(AdropProperties.AGE, age.toString())
     }
@@ -38,6 +74,27 @@ const PropertyExample: React.FC<{ navigation: any }> = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.inputRow}>
+                <Text style={styles.key}>Key</Text>
+                <TextInput
+                    style={styles.input}
+                    value={key}
+                    placeholder={'key'}
+                    placeholderTextColor={'grey'}
+                    onChangeText={onChangeKey}
+                />
+            </View>
+            <View style={styles.inputRow}>
+                <Text style={styles.key}>Value</Text>
+                <TextInput
+                    style={styles.input}
+                    value={value}
+                    placeholder={'value (string, int, double, boolean)'}
+                    placeholderTextColor={'grey'}
+                    onChangeText={onChangeValue}
+                />
+            </View>
+            <Button title="Set Property" onPress={sendProperty} />
             <Text style={styles.header}>Gender</Text>
             <View style={styles.row}>
                 <Button
@@ -97,5 +154,25 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    inputRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        paddingHorizontal: 16,
+        marginBottom: 4,
+    },
+    key: {
+        marginRight: 8,
+        color: 'black',
+    },
+    input: {
+        width: 200,
+        borderWidth: 1,
+        borderColor: 'black',
+        borderStyle: 'solid',
+        padding: 4,
+        color: 'black',
     },
 })

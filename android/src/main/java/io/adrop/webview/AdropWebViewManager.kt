@@ -1,6 +1,5 @@
 package io.adrop.webview
 
-import android.util.Log
 import android.graphics.Color
 import android.webkit.WebView
 import android.webkit.WebViewClient

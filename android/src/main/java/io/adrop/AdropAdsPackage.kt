@@ -16,7 +16,6 @@ class AdropAdsPackage : ReactPackage {
             AdropInterstitialAdModule(reactContext),
             AdropRewardedAdModule(reactContext),
             AdropMetricsModule(reactContext),
-            AdropAdsPageTrackerModule(reactContext),
             AdropPopupAdModule(reactContext),
             AdropNativeAdModule(reactContext)
         )

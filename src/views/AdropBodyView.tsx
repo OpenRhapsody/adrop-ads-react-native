@@ -28,12 +28,6 @@ const AdropBodyView: React.FC<TextProps> = (props) => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    useEffect(() => {
-        return () => {
-            console.log('bodyview unmount')
-        }
-    }, [])
-
     const content = useMemo(() => nativeAd?.properties.body, [nativeAd])
     if (!content) return null
 

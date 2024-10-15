@@ -1,6 +1,5 @@
 package io.adrop.native
 
-import android.util.Log
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout

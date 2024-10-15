@@ -4,6 +4,7 @@
 
 RCT_EXTERN_METHOD(initialize:(BOOL)production
                   targetCountries:(NSArray<NSString *> *)targetCountries
+                  useInAppBrowser:(BOOL) useInAppBrowser
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 

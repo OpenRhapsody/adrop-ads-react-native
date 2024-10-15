@@ -16,7 +16,7 @@ class AdropAdsModule(reactContext: ReactApplicationContext) :
         return NAME
     }
     @ReactMethod
-    fun initialize(production: Boolean, targetCountries: ReadableArray) {
+    fun initialize(production: Boolean, targetCountries: ReadableArray, useInAppBrowser: Boolean) {
         val context = reactApplicationContext.applicationContext
         if (context is Application) {
             val countries = Array(targetCountries.size()) { index -> targetCountries.getString(index) ?: "" }
