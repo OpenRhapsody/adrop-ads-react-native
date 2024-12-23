@@ -1,4 +1,10 @@
-import { type Reducer, useCallback, useEffect, useReducer } from 'react'
+import {
+    type Reducer,
+    useCallback,
+    useEffect,
+    useMemo,
+    useReducer,
+} from 'react'
 import { AdropInterstitialAd, AdropRewardedAd } from '../ads'
 
 interface AdHookReturns {
@@ -13,6 +19,7 @@ interface AdStates {
     isEarnRewarded: boolean
     isLoaded: boolean
     isOpened: boolean
+    isReady: boolean
     errorCode?: string
     reward?: { type: number; amount: number }
 }
@@ -23,6 +30,7 @@ const initState: AdStates = {
     isEarnRewarded: false,
     isLoaded: false,
     isOpened: false,
+    isReady: false,
     errorCode: undefined,
     reward: undefined,
 }
@@ -34,7 +42,13 @@ function useAdropFullScreenAd<
         Reducer<AdStates, Partial<AdStates>>
     >((prevState, newState) => ({ ...prevState, ...newState }), initState)
 
-    const load = useCallback(() => ad?.load(), [ad])
+    const isReady = useMemo(() => states.isReady, [states])
+
+    const load = useCallback(() => {
+        if (isReady) {
+            ad?.load()
+        }
+    }, [ad, isReady])
 
     const show = useCallback(() => ad?.show(), [ad])
 
@@ -44,6 +58,7 @@ function useAdropFullScreenAd<
 
     useEffect(() => {
         if (ad) {
+            setStates({ isReady: true })
             ad.listener = {
                 onAdReceived: (_) => {
                     setStates({ isLoaded: true, errorCode: '' })
@@ -73,6 +88,10 @@ function useAdropFullScreenAd<
             }
         } else {
             setStates(initState)
+        }
+
+        return () => {
+            ad?.destroy()
         }
     }, [ad])
 

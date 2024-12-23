@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.rewardedAd.AdropRewardedAd
 import io.adrop.ads.rewardedAd.AdropRewardedAdListener
@@ -72,7 +73,7 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
         creativeId: String? = null,
         errorCode: String? = null
     ) {
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
                 putString("unitId", unitId)
                 putString("method", method)
@@ -82,7 +83,7 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     }
 
     private fun sendEarnEvent(unitId: String, requestId: String, type: Int, amount: Int) {
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
                 putString("unitId", unitId)
                 putString("method", AdropMethod.HANDLE_EARN_REWARD)

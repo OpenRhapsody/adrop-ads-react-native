@@ -4,6 +4,8 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter
+import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
@@ -54,7 +56,7 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
     override fun onAdImpression(banner: AdropBanner) {}
 
     private fun sendEvent(viewTag: Int, method: String, creativeId: String? = null, errorCode: String? = null) {
-        context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        context.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeBannerChannel, Arguments.createMap().apply {
                 putString("method", method)
                 putString("errorCode", errorCode)

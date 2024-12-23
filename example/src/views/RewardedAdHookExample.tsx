@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Button, StyleSheet, Text, View } from 'react-native'
 import { testUnitId, testUnitId_rewarded } from '../TestUnitIds'
 import { useAdropRewardedAd } from 'adrop-ads-react-native'
@@ -7,24 +7,30 @@ import { descriptionOf } from '../utils/Utils'
 const RewardedAdHookExample: React.FC = () => {
     const [unitId, setUnitId] = useState(testUnitId_rewarded)
 
-    const { load, show, errorCode, reset, isLoaded, isOpened } =
+    const { load, show, errorCode, reset, isLoaded, isOpened, isReady } =
         useAdropRewardedAd(unitId)
     const disabledReset = !(isOpened || errorCode)
 
-    const resetTestAd = () => {
+    const loadAd = useCallback(() => {
+        if (isReady) {
+            load()
+        }
+    }, [isReady, load])
+
+    const resetTestAd = useCallback(() => {
         reset()
         setUnitId(testUnitId_rewarded)
-    }
+    }, [reset])
 
-    const resetEmptyAd = () => {
+    const resetEmptyAd = useCallback(() => {
         reset()
         setUnitId(testUnitId)
-    }
+    }, [reset])
 
     return (
         <View style={styles.container}>
             <View style={styles.button}>
-                <Button title={'rewardedAd load'} onPress={load} />
+                <Button title={'rewardedAd load'} onPress={loadAd} />
             </View>
             <View style={styles.button}>
                 <Button

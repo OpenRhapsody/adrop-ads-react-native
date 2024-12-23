@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.interstitial.AdropInterstitialAd
 import io.adrop.ads.interstitial.AdropInterstitialAdListener
 import io.adrop.ads.model.AdropErrorCode
@@ -67,7 +68,7 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
         creativeId: String? = null,
         errorCode: String? = null
     ) {
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
                 putString("unitId", unitId)
                 putString("method", method)

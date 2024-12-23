@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
-import com.adropadsreactnative.R
+import io.adrop.R
 import io.adrop.ads.nativeAd.AdropNativeAdView
 import io.adrop.ads.nativeAd.AdropNativeAd
 import io.adrop.ads.nativeAd.AdropMediaView

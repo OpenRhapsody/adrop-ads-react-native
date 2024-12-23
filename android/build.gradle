@@ -44,7 +44,7 @@ def supportsNamespace() {
 
 android {
     if (supportsNamespace()) {
-        namespace "com.adropadsreactnative"
+        namespace "io.adrop"
 
         sourceSets {
             main {
@@ -58,7 +58,7 @@ android {
     defaultConfig {
         minSdkVersion getExtOrIntegerDefault("minSdkVersion")
         targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
-
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -90,6 +90,6 @@ dependencies {
     implementation "com.facebook.react:react-android:0.71.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    implementation "io.adrop:adrop-ads:[0.6, 1.0)"
+    implementation "io.adrop:adrop-ads:[1.0, 1.2)"
 }
 

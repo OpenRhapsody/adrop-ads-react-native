@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.nativeAd.AdropNativeAd
 import io.adrop.ads.nativeAd.AdropNativeAdListener
@@ -48,7 +49,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
         method: String,
         errorCode: String? = null
     ) {
-        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        reactContext.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeNativeChannelOf(requestId), Arguments.createMap().apply {
                 putString("unitId", ad.unitId)
                 putString("method", method)

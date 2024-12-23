@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.popupAd.AdropPopupAd
 import io.adrop.ads.popupAd.AdropPopupAdListener
@@ -108,7 +109,7 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
         creativeIds: List<String>? = listOf(),
         errorCode: String? = null
     ) {
-        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokePopupChannelOf(requestId), Arguments.createMap().apply {
                 putString("unitId", unitId)
                 putString("method", method)
