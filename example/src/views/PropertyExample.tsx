@@ -41,6 +41,10 @@ const PropertyExample: React.FC<{ navigation: any }> = () => {
         } else {
             await AdropMetrics.setProperty(key, value)
         }
+
+        setTimeout(async () => {
+            console.log('saved properties', await AdropMetrics.properties())
+        }, 500)
     }, [key, value])
 
     const setAge = (age: number) => {

@@ -15,11 +15,12 @@ class AdropAdsModule(reactContext: ReactApplicationContext) :
     override fun getName(): String {
         return NAME
     }
+
     @ReactMethod
     fun initialize(production: Boolean, targetCountries: ReadableArray, useInAppBrowser: Boolean) {
         val context = reactApplicationContext.applicationContext
         if (context is Application) {
-            val countries = Array(targetCountries.size()) { index -> targetCountries.getString(index) ?: "" }
+            val countries = Array(targetCountries.size()) { index -> targetCountries.getString(index) }
             Adrop.initialize(context, production, countries)
         } else {
             throw Exception(AdropErrorCode.ERROR_CODE_INITIALIZE.name)

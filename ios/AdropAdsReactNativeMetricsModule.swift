@@ -24,6 +24,15 @@ class AdropAnalyticsModule: RCTEventEmitter {
         AdropMetrics.logEvent(name: name, params: encodableParams)
     }
     
+    @objc
+    func properties(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        do {
+            resolve(AdropMetrics.properties())
+        } catch {
+            resolve([:])
+        }
+    }
+    
     private func convertToEncodable(_ value: Any) -> Encodable? {
         switch value {
         case let stringValue as String:

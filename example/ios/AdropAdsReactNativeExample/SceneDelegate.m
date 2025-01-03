@@ -3,26 +3,29 @@
 #import <React/RCTRootView.h>
 #import <React/RCTBundleURLProvider.h>
 
+
 @implementation SceneDelegate
 
 - (void)scene:(UIScene*)scene
     willConnectToSession:(UISceneSession*)session
-                 options:(UISceneConnectionOptions*)connectionOptions {
+      options:(UISceneConnectionOptions*)connectionOptions {
     if (![scene isKindOfClass:[UIWindowScene class]]) {
         return;
     }
-
+    
     UIWindowScene *windowScene = (UIWindowScene *)scene;
-
+    
     RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:nil];
     RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"AdropAdsReactNativeExample" initialProperties:nil];
-
+    
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
-
+    
+    [Adrop initializeWithProduction:false useInAppBrowser:false targetCountries:nil];
+    
     UIViewController *rootViewController = [UIViewController new];
     rootViewController.view = rootView;
 
-   AdropSplashAdViewController *splashViewController = [[AdropSplashAdViewController alloc] initWithUnitId:@"PUBLIC_TEST_UNIT_ID_SPLASH"];
+    AdropSplashAdViewController *splashViewController = [[AdropSplashAdViewController alloc] initWithUnitId:@"PUBLIC_TEST_UNIT_ID_SPLASH" adRequestTimeout:1];
    splashViewController.backgroundColor = [UIColor colorWithWhite:1.0 alpha:1.0];
    splashViewController.logoImage = [UIImage imageNamed:@"splashLogo"];
    splashViewController.mainViewController = rootViewController;

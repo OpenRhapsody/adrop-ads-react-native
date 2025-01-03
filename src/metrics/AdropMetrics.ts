@@ -8,6 +8,20 @@ class AdropMetrics {
     static logEvent = (name: string, params?: Record<string, any>) => {
         NativeModules.AdropMetrics.logEvent(name, params)
     }
+
+    static properties = async (): Promise<Record<string, any>> => {
+        const properties = await NativeModules.AdropMetrics.properties()
+
+        if (
+            typeof properties === 'object' &&
+            properties !== null &&
+            !Array.isArray(properties)
+        ) {
+            return properties as Record<string, any>
+        }
+
+        return {}
+    }
 }
 
 export default AdropMetrics
