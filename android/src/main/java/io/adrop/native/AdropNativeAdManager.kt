@@ -36,7 +36,9 @@ object AdropNativeAdManager {
     }
 
     fun load(requestId: String) {
-        _nativeAds[requestId]?.load()
+        handler.post {
+            _nativeAds[requestId]?.load()
+        }
     }
 
     fun destroy(requestId: String) {
