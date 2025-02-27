@@ -15,8 +15,8 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
     
     @objc(load:requestId:)
     func load(_ unitId: String, _ requestId: String) -> Void {
-        if let rewardedAd = self._rewardedAds[requestId] {
-            DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            if let rewardedAd = self?._rewardedAds[requestId] {
                 rewardedAd.load()
             }
         }
@@ -24,23 +24,23 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
     
     @objc(show:requestId:)
     func show(_ unitId: String, _ requestId: String) -> Void {
-        DispatchQueue.main.async {
-            if let rewardedAd = self._rewardedAds[requestId], let viewController = RCTPresentedViewController() {
+        DispatchQueue.main.async { [weak self] in
+            if let rewardedAd = self?._rewardedAds[requestId], let viewController = RCTPresentedViewController() {
                 rewardedAd.show(fromRootViewController: viewController) { [weak self] type, amount in
                     guard let strongSelf = self else { return }
                     
                     strongSelf.sendEarnEvent(unitId: unitId,  requestId: requestId, method: AdropMethod.HANDLE_EARN_REWARD, type: type, amount: amount)
                 }
             } else {
-                self.sendAdEvent(unitId: unitId, requestId: requestId, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY))
+                self?.sendAdEvent(unitId: unitId, requestId: requestId, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY))
             }
         }
     }
     
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
-        DispatchQueue.main.async {
-            self._rewardedAds.removeValue(forKey: requestId)
+        DispatchQueue.main.async { [weak self] in
+            self?._rewardedAds.removeValue(forKey: requestId)
         }
     }
     
@@ -64,39 +64,39 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
     }
     
     func onAdReceived(_ ad: AdropRewardedAd) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.DID_RECEIVE_AD, creativeId: ad.creativeId)
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.DID_RECEIVE_AD, creativeId: ad.creativeId)
     }
     
     func onAdFailedToReceive(_ ad: AdropRewardedAd, _ errorCode: AdropErrorCode) {
-        sendAdEvent(unitId: ad.unitId,  requestId: self.requestIdFor(ad), method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode: AdropErrorCodeToString(code: errorCode))
+        sendAdEvent(unitId: ad.unitId,  requestId: requestIdFor(ad), method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode: AdropErrorCodeToString(code: errorCode))
     }
     
     func onAdImpression(_ ad: AdropRewardedAd) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.DID_IMPRESSION)
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.DID_IMPRESSION)
     }
     
     func onAdClicked(_ ad: AdropRewardedAd) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.DID_CLICK_AD)
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.DID_CLICK_AD)
     }
     
     func onAdWillPresentFullScreen(_ ad: AdropRewardedAd) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.WILL_PRESENT_FULL_SCREEN)
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.WILL_PRESENT_FULL_SCREEN)
     }
     
     func onAdDidPresentFullScreen(_ ad: AdropRewardedAd) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.DID_PRESENT_FULL_SCREEN)
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.DID_PRESENT_FULL_SCREEN)
     }
     
     func onAdWillDismissFullScreen(_ ad: AdropRewardedAd) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.WILL_DISMISS_FULL_SCREEN)
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.WILL_DISMISS_FULL_SCREEN)
     }
     
     func onAdDidDismissFullScreen(_ ad: AdropRewardedAd) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.DID_DISMISS_FULL_SCREEN)
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.DID_DISMISS_FULL_SCREEN)
     }
     
     func onAdFailedToShowFullScreen(_ ad: AdropRewardedAd, _ errorCode: AdropErrorCode) {
-        sendAdEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: errorCode))
+        sendAdEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: errorCode))
     }
     
     override class func requiresMainQueueSetup() -> Bool {

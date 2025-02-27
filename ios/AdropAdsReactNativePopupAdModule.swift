@@ -22,41 +22,42 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
             self._popupAds[requestId] = popupAd
         }
         
-        if let popupAd = self._popupAds[requestId] {
-            DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            if let popupAd = self?._popupAds[requestId] {
                 popupAd.load()
             }
         }
+        
     }
     
     @objc(show:requestId:)
     func show(_ unitId: String, _ requestId: String) -> Void {
-        DispatchQueue.main.async {
-            if let popupAd = self._popupAds[requestId], let viewController = RCTPresentedViewController() {
+        DispatchQueue.main.async { [weak self] in
+            if let popupAd = self?._popupAds[requestId], let viewController = RCTPresentedViewController() {
                 popupAd.show(fromRootViewController: viewController)
             } else {
-                self.sendEvent(unitId: unitId, requestId: requestId, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY))
+                self?.sendEvent(unitId: unitId, requestId: requestId, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY))
             }
         }
     }
     
     @objc(customize:data:)
     func customize(_ requestId: String, data: [String:Any]?) {
-        DispatchQueue.main.async {
-            guard let popupAd = self._popupAds[requestId] else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let popupAd = self?._popupAds[requestId] else { return }
             
-            if let closeTextColor = data?["closeTextColor"] as? String {
-                let color = self.hexStringToColorInt(closeTextColor)
+            if let closeTextColor = data?["closeTextColor"] as? String,
+                let color = self?.hexStringToColorInt(closeTextColor) {
                 popupAd.closeTextColor = UIColor(fromRNColor: color)
             }
             
-            if let hideForTodayTextColor = data?["hideForTodayTextColor"] as? String {
-                let color = self.hexStringToColorInt(hideForTodayTextColor)
+            if let hideForTodayTextColor = data?["hideForTodayTextColor"] as? String,
+                let color = self?.hexStringToColorInt(hideForTodayTextColor) {
                 popupAd.hideForTodayTextColor = UIColor(fromRNColor: color)
             }
             
-            if let backgroundColor = data?["backgroundColor"] as? String {
-                let color = self.hexStringToColorInt(backgroundColor)
+            if let backgroundColor = data?["backgroundColor"] as? String,
+               let color = self?.hexStringToColorInt(backgroundColor) {
                 popupAd.backgroundColor = UIColor(fromRNColor: color)
             }
             
@@ -65,8 +66,8 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
     
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
-        DispatchQueue.main.async {
-            self._popupAds.removeValue(forKey: requestId)
+        DispatchQueue.main.async { [weak self] in
+            self?._popupAds.removeValue(forKey: requestId)
         }
     }
     

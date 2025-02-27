@@ -24,9 +24,8 @@ class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
             self._interstitialAds[requestId] = interstitialAd
         }
         
-        
-        if let interstitialAd = self._interstitialAds[requestId] {
-            DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            if let interstitialAd = self?._interstitialAds[requestId] {
                 interstitialAd.load()
             }
         }
@@ -34,19 +33,19 @@ class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
     
     @objc(show:requestId:)
     func show(_ unitId: String, _ requestId: String) -> Void {
-        DispatchQueue.main.async {
-            if let interstitialAd = self._interstitialAds[requestId], let viewController = RCTPresentedViewController() {
+        DispatchQueue.main.async { [weak self] in
+            if let interstitialAd = self?._interstitialAds[requestId], let viewController = RCTPresentedViewController() {
                 interstitialAd.show(fromRootViewController: viewController)
             } else {
-                self.sendEvent(unitId: unitId, requestId: requestId, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY))
+                self?.sendEvent(unitId: unitId, requestId: requestId, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY))
             }
         }
     }
     
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
-        DispatchQueue.main.async {
-            self._interstitialAds.removeValue(forKey: requestId)
+        DispatchQueue.main.async { [weak self] in
+            self?._interstitialAds.removeValue(forKey: requestId)
         }
     }
     
@@ -96,7 +95,7 @@ class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
     }
     
     func onAdDidDismissFullScreen(_ ad: AdropInterstitialAd) {
-        sendEvent(unitId: ad.unitId, requestId: self.requestIdFor(ad), method: AdropMethod.DID_DISMISS_FULL_SCREEN)
+        sendEvent(unitId: ad.unitId, requestId: requestIdFor(ad), method: AdropMethod.DID_DISMISS_FULL_SCREEN)
     }
     
     func onAdFailedToShowFullScreen(_ ad: AdropInterstitialAd, _ errorCode: AdropErrorCode) {

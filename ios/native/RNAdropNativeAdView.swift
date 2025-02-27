@@ -37,11 +37,11 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let headlineView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let headlineView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
-                self.adView.setHeadLineView(headlineView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setHeadLineView(headlineView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -52,11 +52,11 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let bodyView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let bodyView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
-                self.adView.setBodyView(bodyView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setBodyView(bodyView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -67,12 +67,12 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let iconView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let iconView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
                 
-                self.adView.setIconView(iconView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setIconView(iconView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -83,11 +83,11 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let mediaViewView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let mediaViewView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
-                self.adView.setMediaView(mediaViewView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setMediaView(mediaViewView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -98,11 +98,11 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let advertiserView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let advertiserView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
-                self.adView.setAdvertiserView(advertiserView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setAdvertiserView(advertiserView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -113,11 +113,11 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let callToActionView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let callToActionView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
-                self.adView.setCallToActionView(callToActionView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setCallToActionView(callToActionView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -128,11 +128,11 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let profileLogoView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let profileLogoView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
-                self.adView.setProfileLogoView(profileLogoView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setProfileLogoView(profileLogoView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -143,11 +143,11 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            if let profileNameView =  self.bridge.uiManager.view(forReactTag: viewTag)
+        DispatchQueue.main.async { [weak self] in
+            if let profileNameView =  self?.bridge.uiManager.view(forReactTag: viewTag)
             {
-                self.adView.setProfileNameView(profileNameView)
-                self.setNativeAd(requestId as String)
+                self?.adView.setProfileNameView(profileNameView)
+                self?.setNativeAd(requestId as String)
             }
         }
     }
@@ -157,8 +157,8 @@ class RNAdropNativeAdView: RCTView {
             return
         }
         
-        DispatchQueue.main.async {
-            self.adView.setNativeAd(ad)
+        DispatchQueue.main.async { [weak self] in
+            self?.adView.setNativeAd(ad)
         }
     }
 }
