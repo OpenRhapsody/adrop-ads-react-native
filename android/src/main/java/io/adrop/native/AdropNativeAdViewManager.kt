@@ -50,7 +50,6 @@ class AdropNativeAdViewManager() : ViewGroupManager<RNAdropNativeView>() {
     @ReactProp(name = MEDIA)
     fun setMediaView(view: RNAdropNativeView, map: ReadableMap) {
         try {
-            view.setMediaView(map.getInt(TAG))
             setNativeAd(view, map.getString(REQUEST_ID))
         } catch (e: Exception) {
         }
