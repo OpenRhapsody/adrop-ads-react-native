@@ -67,7 +67,11 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
         DispatchQueue.main.async { [weak self] in
-            self?._popupAds.removeValue(forKey: requestId)
+            self?._popupAds.first(where: { $0.key == requestId })?.value.close()
+        
+            DispatchQueue.main.async { [weak self] in
+                self?._popupAds.removeValue(forKey: requestId)
+            }
         }
     }
     

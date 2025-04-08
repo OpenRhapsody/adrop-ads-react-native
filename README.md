@@ -183,14 +183,14 @@ const YourComponent: React.FC = () => {
 Step 1: (Optional) Construct event listener
 ```js
 const listener = {
-        onAdReceived: (ad: AdropInterstitialAd) =>
-            console.log(`Adrop interstitial Ad load with unitId ${ad.unitId}!`),
-        onAdFailedToReceive: (ad: AdropInterstitialAd, errorCode: string) =>
-            console.log(`error in ${ad.unitId} while load: ${errorCode}`),
-        onAdFailedToShowFullScreen: (ad: AdropInterstitialAd, errorCode: string) =>
-            console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
-        ...
-    }
+    onAdReceived: (ad: AdropInterstitialAd) =>
+        console.log(`Adrop interstitial Ad load with unitId ${ad.unitId}!`),
+    onAdFailedToReceive: (ad: AdropInterstitialAd, errorCode: string) =>
+        console.log(`error in ${ad.unitId} while load: ${errorCode}`),
+    onAdFailedToShowFullScreen: (ad: AdropInterstitialAd, errorCode: string) =>
+        console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
+    ...
+}
 ```
 
 Step 2: Display an interstitial ad
@@ -261,16 +261,16 @@ const YourComponent: React.FC = () => {
 Step 1: (Optional) Construct event listener
 ```js
 const listener = {
-        onAdReceived: (ad: AdropRewardedAd) =>
-            console.log(`Adrop rewarded Ad load with unitId ${ad.unitId}!`),
-        onAdFailedToReceive: (ad: AdropRewardedAd, errorCode: string) =>
-            console.log(`error in ${ad.unitId} while load: ${errorCode}`),
-        onAdFailedToShowFullScreen: (ad: AdropRewardedAd, errorCode: string) =>
-            console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
-        onAdEarnRewardHandler: (ad: AdropRewardedAd, type: number, amount: number) =>
-            console.log(`Adrop rewarded Ad earn rewards: ${ad.unitId}, ${type}, ${amount}`),
-        ...
-    }
+    onAdReceived: (ad: AdropRewardedAd) =>
+        console.log(`Adrop rewarded Ad load with unitId ${ad.unitId}!`),
+    onAdFailedToReceive: (ad: AdropRewardedAd, errorCode: string) =>
+        console.log(`error in ${ad.unitId} while load: ${errorCode}`),
+    onAdFailedToShowFullScreen: (ad: AdropRewardedAd, errorCode: string) =>
+        console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
+    onAdEarnRewardHandler: (ad: AdropRewardedAd, type: number, amount: number) =>
+        console.log(`Adrop rewarded Ad earn rewards: ${ad.unitId}, ${type}, ${amount}`),
+    ...
+}
 ```
 
 Step 2: Display a rewarded ad
@@ -342,16 +342,16 @@ const YourComponent: React.FC = () => {
 Step 1: (Optional) Construct event listener
 ```js
 const listener = {
-        onAdReceived: (ad: AdropRewardedAd) =>
-            console.log(`Adrop rewarded Ad load with unitId ${ad.unitId}!`),
-        onAdFailedToReceive: (ad: AdropRewardedAd, errorCode: string) =>
-            console.log(`error in ${ad.unitId} while load: ${errorCode}`),
-        onAdFailedToShowFullScreen: (ad: AdropRewardedAd, errorCode: string) =>
-            console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
-        onAdEarnRewardHandler: (ad: AdropRewardedAd, type: number, amount: number) =>
-            console.log(`Adrop rewarded Ad earn rewards: ${ad.unitId}, ${type}, ${amount}`),
-        ...
-    }
+    onAdReceived: (ad: AdropRewardedAd) =>
+        console.log(`Adrop rewarded Ad load with unitId ${ad.unitId}!`),
+    onAdFailedToReceive: (ad: AdropRewardedAd, errorCode: string) =>
+        console.log(`error in ${ad.unitId} while load: ${errorCode}`),
+    onAdFailedToShowFullScreen: (ad: AdropRewardedAd, errorCode: string) =>
+        console.log(`error in ${ad.unitId} while showing: ${errorCode}`),
+    onAdEarnRewardHandler: (ad: AdropRewardedAd, type: number, amount: number) =>
+        console.log(`Adrop rewarded Ad earn rewards: ${ad.unitId}, ${type}, ${amount}`),
+    ...
+}
 ```
 
 Step 2: Display a rewarded ad
