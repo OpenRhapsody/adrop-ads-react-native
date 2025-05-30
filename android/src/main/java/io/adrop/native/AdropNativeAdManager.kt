@@ -28,7 +28,7 @@ object AdropNativeAdManager {
     fun create(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener) {
         _nativeAds[requestId] ?: let {
             handler.post {
-                val nativeAd = AdropNativeAd(context, unitId)
+                val nativeAd = AdropNativeAd(context, unitId, "")
                 nativeAd.listener = listener
                 _nativeAds[requestId] = nativeAd
             }
