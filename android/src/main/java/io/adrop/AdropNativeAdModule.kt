@@ -33,8 +33,8 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun load(requestId: String) {
-        AdropNativeAdManager.load(requestId)
+    fun load(unitId: String, requestId: String) {
+        AdropNativeAdManager.load(reactContext, unitId, requestId, this)
     }
 
     @ReactMethod

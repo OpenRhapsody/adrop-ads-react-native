@@ -1,6 +1,7 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { nanoid } from '../utils/id'
+import { AdropErrorCode } from '../AdropErrorCode'
 
 export enum AdType {
     adropInterstitialAd = 'AdropInterstitialAd',
@@ -45,7 +46,7 @@ export abstract class AdropAd {
         this._loaded = false
         this._requestId = nanoid()
 
-        this.getNativeModule().create(this.unitId, this._requestId)
+        this.getNativeModule()?.create(this.unitId, this._requestId)
         new NativeEventEmitter(this.getEventEmitter()).addListener(
             this.getChannel(this._requestId),
             this._handleEvent.bind(this)
@@ -61,19 +62,46 @@ export abstract class AdropAd {
     }
 
     public load() {
-        this.getNativeModule().load(this.unitId, this._requestId)
+        const module = this.getNativeModule()
+        if (!module) {
+            this.listener?.onAdFailedToReceive?.(
+                this,
+                AdropErrorCode.initialize
+            )
+            return
+        }
+
+        module.load(this.unitId, this._requestId)
     }
 
     public show() {
-        this.getNativeModule().show(this.unitId, this._requestId)
+        const module = this.getNativeModule()
+        if (!module) {
+            this.listener?.onAdFailedToReceive?.(
+                this,
+                AdropErrorCode.initialize
+            )
+            return
+        }
+
+        module.show(this.unitId, this._requestId)
     }
 
     protected customize(data: Record<string, any>) {
-        this.getNativeModule().customize(this._requestId, data)
+        const module = this.getNativeModule()
+        if (!module) {
+            this.listener?.onAdFailedToReceive?.(
+                this,
+                AdropErrorCode.initialize
+            )
+            return
+        }
+
+        module.customize(this._requestId, data)
     }
 
     public destroy() {
-        this.getNativeModule().destroy(this._requestId)
+        this.getNativeModule()?.destroy(this._requestId)
     }
 
     private _handleEvent(event: AdropEvent) {
@@ -121,7 +149,7 @@ export abstract class AdropAd {
     }
 
     private getNativeModule(): any {
-        return NativeModules[this._adType] ?? NativeModules.EventEmitter
+        return NativeModules[this._adType]
     }
 
     private getEventEmitter(): any {

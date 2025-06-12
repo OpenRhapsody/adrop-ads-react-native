@@ -35,7 +35,9 @@ object AdropNativeAdManager {
         }
     }
 
-    fun load(requestId: String) {
+    fun load(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener) {
+        create(context, unitId, requestId, listener)
+
         handler.post {
             _nativeAds[requestId]?.load()
         }

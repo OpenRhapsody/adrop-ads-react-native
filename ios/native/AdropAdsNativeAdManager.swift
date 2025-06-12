@@ -14,7 +14,8 @@ public class AdropAdsNativeAdManager: NSObject {
         }
     }
     
-    func load(_ requestId: String) {
+    func load(_ unitId: String, _ requestId: String, delegate: AdropNativeAdDelegate) {
+        create(unitId, requestId, delegate: delegate)
         DispatchQueue.main.async { [weak self] in
             if let nativeAd = self?._nativeAds[requestId] {
                 nativeAd.load()

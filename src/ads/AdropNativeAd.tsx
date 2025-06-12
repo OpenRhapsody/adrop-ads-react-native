@@ -1,7 +1,9 @@
-import { nanoid } from '../utils/id'
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
+
+import { nanoid } from '../utils/id'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { AdType } from './AdropAd'
+import { AdropErrorCode } from '../AdropErrorCode'
 
 export type AdropNativeProfile = {
     displayName: string
@@ -44,15 +46,14 @@ export default class AdropNativeAd {
     private readonly _unitId: string
     private readonly _requestId: string = ''
     private _loaded: boolean = false
-    private _nativeModule =
-        NativeModules[AdType.adropNativeAd] ?? NativeModules.EventEmitter
     private _event?: AdropNativeEvent
     public listener?: AdropNativeAdListener
 
     constructor(unitId: string) {
         this._unitId = unitId
         this._requestId = nanoid()
-        this._nativeModule.create(this._unitId, this._requestId)
+
+        this.getNativeModule()?.create(this._unitId, this._requestId)
         new NativeEventEmitter(this.eventEmitter()).addListener(
             AdropChannel.adropEventListenerChannel(
                 AdType.adropNativeAd,
@@ -108,11 +109,21 @@ export default class AdropNativeAd {
     public load() {
         this._loaded = false
         this._event = undefined
-        this._nativeModule.load(this._requestId)
+
+        const nativeModule = this.getNativeModule()
+        if (!nativeModule) {
+            this.listener?.onAdFailedToReceive?.(
+                this,
+                AdropErrorCode.initialize
+            )
+            return
+        }
+
+        nativeModule.load(this._unitId, this._requestId)
     }
 
     public destroy() {
-        this._nativeModule.destroy(this._requestId)
+        this.getNativeModule()?.destroy(this._requestId)
     }
 
     private _handleEvent(event: AdropNativeEvent) {
@@ -133,6 +144,10 @@ export default class AdropNativeAd {
 
     private eventEmitter() {
         if (Platform.OS === 'android') return NativeModules.EventEmitter
-        return this._nativeModule
+        return this.getNativeModule()
+    }
+
+    private getNativeModule(): any {
+        return NativeModules[AdType.adropNativeAd]
     }
 }

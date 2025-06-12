@@ -6,7 +6,8 @@
 RCT_EXTERN_METHOD(create:(NSString *)unitId
                   requestId:(NSString) requestId)
 
-RCT_EXTERN_METHOD(load:(NSString *)requestId)
+RCT_EXTERN_METHOD(load:(NSString *)unitId
+                  requestId:(NSString) requestId)
 
 RCT_EXTERN_METHOD(destroy:(NSString) requestId)
 
