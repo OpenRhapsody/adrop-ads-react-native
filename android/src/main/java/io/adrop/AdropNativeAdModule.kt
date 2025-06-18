@@ -50,8 +50,9 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
         errorCode: String? = null
     ) {
         reactContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokeNativeChannelOf(requestId), Arguments.createMap().apply {
+            .emit(AdropChannel.invokeNativeChannel, Arguments.createMap().apply {
                 putString("unitId", ad.unitId)
+                putString("requestId", requestId)
                 putString("method", method)
                 putString("errorCode", errorCode)
                 putString("icon", ad.icon)

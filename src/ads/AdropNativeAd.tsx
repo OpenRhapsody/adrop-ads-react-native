@@ -34,6 +34,7 @@ interface AdropNativeEvent extends AdropNativeProperties {
     errorCode?: string
     txId?: string
     creative?: string
+    requestId?: string
 }
 
 export interface AdropNativeAdListener {
@@ -55,10 +56,7 @@ export default class AdropNativeAd {
 
         this.getNativeModule()?.create(this._unitId, this._requestId)
         new NativeEventEmitter(this.eventEmitter()).addListener(
-            AdropChannel.adropEventListenerChannel(
-                AdType.adropNativeAd,
-                this._requestId
-            ),
+            AdropChannel.nativeEventListenerChannel,
             this._handleEvent.bind(this)
         )
     }
@@ -127,6 +125,8 @@ export default class AdropNativeAd {
     }
 
     private _handleEvent(event: AdropNativeEvent) {
+        if (event.requestId !== this._requestId) return
+
         switch (event.method) {
             case AdropMethod.didReceiveAd:
                 this._loaded = true

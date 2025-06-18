@@ -6,16 +6,18 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
 
     @objc(create:requestId:)
     func create(_ unitId: String, _ requestId: String) {
-        AdropAdsNativeAdManager.instance.create(unitId, requestId, delegate: self)
+        let manager = AdropAdsNativeAdManager.instance
+        DispatchQueue.main.async { [weak self, weak manager] in
+            guard let self = self, let manager = manager else { return }
+            manager.create(unitId, requestId, delegate: self)
+        }
     }
 
     @objc(load:requestId:)
     func load(_ unitId: String, _ requestId: String) {
-        let manager = AdropAdsNativeAdManager.instance        
-
+        let manager = AdropAdsNativeAdManager.instance
         DispatchQueue.main.async { [weak self, weak manager] in
             guard let self = self, let manager = manager else { return }
-            
             manager.load(unitId, requestId, delegate: self)
         }
     }
@@ -26,8 +28,9 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
     }
 
     private func sendEvent(ad: AdropNativeAd, requestId: String, method: String, errorCode: String? = nil) {
-        sendEvent(withName: AdropChannel.invokeNativeChannel(id: requestId),
+        sendEvent(withName: AdropChannel.invokeNativeChannel,
                   body: [ "unitId": ad.unitId, "method": method, "errorCode": errorCode ?? "",
+                          "requestId": requestId,
                           "icon": ad.icon, "cover": ad.cover, "headline": ad.headline, "body": ad.body,
                           "destinationURL": ad.destinationURL, "advertiserURL": ad.advertiserURL,
                           "accountTag": dictionaryToJSONString(ad.accountTag), "creativeTag": dictionaryToJSONString(ad.creativeTag),
@@ -65,8 +68,7 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
     }
 
     override func supportedEvents() -> [String]! {
-        let keys = AdropAdsNativeAdManager.instance.keys()
-        return keys.map {AdropChannel.invokeNativeChannel(id: $0) }
+        return [AdropChannel.invokeNativeChannel]
     }
 
     func dictionaryToJSONString(_ dictionary: [String: Any]) -> String? {
