@@ -7,7 +7,10 @@ import React, {
 } from 'react'
 import { findNodeHandle, Text } from 'react-native'
 import type { TextProps } from 'react-native'
-import { AdropNativeContext } from '../contexts/AdropNativeContext'
+import {
+    AdropNativeContext,
+    nativeAdRequestIds,
+} from '../contexts/AdropNativeContext'
 
 const AdropCallToActionView: React.FC<TextProps> = (props) => {
     const { nativeAd, nativeAdView } = useContext(AdropNativeContext)
@@ -17,7 +20,7 @@ const AdropCallToActionView: React.FC<TextProps> = (props) => {
         nativeAdView?.setNativeProps({
             callToAction: {
                 tag: findNodeHandle(callToActionRef.current) ?? 0,
-                requestId: { id: nativeAd?.requestId },
+                requestId: nativeAd ? nativeAdRequestIds.get(nativeAd)?.() : '',
             },
         })
     }, [nativeAd, nativeAdView])

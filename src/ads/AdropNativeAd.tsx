@@ -4,6 +4,7 @@ import { nanoid } from '../utils/id'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { AdType } from './AdropAd'
 import { AdropErrorCode } from '../AdropErrorCode'
+import { nativeAdRequestIds } from '../contexts/AdropNativeContext'
 
 export type AdropNativeProfile = {
     displayName: string
@@ -46,19 +47,26 @@ export interface AdropNativeAdListener {
 export default class AdropNativeAd {
     private readonly _unitId: string
     private readonly _requestId: string = ''
+    private readonly _useCustomClick: boolean = false
     private _loaded: boolean = false
     private _event?: AdropNativeEvent
     public listener?: AdropNativeAdListener
 
-    constructor(unitId: string) {
+    constructor(unitId: string, useCustomClick: boolean = false) {
         this._unitId = unitId
         this._requestId = nanoid()
+        this._useCustomClick = useCustomClick
 
-        this.getNativeModule()?.create(this._unitId, this._requestId)
+        this.getNativeModule()?.create(
+            this._unitId,
+            this._requestId,
+            this._useCustomClick
+        )
         new NativeEventEmitter(this.eventEmitter()).addListener(
             AdropChannel.nativeEventListenerChannel,
             this._handleEvent.bind(this)
         )
+        nativeAdRequestIds.set(this, () => this._requestId)
     }
 
     public get isLoaded() {
@@ -69,8 +77,15 @@ export default class AdropNativeAd {
         return this._unitId
     }
 
+    /**
+     * @deprecated This property will be removed in future versions
+     */
     public get requestId() {
-        return this._requestId
+        return ''
+    }
+
+    public get useCustomClick() {
+        return this._useCustomClick
     }
 
     public get creativeId() {
@@ -117,11 +132,12 @@ export default class AdropNativeAd {
             return
         }
 
-        nativeModule.load(this._unitId, this._requestId)
+        nativeModule.load(this._unitId, this._requestId, this._useCustomClick)
     }
 
     public destroy() {
         this.getNativeModule()?.destroy(this._requestId)
+        nativeAdRequestIds.delete(this)
     }
 
     private _handleEvent(event: AdropNativeEvent) {

@@ -152,6 +152,17 @@ class RNAdropNativeAdView: RCTView {
         }
     }
     
+    @objc func performClick(_ requestId: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let ad = AdropAdsNativeAdManager.instance.getAd(requestId as String) else {
+                return
+            }
+            if (!ad.useCustomClick) { return }
+            
+            self?.adView.performClick()
+        }
+    }
+    
     func setNativeAd(_ requestId: String) {
         guard let ad = AdropAdsNativeAdManager.instance.getAd(requestId) else {
             return

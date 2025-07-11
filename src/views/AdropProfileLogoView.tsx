@@ -7,7 +7,10 @@ import React, {
 } from 'react'
 import type { ImageProps, ImageSourcePropType } from 'react-native'
 import { findNodeHandle, Image } from 'react-native'
-import { AdropNativeContext } from '../contexts/AdropNativeContext'
+import {
+    AdropNativeContext,
+    nativeAdRequestIds,
+} from '../contexts/AdropNativeContext'
 
 interface IconViewProps extends Omit<ImageProps, 'source'> {
     source?: ImageSourcePropType | undefined
@@ -23,7 +26,9 @@ const AdropProfileLogoView: React.FC<IconViewProps> = (props) => {
             nativeAdView?.setNativeProps({
                 profileLogo: {
                     tag: findNodeHandle(viewRef.current) ?? 0,
-                    requestId: nativeAd?.requestId,
+                    requestId: nativeAd
+                        ? nativeAdRequestIds.get(nativeAd)?.()
+                        : '',
                 },
             })
     }, [nativeAd, nativeAdView])

@@ -10,3 +10,5 @@ export const AdropNativeContext = React.createContext<Props>({
     nativeAd: undefined,
     nativeAdView: null,
 })
+
+export const nativeAdRequestIds = new WeakMap<AdropNativeAd, () => string>()

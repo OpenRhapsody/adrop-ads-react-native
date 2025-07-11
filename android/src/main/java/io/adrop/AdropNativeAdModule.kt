@@ -28,13 +28,13 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
     override fun getName(): String = NAME
 
     @ReactMethod
-    fun create(unitId: String, requestId: String) {
-        AdropNativeAdManager.create(reactContext, unitId, requestId, this)
+    fun create(unitId: String, requestId: String, useCustomClick: Boolean = false) {
+        AdropNativeAdManager.create(reactContext, unitId, requestId, this, useCustomClick)
     }
 
     @ReactMethod
-    fun load(unitId: String, requestId: String) {
-        AdropNativeAdManager.load(reactContext, unitId, requestId, this)
+    fun load(unitId: String, requestId: String, useCustomClick: Boolean = false) {
+        AdropNativeAdManager.load(reactContext, unitId, requestId, this, useCustomClick)
     }
 
     @ReactMethod

@@ -4,21 +4,21 @@ import AdropAds
 @objc(AdropNativeAd)
 class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate {
 
-    @objc(create:requestId:)
-    func create(_ unitId: String, _ requestId: String) {
+    @objc(create:requestId:useCustomClick:)
+    func create(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false) {
         let manager = AdropAdsNativeAdManager.instance
         DispatchQueue.main.async { [weak self, weak manager] in
             guard let self = self, let manager = manager else { return }
-            manager.create(unitId, requestId, delegate: self)
+            manager.create(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
         }
     }
 
-    @objc(load:requestId:)
-    func load(_ unitId: String, _ requestId: String) {
+    @objc(load:requestId:useCustomClick:)
+    func load(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false) {
         let manager = AdropAdsNativeAdManager.instance
         DispatchQueue.main.async { [weak self, weak manager] in
             guard let self = self, let manager = manager else { return }
-            manager.load(unitId, requestId, delegate: self)
+            manager.load(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
         }
     }
 

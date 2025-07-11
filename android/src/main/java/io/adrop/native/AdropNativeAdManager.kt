@@ -25,18 +25,19 @@ object AdropNativeAdManager {
     val handler = Handler(Looper.getMainLooper())
     private val _nativeAds = mutableMapOf<String, AdropNativeAd>()
 
-    fun create(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener) {
+    fun create(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false) {
         _nativeAds[requestId] ?: let {
             handler.post {
                 val nativeAd = AdropNativeAd(context, unitId, "")
+                nativeAd.useCustomClick = useCustomClick
                 nativeAd.listener = listener
                 _nativeAds[requestId] = nativeAd
             }
         }
     }
 
-    fun load(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener) {
-        create(context, unitId, requestId, listener)
+    fun load(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false) {
+        create(context, unitId, requestId, listener, useCustomClick)
 
         handler.post {
             _nativeAds[requestId]?.load()

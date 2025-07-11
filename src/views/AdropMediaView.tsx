@@ -1,7 +1,10 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import type { ViewProps } from 'react-native'
 import { findNodeHandle, requireNativeComponent } from 'react-native'
-import { AdropNativeContext } from '../contexts/AdropNativeContext'
+import {
+    AdropNativeContext,
+    nativeAdRequestIds,
+} from '../contexts/AdropNativeContext'
 
 const WebView = requireNativeComponent<{ data: string } & ViewProps>(
     'AdropWebView'
@@ -17,7 +20,9 @@ const AdropMediaView: React.FC<ViewProps> = (props) => {
             nativeAdView?.setNativeProps({
                 mediaView: {
                     tag: findNodeHandle(mediaRef.current) ?? 0,
-                    requestId: nativeAd?.requestId,
+                    requestId: nativeAd
+                        ? nativeAdRequestIds.get(nativeAd)?.()
+                        : '',
                 },
             })
     }, [nativeAd, nativeAdView])
