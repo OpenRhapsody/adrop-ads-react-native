@@ -28,6 +28,12 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
     }
 
     private func sendEvent(ad: AdropNativeAd, requestId: String, method: String, errorCode: String? = nil) {
+        var creative = ad.creative
+                let adPlayerCallback = "window.adPlayerVisibilityCallback"
+                if creative.contains(adPlayerCallback) {
+                    creative = creative.replacingOccurrences(of: adPlayerCallback, with: "callback(true);\(adPlayerCallback)")
+                }
+
         sendEvent(withName: AdropChannel.invokeNativeChannel,
                   body: [ "unitId": ad.unitId, "method": method, "errorCode": errorCode ?? "",
                           "requestId": requestId,
@@ -35,17 +41,10 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
                           "destinationURL": ad.destinationURL, "advertiserURL": ad.advertiserURL,
                           "accountTag": dictionaryToJSONString(ad.accountTag), "creativeTag": dictionaryToJSONString(ad.creativeTag),
                           "advertiser": ad.advertiser, "callToAction": ad.callToAction,
-                          "creative": ad.creative, "creativeId": ad.creativeId,
+                          "creative": creative, "creativeId": ad.creativeId,
                           "profileName": ad.profile.displayName, "profileLogo": ad.profile.displayLogo,
                           "extra": dictionaryToJSONString(ad.extra), "asset": ad.asset
                         ])
-    }
-
-    private func dictionaryToJSONString(dictionary: [String: String]) -> String? {
-        if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: []) {
-            return String(data: jsonData, encoding: .utf8)
-        }
-        return nil
     }
 
     func onAdReceived(_ ad: AdropNativeAd) {

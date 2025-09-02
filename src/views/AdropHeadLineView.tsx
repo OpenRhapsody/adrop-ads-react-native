@@ -25,7 +25,7 @@ const AdropHeadLineView: React.FC<TextProps> = (props) => {
                     requestId: nativeAd
                         ? nativeAdRequestIds.get(nativeAd)?.()
                         : '',
-                }
+                },
             })
     }, [nativeAd, nativeAdView])
 

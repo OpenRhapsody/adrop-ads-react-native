@@ -8,11 +8,7 @@ import io.adrop.ads.nativeAd.AdropMediaView
 class RNAdropMediaView(context: Context, attrs: AttributeSet? = null) : AdropMediaView(context, attrs) {
 
     init {
-        layoutParams = LayoutParams(
-            LayoutParams.MATCH_PARENT,
-            LayoutParams.WRAP_CONTENT
-        )
-
+        // Don't set default layout params here to allow React Native to control sizing
         requestLayout()
     }
 

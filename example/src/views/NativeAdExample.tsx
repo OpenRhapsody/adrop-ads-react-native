@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
     AdropBodyView,
     AdropHeadLineView,
-    AdropMediaView,
     AdropNativeAd,
     AdropNativeAdView,
     AdropProfileLogoView,
     AdropProfileNameView,
 } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_native } from '../TestUnitIds'
+import { WebView } from 'react-native-webview'
 import {
     Button,
     Dimensions,
@@ -16,6 +16,7 @@ import {
     StyleSheet,
     Text,
     View,
+    Linking,
 } from 'react-native'
 import { descriptionOf } from '../utils/Utils'
 import type { AdropNativeAdListener } from 'adrop-ads-react-native'
@@ -26,6 +27,12 @@ const NativeAdExample: React.FC = () => {
     const [errorCode, setErrorCode] = useState('')
 
     const disabledReset = !errorCode
+
+    const openUrl = useCallback((url: string) => {
+        Linking.openURL(url).catch((err) =>
+            console.error('Failed to open URL:', err)
+        )
+    }, [])
 
     const listener = useMemo(
         (): AdropNativeAdListener => ({
@@ -90,14 +97,35 @@ const NativeAdExample: React.FC = () => {
                 <AdropHeadLineView style={styles.headline} />
                 <AdropBodyView style={styles.body} />
 
-                <AdropMediaView
-                    style={{
-                        ...styles.adStyle,
+                <WebView
+                    source={{
+                        html: nativeAd?.properties?.creative ?? '',
+                    }}
+                    style={styles.adStyle}
+                    javaScriptEnabled={true}
+                    mediaPlaybackRequiresUserAction={false}
+                    allowsInlineMediaPlayback={true}
+                    scrollEnabled={false}
+                    onNavigationStateChange={(event) => {
+                        // Android webview event
+                        if (
+                            event.url &&
+                            event.url !== 'about:blank' &&
+                            !event.url.startsWith('data:')
+                        ) {
+                            openUrl(event.url)
+                        }
+                    }}
+                    onOpenWindow={(event) => {
+                        // iOS webview event (window.open)
+                        if (event.nativeEvent?.targetUrl) {
+                            openUrl(event.nativeEvent.targetUrl)
+                        }
                     }}
                 />
             </AdropNativeAdView>
         )
-    }, [isLoaded, nativeAd])
+    }, [isLoaded, nativeAd, openUrl])
 
     return (
         <ScrollView>
@@ -167,7 +195,6 @@ const styles = StyleSheet.create({
     },
     adContainer: {
         paddingHorizontal: 16,
-        // alignItems: 'center',
     },
     adStyle: {
         width: '100%',

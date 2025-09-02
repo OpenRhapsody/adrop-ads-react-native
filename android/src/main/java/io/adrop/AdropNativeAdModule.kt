@@ -49,6 +49,13 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
         method: String,
         errorCode: String? = null
     ) {
+        var creative = ad.creative
+        val adPlayerCallback = "window.adPlayerVisibilityCallback"
+
+        if (creative?.contains(adPlayerCallback) == true) {
+            creative = creative.replace(adPlayerCallback, "callback(true);$adPlayerCallback")
+        }
+
         reactContext.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeNativeChannel, Arguments.createMap().apply {
                 putString("unitId", ad.unitId)
@@ -65,7 +72,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
                 putString("creativeTag", ad.creativeTag.toString())
                 putString("advertiser", ad.advertiser)
                 putString("callToAction", ad.callToAction)
-                putString("creative", ad.creative)
+                putString("creative", creative)
                 putString("creativeId", ad.creativeId)
                 putString("profileName", ad.profile.displayName)
                 putString("profileLogo", ad.profile.displayLogo)

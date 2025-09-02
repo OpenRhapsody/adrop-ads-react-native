@@ -4,9 +4,13 @@ import Foundation
 import AdropAds
 
 
-class RNAdropNativeAdView: RCTView {
+class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
     private var bridge: RCTBridge
     var adView: AdropNativeAdView
+    private var webView: UIView?
+    private var webViewFrame: CGRect?
+    var isEntireClick = true
+    private var lastTouchPoint: CGPoint?
     
     init (bridge: RCTBridge) {
         self.bridge = bridge
@@ -16,10 +20,10 @@ class RNAdropNativeAdView: RCTView {
         super.init(frame: .zero)
         
         self.addSubview(adView)
-        guard let gesture = adView.gestureRecognizers?.first else {
-            return
+        if let gesture = adView.gestureRecognizers?.first {
+            gesture.delegate = self
+            addGestureRecognizer(gesture)
         }
-        addGestureRecognizer(gesture)
     }
     
     required init?(coder: NSCoder) {
@@ -29,6 +33,7 @@ class RNAdropNativeAdView: RCTView {
     override func layoutSubviews() {
         super.layoutSubviews()
         self.adView.frame = bounds
+        updateWebViewFrame()
     }
     
     @objc func setHeadline(_ headline: NSDictionary) {
@@ -159,6 +164,11 @@ class RNAdropNativeAdView: RCTView {
             }
             if (!ad.useCustomClick) { return }
             
+            // For video ads, check if the click is within the WebView area
+            if self?.isClickInVideoWebView() == true {
+                return
+            }
+            
             self?.adView.performClick()
         }
     }
@@ -169,7 +179,107 @@ class RNAdropNativeAdView: RCTView {
         }
         
         DispatchQueue.main.async { [weak self] in
+            self?.configureVideoAdClickHandling(for: ad)
+            
             self?.adView.setNativeAd(ad)
+            self?.updateWebViewFrame()
         }
+    }
+    
+    // Handle video ads
+    
+    private func updateWebViewFrame() {
+        webView = findWebView(in: self)
+        if let webView = webView {
+            let webViewPoint = webView.convert(webView.bounds.origin, to: self)
+            webViewFrame = CGRect(origin: webViewPoint, size: webView.bounds.size)
+        }
+    }
+    
+    private func findWebView(in view: UIView) -> UIView? {
+        for subview in view.subviews {
+            let className = String(describing: type(of: subview))
+            if className.contains("WebView") {
+                return subview
+            }
+            if let found = findWebView(in: subview) {
+                return found
+            }
+        }
+        return nil
+    }
+    
+    private func isClickInVideoWebView() -> Bool {
+        if !isEntireClick {
+            if let webViewFrame = webViewFrame,
+               let lastTouch = lastTouchPoint,
+               webViewFrame.contains(lastTouch) {
+                // Click is within WebView area, skip performClick
+                return true
+            }
+        }
+        return false
+    }
+    
+    private func configureVideoAdClickHandling(for ad: AdropNativeAd) {
+        if ad.creative.contains("<video") && ad.useCustomClick {
+            isEntireClick = false
+            adView.setIsEntireClick(false)
+        }
+    }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        // Store the touch point for later use in performClick
+        lastTouchPoint = point
+        
+        // If entireClick is enabled, use default behavior
+        if isEntireClick {
+            return super.hitTest(point, with: event)
+        }
+        
+        // Check if touch is within webView bounds
+        if let webViewFrame = webViewFrame,
+           let webView = webView,
+           webViewFrame.contains(point) {
+            // Convert point to webView's coordinate system
+            let webViewPoint = self.convert(point, to: webView)
+            // Let webView handle the touch by returning it directly
+            if let hitView = webView.hitTest(webViewPoint, with: event) {
+                return hitView
+            }
+        }
+        
+        // Otherwise, use default behavior
+        return super.hitTest(point, with: event)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        if let touch = touches.first {
+            lastTouchPoint = touch.location(in: self)
+        }
+    }
+    
+    // UIGestureRecognizerDelegate methods
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // If entireClick is enabled, allow gesture
+        if isEntireClick {
+            return true
+        }
+        
+        // For video ads, check if touch is within webView
+        let location = touch.location(in: self)
+        if let webViewFrame = webViewFrame,
+           webViewFrame.contains(location) {
+            // Don't handle touch in webView area
+            return false
+        }
+        
+        return true
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Allow simultaneous recognition with webView gestures
+        return true
     }
 }

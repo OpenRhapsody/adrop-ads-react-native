@@ -1,12 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Button, StyleSheet, View } from 'react-native'
 import { Adrop } from 'adrop-ads-react-native'
 
-const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
-    useEffect(() => {
-        Adrop.initialize(false)
-    }, [])
+Adrop.initialize(false)
 
+const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
     const showBannerExample = () => navigation.navigate('BannerExample')
 
     const showInterstitialAdHookExample = () =>

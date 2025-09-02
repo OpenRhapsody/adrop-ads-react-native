@@ -2,7 +2,11 @@ package io.adrop.webview
 
 import android.graphics.Color
 import android.webkit.WebView
+import android.webkit.WebSettings
 import android.webkit.WebViewClient
+import android.webkit.WebChromeClient
+import android.webkit.ConsoleMessage
+import android.os.Build
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -26,7 +30,19 @@ class AdropWebViewManager () : SimpleViewManager<RNAdropWebView>() {
                 javaScriptEnabled = true
                 mediaPlaybackRequiresUserGesture = false
                 domStorageEnabled = true
+
+                // Additional settings for video playback
+                allowFileAccess = true
+                allowContentAccess = true
+                loadWithOverviewMode = true
+                useWideViewPort = true
+
+                // Allow mixed content for video sources
+                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             }
+
+            // Enable hardware acceleration for video
+            setLayerType(WebView.LAYER_TYPE_HARDWARE, null)
 
             webViewClient = object : WebViewClient() {
 
@@ -44,6 +60,15 @@ class AdropWebViewManager () : SimpleViewManager<RNAdropWebView>() {
         webView.isFocusable = false
         webView.isClickable = false
         webView.isFocusableInTouchMode = false
+
+        webView.settings.apply {
+            javaScriptEnabled = true
+            mediaPlaybackRequiresUserGesture = false
+            domStorageEnabled = true
+            cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+            textZoom = 100
+        }
+
         webView.loadDataWithBaseURL("https://adrop.io", data, "text/html", "UTF-8", null)
     }
 

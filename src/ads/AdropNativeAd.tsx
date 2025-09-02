@@ -47,6 +47,12 @@ export interface AdropNativeAdListener {
 export default class AdropNativeAd {
     private readonly _unitId: string
     private readonly _requestId: string = ''
+    /**
+     * Enables custom click handling for the native ad.
+     * When set to true:
+     * - Allows custom implementation of click behavior
+     * - Enables video controller controls for video ads (when false, AdropNativeAdView intercepts all clicks)
+     */
     private readonly _useCustomClick: boolean = false
     private _loaded: boolean = false
     private _event?: AdropNativeEvent
