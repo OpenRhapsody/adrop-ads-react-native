@@ -27,6 +27,13 @@ class AdropAdsModule(reactContext: ReactApplicationContext) :
         }
     }
 
+    @ReactMethod
+    fun setUID(uid: String) {
+        if (uid.isEmpty()) return
+
+        Adrop.setUID(uid)
+    }
+
     companion object {
         const val NAME = "AdropAds"
     }

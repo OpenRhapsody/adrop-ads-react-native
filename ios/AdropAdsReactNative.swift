@@ -9,4 +9,15 @@ class AdropAds: NSObject {
             Adrop.initialize(production: production, useInAppBrowser: useInAppBrowser, targetCountries: targetCountries)
         }
     }
+
+    @objc(setUID:withResolver:withRejecter:)
+    func setUID(_ uid: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        DispatchQueue.main.async {
+            if (uid.isEmpty) {
+                return
+            }
+
+            Adrop.setUID(uid)
+        }
+    }
 }

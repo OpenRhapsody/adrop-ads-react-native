@@ -12,6 +12,10 @@ class Adrop {
             useInAppBrowser ?? false
         )
     }
+
+    static setUID(uid: string) {
+        NativeModules.AdropAds.setUID(uid)
+    }
 }
 
 export default Adrop
