@@ -38,12 +38,12 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
         _interstitialAds[requestId]?.let {
             currentActivity?.let { fromActivity -> it.show(fromActivity) }
         }
-            ?: sendEvent(
-                unitId,
-                requestId,
-                AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-                AdropErrorCode.ERROR_CODE_AD_EMPTY.name
-            )
+            ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
+                    putString("unitId", unitId)
+                    putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
+                    putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
+                })
     }
 
     @ReactMethod
@@ -62,52 +62,47 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
     }
 
     private fun sendEvent(
-        unitId: String,
-        requestId: String,
+        ad: AdropInterstitialAd,
         method: String,
-        creativeId: String? = null,
         errorCode: String? = null
     ) {
         reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
-                putString("unitId", unitId)
+            .emit(AdropChannel.invokeInterstitialChannel(requestIdFor(ad)), Arguments.createMap().apply {
+                putString("unitId", ad.unitId)
+                putString("txId", ad.txId)
+                putString("campaignId", ad.campaignId)
                 putString("method", method)
-                putString("creativeId", creativeId)
+                putString("creativeId", ad.creativeId)
                 putString("errorCode", errorCode)
             })
     }
 
     override fun onAdFailedToReceive(ad: AdropInterstitialAd, errorCode: AdropErrorCode) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
+        sendEvent(ad, AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
     }
 
     override fun onAdReceived(ad: AdropInterstitialAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_RECEIVE_AD, creativeId = ad.creativeId)
+        sendEvent(ad, AdropMethod.DID_RECEIVE_AD)
     }
 
     override fun onAdClicked(ad: AdropInterstitialAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_CLICK_AD)
+        sendEvent(ad, AdropMethod.DID_CLICK_AD)
     }
 
     override fun onAdImpression(ad: AdropInterstitialAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_IMPRESSION)
+        sendEvent(ad, AdropMethod.DID_IMPRESSION)
     }
 
     override fun onAdDidDismissFullScreen(ad: AdropInterstitialAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_DISMISS_FULL_SCREEN)
+        sendEvent(ad, AdropMethod.DID_DISMISS_FULL_SCREEN)
     }
 
     override fun onAdDidPresentFullScreen(ad: AdropInterstitialAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_PRESENT_FULL_SCREEN)
+        sendEvent(ad, AdropMethod.DID_PRESENT_FULL_SCREEN)
     }
 
     override fun onAdFailedToShowFullScreen(ad: AdropInterstitialAd, errorCode: AdropErrorCode) {
-        sendEvent(
-            ad.unitId,
-            requestIdFor(ad),
-            AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-            errorCode = errorCode.name
-        )
+        sendEvent(ad, AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode = errorCode.name)
     }
 
     companion object {

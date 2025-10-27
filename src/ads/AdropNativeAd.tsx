@@ -34,6 +34,7 @@ interface AdropNativeEvent extends AdropNativeProperties {
     creativeId?: string
     errorCode?: string
     txId?: string
+    campaignId?: string
     creative?: string
     requestId?: string
 }
@@ -41,12 +42,14 @@ interface AdropNativeEvent extends AdropNativeProperties {
 export interface AdropNativeAdListener {
     onAdReceived?: (ad: AdropNativeAd) => void
     onAdClicked?: (ad: AdropNativeAd) => void
+    onAdImpression?: (ad: AdropNativeAd) => void
     onAdFailedToReceive?: (ad: AdropNativeAd, errorCode?: any) => void
 }
 
 export default class AdropNativeAd {
     private readonly _unitId: string
     private readonly _requestId: string = ''
+
     /**
      * Enables custom click handling for the native ad.
      * When set to true:
@@ -96,6 +99,14 @@ export default class AdropNativeAd {
 
     public get creativeId() {
         return this._event?.creativeId ?? ''
+    }
+
+    public get txId() {
+        return this._event?.txId ?? ''
+    }
+
+    public get campaignId() {
+        return this._event?.campaignId ?? ''
     }
 
     public get properties() {
@@ -149,10 +160,11 @@ export default class AdropNativeAd {
     private _handleEvent(event: AdropNativeEvent) {
         if (event.requestId !== this._requestId) return
 
+        this._event = event
+
         switch (event.method) {
             case AdropMethod.didReceiveAd:
                 this._loaded = true
-                this._event = event
                 this.listener?.onAdReceived?.(this)
                 break
             case AdropMethod.didClickAd:
@@ -160,6 +172,9 @@ export default class AdropNativeAd {
                 break
             case AdropMethod.didFailToReceiveAd:
                 this.listener?.onAdFailedToReceive?.(this, event.errorCode)
+                break
+            case AdropMethod.didImpression:
+                this.listener?.onAdImpression?.(this)
                 break
         }
     }

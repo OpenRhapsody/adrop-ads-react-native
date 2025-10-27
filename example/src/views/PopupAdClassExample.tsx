@@ -18,11 +18,17 @@ const PopupAdClassExample: React.FC = () => {
 
     const listener: AdropListener = useMemo(() => {
         return {
+            onAdImpression: (ad: AdropPopupAd) =>
+                console.log(
+                    `popupAd impressed ${ad.unitId}, ${ad.creativeId} , ${ad.txId}, ${ad.campaignId} ${ad.destinationURL}`
+                ),
             onAdClicked: (ad: AdropPopupAd) =>
-                console.log(`popupAd clicked ${ad.unitId} `),
+                console.log(
+                    `popupAd clicked ${ad.unitId} , ${ad.destinationURL}`
+                ),
             onAdReceived: (ad: AdropPopupAd) => {
                 setIsLoaded(true)
-                console.log(`popupAd received ${ad.unitId} ${ad.createIds()}`)
+                console.log(`popupAd received ${ad.unitId}`)
                 setErrorCode('')
             },
             onAdFailedToReceive: (_: AdropPopupAd, error: any) => {

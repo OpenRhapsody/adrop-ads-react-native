@@ -45,20 +45,22 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
 
     private fun sendEvent(
         ad: AdropNativeAd,
-        requestId: String,
         method: String,
         errorCode: String? = null
     ) {
         var creative = ad.creative
         val adPlayerCallback = "window.adPlayerVisibilityCallback"
 
-        if (creative?.contains(adPlayerCallback) == true) {
+        if (creative?.contains(adPlayerCallback) == true && !creative.contains("callback(true);$adPlayerCallback")) {
             creative = creative.replace(adPlayerCallback, "callback(true);$adPlayerCallback")
         }
 
+        val requestId = AdropNativeAdManager.requestIdFor(ad)
         reactContext.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeNativeChannel, Arguments.createMap().apply {
                 putString("unitId", ad.unitId)
+                putString("txId", ad.txId)
+                putString("campaignId", ad.campaignId)
                 putString("requestId", requestId)
                 putString("method", method)
                 putString("errorCode", errorCode)
@@ -82,15 +84,19 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
     }
 
     override fun onAdReceived(ad: AdropNativeAd) {
-        sendEvent(ad, AdropNativeAdManager.requestIdFor(ad), AdropMethod.DID_RECEIVE_AD)
+        sendEvent(ad, AdropMethod.DID_RECEIVE_AD)
     }
 
     override fun onAdClick(ad: AdropNativeAd) {
-        sendEvent(ad, AdropNativeAdManager.requestIdFor(ad), AdropMethod.DID_CLICK_AD)
+        sendEvent(ad, AdropMethod.DID_CLICK_AD)
     }
 
     override fun onAdFailedToReceive(ad: AdropNativeAd, errorCode: AdropErrorCode) {
-        sendEvent(ad, AdropNativeAdManager.requestIdFor(ad), AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode.name)
+        sendEvent(ad, AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode.name)
+    }
+
+    override fun onAdImpression(ad: AdropNativeAd) {
+        sendEvent(ad, AdropMethod.DID_IMPRESSION)
     }
 
     companion object {

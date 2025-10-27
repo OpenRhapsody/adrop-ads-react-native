@@ -1,4 +1,4 @@
-import AdropBanner from './AdropBanner'
+import AdropBanner, { type AdropBannerMetadata } from './AdropBanner'
 import AdropInterstitialAd from './AdropInterstitialAd'
 import AdropNativeAd from './AdropNativeAd'
 import AdropPopupAd from './AdropPopupAd'
@@ -9,6 +9,7 @@ import type { AdropNativeAdListener } from './AdropNativeAd'
 
 export {
     AdropBanner,
+    type AdropBannerMetadata,
     AdropInterstitialAd,
     AdropNativeAd,
     AdropPopupAd,

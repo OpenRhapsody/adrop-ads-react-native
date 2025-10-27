@@ -36,19 +36,19 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun show(unitId: String, requestId: String) {
-        _rewardedAds[requestId]?.let {
+        _rewardedAds[requestId]?.let { ad ->
             currentActivity?.let { fromActivity ->
-                it.show(fromActivity) { type, amount ->
-                    sendEarnEvent(unitId, requestId, type, amount)
+                ad.show(fromActivity) { type, amount ->
+                    sendEarnEvent(ad, type, amount)
                 }
             }
         }
-            ?: sendEvent(
-                unitId,
-                requestId,
-                AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-                AdropErrorCode.ERROR_CODE_AD_EMPTY.name
-            )
+            ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
+                    putString("unitId", unitId)
+                    putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
+                    putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
+                })
     }
 
     @ReactMethod
@@ -67,25 +67,25 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     }
 
     private fun sendEvent(
-        unitId: String,
-        requestId: String,
+        ad: AdropRewardedAd,
         method: String,
-        creativeId: String? = null,
         errorCode: String? = null
     ) {
         reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
-                putString("unitId", unitId)
+            .emit(AdropChannel.invokeRewardedChannelOf(requestIdFor(ad)), Arguments.createMap().apply {
+                putString("unitId", ad.unitId)
                 putString("method", method)
-                putString("creativeId", creativeId)
+                putString("creativeId", ad.creativeId)
+                putString("txId", ad.txId)
+                putString("campaignId", ad.campaignId)
                 putString("errorCode", errorCode)
             })
     }
 
-    private fun sendEarnEvent(unitId: String, requestId: String, type: Int, amount: Int) {
+    private fun sendEarnEvent(ad: AdropRewardedAd, type: Int, amount: Int) {
         reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
-                putString("unitId", unitId)
+            .emit(AdropChannel.invokeRewardedChannelOf(requestIdFor(ad)), Arguments.createMap().apply {
+                putString("unitId", ad.unitId)
                 putString("method", AdropMethod.HANDLE_EARN_REWARD)
                 putInt("type", type)
                 putInt("amount", amount)
@@ -93,36 +93,31 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     }
 
     override fun onAdFailedToReceive(ad: AdropRewardedAd, errorCode: AdropErrorCode) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
+        sendEvent(ad, AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
     }
 
     override fun onAdReceived(ad: AdropRewardedAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_RECEIVE_AD, creativeId = ad.creativeId)
+        sendEvent(ad, AdropMethod.DID_RECEIVE_AD)
     }
 
     override fun onAdClicked(ad: AdropRewardedAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_CLICK_AD)
+        sendEvent(ad, AdropMethod.DID_CLICK_AD)
     }
 
     override fun onAdImpression(ad: AdropRewardedAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_IMPRESSION)
+        sendEvent(ad, AdropMethod.DID_IMPRESSION)
     }
 
     override fun onAdDidDismissFullScreen(ad: AdropRewardedAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_DISMISS_FULL_SCREEN)
+        sendEvent(ad, AdropMethod.DID_DISMISS_FULL_SCREEN)
     }
 
     override fun onAdDidPresentFullScreen(ad: AdropRewardedAd) {
-        sendEvent(ad.unitId, requestIdFor(ad), AdropMethod.DID_PRESENT_FULL_SCREEN)
+        sendEvent(ad, AdropMethod.DID_PRESENT_FULL_SCREEN)
     }
 
     override fun onAdFailedToShowFullScreen(ad: AdropRewardedAd, errorCode: AdropErrorCode) {
-        sendEvent(
-            ad.unitId,
-            requestIdFor(ad),
-            AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-            errorCode = errorCode.name
-        )
+        sendEvent(ad, AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode = errorCode.name)
     }
 
     companion object {

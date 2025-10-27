@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { Button, Dimensions, StyleSheet, Text, View } from 'react-native'
-import { AdropBanner } from 'adrop-ads-react-native'
+import { AdropBanner, type AdropBannerMetadata } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_50 } from '../TestUnitIds'
 import { descriptionOf } from '../utils/Utils'
 
@@ -24,10 +24,10 @@ const BannerExample: React.FC = () => {
         setEmptyErrorCode('')
     }
 
-    const onAdClicked = (unitId: string, creativeId: string) =>
-        console.log('banner clicked', unitId, creativeId)
-    const onAdReceived = (unitId: string, creativeId: string) =>
-        console.log('banner received', unitId, creativeId)
+    const onAdClicked = (unitId: string, metadata?: AdropBannerMetadata) =>
+        console.log('banner clicked', unitId, metadata)
+    const onAdReceived = (unitId: string, metadata?: AdropBannerMetadata) =>
+        console.log('banner received', unitId, metadata)
     const onAdFailedToReceive = (unitId: string, error?: string) => {
         console.log('banner onAdFailedToReceive', unitId, error)
         setErrorCode(error ?? '')

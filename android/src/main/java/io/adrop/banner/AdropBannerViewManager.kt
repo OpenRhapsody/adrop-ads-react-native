@@ -38,30 +38,38 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
     @ReactProp(name = "unitId")
     fun setUnitId(banner: AdropBanner, unitId: String) {
         banner.setUnitId(unitId)
-        sendEvent(banner.id, AdropMethod.DID_CREATED_AD_BANNER)
+        sendEvent(banner, AdropMethod.DID_CREATED_AD_BANNER)
+    }
+
+    @ReactProp(name = "useCustomClick", defaultBoolean = false)
+    fun setUseCustomClick(banner: AdropBanner, useCustomClick: Boolean) {
+        banner.useCustomClick = useCustomClick
     }
 
     override fun onAdClicked(banner: AdropBanner) {
-        sendEvent(banner.id, AdropMethod.DID_CLICK_AD, creativeId = banner.creativeId)
+        sendEvent(banner, AdropMethod.DID_CLICK_AD)
     }
 
     override fun onAdFailedToReceive(banner: AdropBanner, errorCode: AdropErrorCode) {
-        sendEvent(banner.id, AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
+        sendEvent(banner, AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode = errorCode.name)
     }
 
     override fun onAdReceived(banner: AdropBanner) {
-        sendEvent(banner.id, AdropMethod.DID_RECEIVE_AD, creativeId = banner.creativeId)
+        sendEvent(banner, AdropMethod.DID_RECEIVE_AD)
     }
 
     override fun onAdImpression(banner: AdropBanner) {}
 
-    private fun sendEvent(viewTag: Int, method: String, creativeId: String? = null, errorCode: String? = null) {
+    private fun sendEvent(banner: AdropBanner, method: String, errorCode: String? = null) {
         context.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeBannerChannel, Arguments.createMap().apply {
                 putString("method", method)
                 putString("errorCode", errorCode)
-                putString("creativeId", creativeId)
-                putInt("tag", viewTag)
+                putString("creativeId", banner.creativeId)
+                putString("destinationURL", banner.destinationURL)
+                putString("txId", banner.txId)
+                putString("campaignId", banner.campaignId)
+                putInt("tag", banner.id)
             })
     }
 

@@ -16,7 +16,9 @@ const RewardedAdClassExample: React.FC = () => {
             onAdClicked: (ad: AdropRewardedAd) =>
                 console.log(`rewardedAd clicked ${ad.unitId}`),
             onAdReceived: (ad: AdropRewardedAd) => {
-                console.log(`rewardedAd received ${ad.unitId}`)
+                console.log(
+                    `rewardedAd received ${ad.unitId} ${ad.txId}, ${ad.campaignId}, ${ad.creativeId}`
+                )
                 setErrorCode('')
                 setIsLoaded(true)
             },

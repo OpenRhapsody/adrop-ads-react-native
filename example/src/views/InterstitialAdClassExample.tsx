@@ -18,7 +18,9 @@ const InterstitialAdClassExample: React.FC = () => {
                 console.log(`interstitialAd clicked ${ad.unitId}`),
             onAdReceived: (ad: AdropInterstitialAd) => {
                 setIsLoaded(true)
-                console.log(`interstitialAd received ${ad.unitId}`)
+                console.log(
+                    `interstitialAd received ${ad.unitId} ${ad.txId}, ${ad.campaignId}, ${ad.creativeId}`
+                )
                 setErrorCode('')
             },
             onAdFailedToReceive: (_: AdropInterstitialAd, error: any) => {

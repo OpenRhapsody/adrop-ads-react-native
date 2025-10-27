@@ -17,12 +17,20 @@ import { AdropChannel, AdropMethod } from '../bridge'
 type AdropBannerNativeProp = {
     style: { height: number; width: number | string }
     unitId: string
+    useCustomClick?: boolean
+}
+
+export type AdropBannerMetadata = {
+    creativeId: string
+    txId: string
+    campaignId: string
+    destinationURL: string
 }
 
 type AdropBannerProp = AdropBannerNativeProp & {
     autoLoad?: boolean
-    onAdReceived?: (unitId: string, creativeId: string) => void
-    onAdClicked?: (unitId: string, creativeId: string) => void
+    onAdReceived?: (unitId: string, metadata?: AdropBannerMetadata) => void
+    onAdClicked?: (unitId: string, metadata?: AdropBannerMetadata) => void
     onAdFailedToReceive?: (unitId: string, errorCode?: any) => void
 }
 
@@ -35,6 +43,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
         {
             unitId,
             autoLoad = true,
+            useCustomClick = false,
             onAdClicked,
             onAdFailedToReceive,
             onAdReceived,
@@ -72,7 +81,13 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
         const handleAdClicked = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
-                onAdClicked?.(unitId, event.creativeId ?? '')
+                const metadata: AdropBannerMetadata = {
+                    creativeId: event.creativeId ?? '',
+                    txId: event.txId ?? '',
+                    destinationURL: event.destinationURL ?? '',
+                    campaignId: event.campaignId ?? '',
+                }
+                onAdClicked?.(unitId, metadata)
             },
             [onAdClicked, validateView, unitId]
         )
@@ -80,7 +95,13 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
         const handleAdReceived = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
-                onAdReceived?.(unitId, event.creativeId ?? '')
+                const metadata: AdropBannerMetadata = {
+                    creativeId: event.creativeId ?? '',
+                    txId: event.txId ?? '',
+                    destinationURL: event.destinationURL ?? '',
+                    campaignId: event.campaignId ?? '',
+                }
+                onAdReceived?.(unitId, metadata)
                 isLoaded.current = true
             },
             [onAdReceived, validateView, unitId]
@@ -128,7 +149,14 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             handleAdFailedReceive,
         ])
 
-        return <BannerView ref={bannerRef} style={style} unitId={unitId} />
+        return (
+            <BannerView
+                ref={bannerRef}
+                style={style}
+                unitId={unitId}
+                useCustomClick={useCustomClick}
+            />
+        )
     }
 )
 export default AdropBanner

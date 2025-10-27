@@ -14,9 +14,12 @@ type AdropEvent = {
     unitId: string
     method: string
     creativeId?: string
+    txId?: string
+    campaignId?: string
     errorCode?: string
     type?: number
     amount?: number
+    destinationURL?: string
 }
 
 export type AdropListener = {
@@ -38,6 +41,9 @@ export abstract class AdropAd {
     protected _loaded: boolean
     protected _requestId: string = ''
     protected _creativeId: string = ''
+    protected _txId: string = ''
+    protected _campaignId: string = ''
+    protected _destinationURL: string = ''
     public listener?: AdropListener
 
     protected constructor(adType: AdType, unitId: string) {
@@ -59,6 +65,29 @@ export abstract class AdropAd {
 
     public get unitId() {
         return this._unitId
+    }
+
+    public get creativeId() {
+        return this._creativeId
+    }
+
+    public get txId() {
+        return this._txId
+    }
+
+    public get campaignId() {
+        return this._campaignId
+    }
+
+    /**
+     * @deprecated Use destinationURL instead.
+     */
+    public get destinationUrl() {
+        return this._destinationURL
+    }
+
+    public get destinationURL() {
+        return this._destinationURL
     }
 
     public load() {
@@ -100,15 +129,34 @@ export abstract class AdropAd {
         module.customize(this._requestId, data)
     }
 
+    protected setUseCustomClick(useCustomClick: boolean = false) {
+        const module = this.getNativeModule()
+        if (!module) {
+            this.listener?.onAdFailedToReceive?.(
+                this,
+                AdropErrorCode.initialize
+            )
+            return
+        }
+
+        module.setUseCustomClick(this._requestId, useCustomClick)
+    }
+
     public destroy() {
         this.getNativeModule()?.destroy(this._requestId)
     }
 
     private _handleEvent(event: AdropEvent) {
+        if (event.method !== AdropMethod.handleEarnReward) {
+            this._creativeId = event.creativeId ?? ''
+            this._txId = event.txId ?? ''
+            this._campaignId = event.campaignId ?? ''
+            this._destinationURL = event.destinationURL ?? ''
+        }
+
         switch (event.method) {
             case AdropMethod.didReceiveAd:
                 this._loaded = true
-                this._creativeId = event.creativeId ?? ''
                 this.listener?.onAdReceived?.(this)
                 break
             case AdropMethod.didClickAd:

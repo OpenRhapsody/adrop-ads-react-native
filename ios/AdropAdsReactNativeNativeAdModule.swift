@@ -27,39 +27,41 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
         AdropAdsNativeAdManager.instance.destroy(requestId)
     }
 
-    private func sendEvent(ad: AdropNativeAd, requestId: String, method: String, errorCode: String? = nil) {
+    private func sendEvent(_ ad: AdropNativeAd, method: String, errorCode: String? = nil) {
         var creative = ad.creative
-                let adPlayerCallback = "window.adPlayerVisibilityCallback"
-                if creative.contains(adPlayerCallback) {
-                    creative = creative.replacingOccurrences(of: adPlayerCallback, with: "callback(true);\(adPlayerCallback)")
-                }
+        let adPlayerCallback = "window.adPlayerVisibilityCallback"
+        if creative.contains(adPlayerCallback) && !creative.contains("callback(true);\(adPlayerCallback)") {
+            creative = creative.replacingOccurrences(of: adPlayerCallback, with: "callback(true);\(adPlayerCallback)")
+        }
 
         sendEvent(withName: AdropChannel.invokeNativeChannel,
                   body: [ "unitId": ad.unitId, "method": method, "errorCode": errorCode ?? "",
-                          "requestId": requestId,
+                          "requestId": AdropAdsNativeAdManager.instance.requestIdFor(ad),
                           "icon": ad.icon, "cover": ad.cover, "headline": ad.headline, "body": ad.body,
                           "destinationURL": ad.destinationURL, "advertiserURL": ad.advertiserURL,
                           "accountTag": dictionaryToJSONString(ad.accountTag), "creativeTag": dictionaryToJSONString(ad.creativeTag),
                           "advertiser": ad.advertiser, "callToAction": ad.callToAction,
                           "creative": creative, "creativeId": ad.creativeId,
                           "profileName": ad.profile.displayName, "profileLogo": ad.profile.displayLogo,
-                          "extra": dictionaryToJSONString(ad.extra), "asset": ad.asset
+                          "extra": dictionaryToJSONString(ad.extra), "asset": ad.asset,
+                          "txId": ad.txId, "campaignId": ad.campaignId
                         ])
     }
 
     func onAdReceived(_ ad: AdropNativeAd) {
-        let requestId = AdropAdsNativeAdManager.instance.requestIdFor(ad)
-        sendEvent(ad: ad, requestId: requestId, method: AdropMethod.DID_RECEIVE_AD)
+        sendEvent(ad, method: AdropMethod.DID_RECEIVE_AD)
     }
 
     func onAdClicked(_ ad: AdropNativeAd) {
-        let requestId = AdropAdsNativeAdManager.instance.requestIdFor(ad)
-        sendEvent(ad: ad, requestId: requestId, method: AdropMethod.DID_CLICK_AD)
+        sendEvent(ad, method: AdropMethod.DID_CLICK_AD)
     }
 
     func onAdFailedToReceive(_ ad: AdropNativeAd, _ errorCode: AdropErrorCode) {
-        let requestId = AdropAdsNativeAdManager.instance.requestIdFor(ad)
-        sendEvent(ad: ad, requestId: requestId, method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode: AdropErrorCodeToString(code: errorCode))
+        sendEvent(ad, method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode: AdropErrorCodeToString(code: errorCode))
+    }
+
+    func onAdImpression(_ ad: AdropNativeAd) {
+        sendEvent(ad, method: AdropMethod.DID_IMPRESSION)
     }
 
     override class func requiresMainQueueSetup() -> Bool {

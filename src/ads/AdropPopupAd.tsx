@@ -8,16 +8,25 @@ export type AdropPopupAdColors = {
 }
 
 export default class AdropPopupAd extends AdropAd {
-    constructor(unitId: string, colors?: AdropPopupAdColors) {
+    constructor(
+        unitId: string,
+        colors?: AdropPopupAdColors,
+        useCustomClick?: boolean
+    ) {
         super(AdType.adropPopupAd, unitId)
         this.customize({
             closeTextColor: toHexString(colors?.closeTextColor),
             hideForTodayTextColor: toHexString(colors?.hideForTodayTextColor),
             backgroundColor: toHexString(colors?.backgroundColor),
         })
+
+        this.setUseCustomClick(useCustomClick ?? false)
     }
 
+    /**
+     * @deprecated Use creativeId() instead.
+     **/
     public createIds(): string[] {
-        return this._creativeId.split(',').filter((_) => !!_)
+        return []
     }
 }

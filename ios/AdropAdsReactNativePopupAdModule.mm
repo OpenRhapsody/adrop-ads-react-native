@@ -15,6 +15,9 @@ RCT_EXTERN_METHOD(show:(NSString *)unitId
 RCT_EXTERN_METHOD(customize:(NSString *)requestId
                   data: (NSDictionary *) data)
 
+RCT_EXTERN_METHOD(setUseCustomClick:(NSString *)requestId
+                useCustomClick: (BOOL) UseCustomClick)
+
 RCT_EXTERN_METHOD(destroy:(NSString) requestId)
 
 

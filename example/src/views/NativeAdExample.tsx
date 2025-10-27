@@ -37,7 +37,13 @@ const NativeAdExample: React.FC = () => {
     const listener = useMemo(
         (): AdropNativeAdListener => ({
             onAdReceived: (ad) => {
-                console.log(`nativeAd received ${ad.unitId}`, ad.properties)
+                console.log(
+                    `nativeAd received ${ad.unitId}`,
+                    ad.properties,
+                    ad.txId,
+                    ad.campaignId,
+                    ad.creativeId
+                )
                 setIsLoaded(true)
                 setErrorCode('')
             },
@@ -46,6 +52,7 @@ const NativeAdExample: React.FC = () => {
                 setErrorCode(error)
             },
             onAdClicked: (ad) => console.log(`nativeAd clicked ${ad.unitId}`),
+            onAdImpression: (ad) => console.log(`nativeAd impressed ${ad.unitId}`),
         }),
         []
     )
