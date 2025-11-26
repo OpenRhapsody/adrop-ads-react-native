@@ -18,6 +18,8 @@ RCT_EXTERN_METHOD(customize:(NSString *)requestId
 RCT_EXTERN_METHOD(setUseCustomClick:(NSString *)requestId
                 useCustomClick: (BOOL) UseCustomClick)
 
+RCT_EXTERN_METHOD(close:(NSString *)requestId)
+
 RCT_EXTERN_METHOD(destroy:(NSString) requestId)
 
 

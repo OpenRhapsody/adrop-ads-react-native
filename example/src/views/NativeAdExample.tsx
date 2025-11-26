@@ -52,7 +52,8 @@ const NativeAdExample: React.FC = () => {
                 setErrorCode(error)
             },
             onAdClicked: (ad) => console.log(`nativeAd clicked ${ad.unitId}`),
-            onAdImpression: (ad) => console.log(`nativeAd impressed ${ad.unitId}`),
+            onAdImpression: (ad) =>
+                console.log(`nativeAd impressed ${ad.unitId}`),
         }),
         []
     )

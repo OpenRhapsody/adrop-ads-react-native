@@ -82,6 +82,11 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun close(requestId: String) {
+        _popupAds[requestId]?.close()
+    }
+
+    @ReactMethod
     fun destroy(requestId: String) {
         _popupAds.remove(requestId)?.let {
             it.destroy()

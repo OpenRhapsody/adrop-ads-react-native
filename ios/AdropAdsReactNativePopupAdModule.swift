@@ -77,6 +77,14 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
         }
     }
 
+    @objc(close:)
+    func close(_ requestId: String) -> Void {
+        DispatchQueue.main.async { [weak self] in
+            guard let popupAd = self?._popupAds[requestId] else { return }
+            popupAd.close()
+        }
+    }
+
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
         DispatchQueue.main.async { [weak self] in

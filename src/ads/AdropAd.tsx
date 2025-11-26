@@ -116,6 +116,7 @@ export abstract class AdropAd {
         module.show(this.unitId, this._requestId)
     }
 
+    // AdropPopupAd
     protected customize(data: Record<string, any>) {
         const module = this.getNativeModule()
         if (!module) {
@@ -196,7 +197,7 @@ export abstract class AdropAd {
         }
     }
 
-    private getNativeModule(): any {
+    protected getNativeModule(): any {
         return NativeModules[this._adType]
     }
 
