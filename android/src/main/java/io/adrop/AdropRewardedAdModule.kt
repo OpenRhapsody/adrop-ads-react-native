@@ -1,5 +1,7 @@
 package io.adrop
 
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -38,8 +40,10 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     fun show(unitId: String, requestId: String) {
         _rewardedAds[requestId]?.let { ad ->
             currentActivity?.let { fromActivity ->
-                ad.show(fromActivity) { type, amount ->
-                    sendEarnEvent(ad, type, amount)
+                Handler(Looper.getMainLooper()).post {
+                    ad.show(fromActivity) { type, amount ->
+                        sendEarnEvent(ad, type, amount)
+                    }
                 }
             }
         }

@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native'
+import type { AdropTheme } from './AdropTheme'
 
 class Adrop {
     static initialize = (
@@ -15,6 +16,10 @@ class Adrop {
 
     static setUID(uid: string) {
         NativeModules.AdropAds.setUID(uid)
+    }
+
+    static setTheme(theme: AdropTheme) {
+        NativeModules.AdropAds.setTheme(theme)
     }
 }
 

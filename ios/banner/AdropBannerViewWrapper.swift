@@ -19,6 +19,10 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         sendEvent(ad: banner, method: AdropMethod.DID_FAIL_TO_RECEIVE_AD, errorCode: AdropErrorCodeToString(code: errorCode))
     }
 
+    func onAdImpression(_ banner: AdropBanner) {
+        sendEvent(ad: banner, method: AdropMethod.DID_IMPRESSION)
+    }
+
     init (bridge: RCTBridge) {
         self.bridge = bridge
         super.init(frame: .zero)

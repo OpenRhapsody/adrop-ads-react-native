@@ -26,6 +26,7 @@ export type AdropNativeProperties = {
     callToAction?: string
     profile?: AdropNativeProfile
     extra?: Record<string, string>
+    isBackfilled?: boolean
 }
 
 interface AdropNativeEvent extends AdropNativeProperties {
@@ -37,6 +38,7 @@ interface AdropNativeEvent extends AdropNativeProperties {
     campaignId?: string
     creative?: string
     requestId?: string
+    isBackfilled?: boolean
 }
 
 export interface AdropNativeAdListener {
@@ -93,23 +95,27 @@ export default class AdropNativeAd {
         return ''
     }
 
-    public get useCustomClick() {
+    public get useCustomClick(): boolean {
         return this._useCustomClick
     }
 
-    public get creativeId() {
+    public get creativeId(): string {
         return this._event?.creativeId ?? ''
     }
 
-    public get txId() {
+    public get txId(): string {
         return this._event?.txId ?? ''
     }
 
-    public get campaignId() {
+    public get campaignId(): string {
         return this._event?.campaignId ?? ''
     }
 
-    public get properties() {
+    public get isBackfilled(): boolean {
+        return this._event?.isBackfilled ?? false
+    }
+
+    public get properties(): AdropNativeProperties {
         if (!this._event) return {} as AdropNativeProperties
 
         return {
@@ -133,6 +139,7 @@ export default class AdropNativeAd {
                 displayLogo: (this._event as any).profileLogo ?? '',
             },
             asset: this._event?.asset,
+            isBackfilled: this._event?.isBackfilled,
         }
     }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { Button, Platform, StyleSheet, Text, View } from 'react-native'
 import { AdropInterstitialAd, type AdropListener } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_interstitialAd } from '../TestUnitIds'
 import { descriptionOf } from '../utils/Utils'
@@ -36,6 +36,13 @@ const InterstitialAdClassExample: React.FC = () => {
         } as AdropListener
     }, [])
 
+    const unit = useMemo(() => {
+        // Use your actual interstitial ad unit IDs here
+        return Platform.OS === 'android'
+            ? testUnitId_interstitialAd
+            : testUnitId_interstitialAd
+    }, [])
+
     useEffect(() => {
         return () => {
             interstitialAd?.destroy()
@@ -55,8 +62,8 @@ const InterstitialAdClassExample: React.FC = () => {
     )
 
     useEffect(() => {
-        initialize(testUnitId_interstitialAd)
-    }, [initialize])
+        initialize(unit)
+    }, [initialize, unit])
 
     const load = () => interstitialAd?.load()
     const show = () => {
@@ -64,7 +71,7 @@ const InterstitialAdClassExample: React.FC = () => {
         setIsShown(true)
     }
     const resetTestAd = () => {
-        initialize(testUnitId_interstitialAd)
+        initialize(unit)
         resetState()
     }
 

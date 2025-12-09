@@ -1,5 +1,7 @@
 package io.adrop
 
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -35,8 +37,12 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun show(unitId: String, requestId: String) {
-        _interstitialAds[requestId]?.let {
-            currentActivity?.let { fromActivity -> it.show(fromActivity) }
+        _interstitialAds[requestId]?.let { ad ->
+            currentActivity?.let { fromActivity ->
+                Handler(Looper.getMainLooper()).post {
+                    ad.show(fromActivity)
+                }
+            }
         }
             ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
                 .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {

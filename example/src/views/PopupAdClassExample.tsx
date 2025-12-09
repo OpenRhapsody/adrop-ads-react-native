@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { Button, Platform, StyleSheet, Text, View } from 'react-native'
 import {
     type AdropListener,
     AdropPopupAd,
@@ -16,16 +16,27 @@ const PopupAdClassExample: React.FC = () => {
 
     const disabledReset = !(errorCode || isShown)
 
+    const unit = useMemo(() => {
+        // Use your actual popup ad unit IDs here
+        return Platform.OS === 'android'
+            ? testUnitId_popup_bottom
+            : testUnitId_popup_bottom
+    }, [])
+
     const listener: AdropListener = useMemo(() => {
         return {
             onAdImpression: (ad: AdropPopupAd) =>
                 console.log(
-                    `popupAd impressed ${ad.unitId}, ${ad.creativeId} , ${ad.txId}, ${ad.campaignId} ${ad.destinationURL}`
+                    `popupAd impressed ${ad.unitId}, ${ad.createIds()} , ${
+                        ad.txId
+                    }, ${ad.campaignId} ${ad.destinationURL}`
                 ),
-            onAdClicked: (ad: AdropPopupAd) =>
+            onAdClicked: (ad: AdropPopupAd) => {
                 console.log(
                     `popupAd clicked ${ad.unitId} , ${ad.destinationURL}`
-                ),
+                )
+                ad.close()
+            },
             onAdReceived: (ad: AdropPopupAd) => {
                 setIsLoaded(true)
                 console.log(`popupAd received ${ad.unitId}`)
@@ -70,8 +81,8 @@ const PopupAdClassExample: React.FC = () => {
     )
 
     useEffect(() => {
-        initialize(testUnitId_popup_bottom)
-    }, [initialize])
+        initialize(unit)
+    }, [initialize, unit])
 
     const load = () => popupAd?.load()
     const show = () => {
@@ -79,7 +90,7 @@ const PopupAdClassExample: React.FC = () => {
         setIsShown(true)
     }
     const resetTestAd = () => {
-        initialize(testUnitId_popup_bottom)
+        initialize(unit)
         resetState()
     }
 

@@ -34,6 +34,8 @@ target 'AdropAdsReactNativeExample' do
 
   use_frameworks! :linkage => :static
 
+  pod 'adrop-ads-backfill', '>= 1.7.1', '< 1.8.0'
+
   use_react_native!(
     :path => config[:reactNativePath],
     # Hermes is now enabled by default. Disable by setting this flag to false.

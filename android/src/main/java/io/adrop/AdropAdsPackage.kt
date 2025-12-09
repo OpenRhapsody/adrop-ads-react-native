@@ -25,7 +25,8 @@ class AdropAdsPackage : ReactPackage {
         return listOf(
             AdropBannerViewManager(reactContext),
             AdropWebViewManager(),
-            AdropNativeAdViewManager()
+            AdropNativeAdViewManager(),
+            AdropMediaViewManager(reactContext)
         )
     }
 }

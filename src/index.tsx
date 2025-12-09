@@ -1,6 +1,7 @@
 export * from './ads'
 export * from './metrics'
 export * from './AdropErrorCode'
+export * from './AdropTheme'
 export * from './hooks'
 export * from './views'
 export { default as Adrop } from './Adrop'

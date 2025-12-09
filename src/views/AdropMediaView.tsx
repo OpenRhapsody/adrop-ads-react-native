@@ -6,9 +6,7 @@ import {
     nativeAdRequestIds,
 } from '../contexts/AdropNativeContext'
 
-const WebView = requireNativeComponent<{ data: string } & ViewProps>(
-    'AdropWebView'
-)
+const MediaView = requireNativeComponent<ViewProps>('MediaView')
 
 const AdropMediaView: React.FC<ViewProps> = (props) => {
     const { nativeAd, nativeAdView } = useContext(AdropNativeContext)
@@ -31,13 +29,7 @@ const AdropMediaView: React.FC<ViewProps> = (props) => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    return (
-        <WebView
-            ref={mediaRef}
-            data={nativeAd?.properties?.creative ?? ''}
-            {...props}
-        />
-    )
+    return <MediaView ref={mediaRef} {...props} />
 }
 
 export default AdropMediaView

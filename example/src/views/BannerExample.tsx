@@ -1,5 +1,12 @@
-import React, { useRef, useState } from 'react'
-import { Button, Dimensions, StyleSheet, Text, View } from 'react-native'
+import React, { useMemo, useRef, useState } from 'react'
+import {
+    Button,
+    Dimensions,
+    Platform,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native'
 import { AdropBanner, type AdropBannerMetadata } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_50 } from '../TestUnitIds'
 import { descriptionOf } from '../utils/Utils'
@@ -13,6 +20,11 @@ const BannerExample: React.FC = () => {
     const emptyBannerRef = useRef<IBanner>(null)
     const [errorCode, setErrorCode] = useState('')
     const [emptyErrorCode, setEmptyErrorCode] = useState('')
+
+    const unit = useMemo(() => {
+        // Use your actual banner ad unit IDs here
+        return Platform.OS === 'android' ? testUnitId_50 : testUnitId_50
+    }, [])
 
     const loadBanner = () => {
         bannerRef.current?.load()
@@ -33,6 +45,9 @@ const BannerExample: React.FC = () => {
         setErrorCode(error ?? '')
     }
 
+    const onAdImpression = (unitId: string, metadata?: AdropBannerMetadata) =>
+        console.log('banner onAdImpression', unitId, metadata)
+
     const onEmptyAdFailedToReceive = (_: string, error?: string) => {
         console.log('banner onAdFailedToReceive', _, error)
         setEmptyErrorCode(error ?? '')
@@ -46,12 +61,13 @@ const BannerExample: React.FC = () => {
 
             <AdropBanner
                 ref={bannerRef}
-                unitId={testUnitId_50}
+                unitId={unit}
                 style={{ ...styles.banner, width: screenWidth }}
                 autoLoad={false}
                 onAdClicked={onAdClicked}
                 onAdReceived={onAdReceived}
                 onAdFailedToReceive={onAdFailedToReceive}
+                onAdImpression={onAdImpression}
             />
 
             {errorCode && (

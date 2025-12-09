@@ -23,34 +23,40 @@ class AdropNativeAdViewManager() : ViewGroupManager<RNAdropNativeView>() {
     }
 
     override fun addView(parent: RNAdropNativeView, child: View, index: Int) {
-        parent.addView(child, index)
+        // Add child views to the AdropNativeAdView
+        parent.nativeAdView.addView(child, index)
     }
 
     @ReactProp(name = ICON)
     fun setIconView(view: RNAdropNativeView, map: ReadableMap) {
         val iconView = view.findViewById<ImageView>(map.getInt(TAG))
         iconView?.let { view.nativeAdView.setIconView(it) }
-        setNativeAd(view, map.getString(REQUEST_ID))
+        view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
     @ReactProp(name = HEADLINE)
     fun setHeadlineView(view: RNAdropNativeView, map: ReadableMap) {
-        val headlineView = view.findViewById<TextView>(map.getInt(TAG))
+        val tag = map.getInt(TAG)
+        val headlineView = view.findViewById<TextView>(tag)
         headlineView?.let { view.nativeAdView.setHeadLineView(it) }
-        setNativeAd(view, map.getString(REQUEST_ID))
+        view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
     @ReactProp(name = BODY)
     fun setBodyView(view: RNAdropNativeView, map: ReadableMap) {
-        val bodyView = view.findViewById<TextView>(map.getInt(TAG))
-        bodyView?.let { view.nativeAdView.setBodyView(it) }
-        setNativeAd(view, map.getString(REQUEST_ID))
+        val tag = map.getInt(TAG)
+        val bodyView = view.findViewById<TextView>(tag)
+        bodyView?.let {
+            view.nativeAdView.setBodyView(it)
+        }
+        view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
     @ReactProp(name = MEDIA)
     fun setMediaView(view: RNAdropNativeView, map: ReadableMap) {
         try {
-            setNativeAd(view, map.getString(REQUEST_ID))
+            view.setMediaView(map.getInt(TAG))
+            view.setPendingNativeAd(map.getString(REQUEST_ID))
         } catch (e: Exception) {
         }
     }
@@ -59,36 +65,28 @@ class AdropNativeAdViewManager() : ViewGroupManager<RNAdropNativeView>() {
     fun setCallToActionView(view: RNAdropNativeView, map: ReadableMap) {
         val cta = view.findViewById<TextView>(map.getInt(TAG))
         cta?.let { view.nativeAdView.setCallToActionView(it) }
-        setNativeAd(view, map.getString(REQUEST_ID))
+        view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
     @ReactProp(name = ADVERTISER)
     fun setAdvertiserView(view: RNAdropNativeView, map: ReadableMap) {
         val advertiser = view.findViewById<TextView>(map.getInt(TAG))
         advertiser?.let { view.nativeAdView.setAdvertiserView(it) }
-        setNativeAd(view, map.getString(REQUEST_ID))
+        view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
     @ReactProp(name = PROFILE_NAME)
     fun setProfileNameView(view: RNAdropNativeView, map: ReadableMap) {
         val profileNameView = view.findViewById<TextView>(map.getInt(TAG))
         profileNameView?.let { view.nativeAdView.setProfileNameView(it) }
-        setNativeAd(view, map.getString(REQUEST_ID))
+        view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
     @ReactProp(name = PROFILE_LOGO)
     fun setProfileLogoView(view: RNAdropNativeView, map: ReadableMap) {
         val profileLogoView = view.findViewById<ImageView>(map.getInt(TAG))
         profileLogoView?.let { view.nativeAdView.setProfileLogoView(it) }
-        setNativeAd(view, map.getString(REQUEST_ID))
-    }
-
-    private fun setNativeAd(view: RNAdropNativeView, requestId: String?) {
-        requestId?: return
-
-        AdropNativeAdManager.getAd(requestId)?.let {
-            view.setNativeAd(it)
-        }
+        view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
     companion object {

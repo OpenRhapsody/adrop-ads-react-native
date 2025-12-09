@@ -20,4 +20,21 @@ class AdropAds: NSObject {
             Adrop.setUID(uid)
         }
     }
+
+    @objc(setTheme:withResolver:withRejecter:)
+    func setTheme(_ theme: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        DispatchQueue.main.async {
+            let converted: AdropTheme
+            switch theme.lowercased() {
+            case "light":
+                converted = .light
+            case "dark":
+                converted = .dark
+            default:
+                converted = .auto
+            }
+
+            Adrop.setTheme(converted)
+        }
+    }
 }

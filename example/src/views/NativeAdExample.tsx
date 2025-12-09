@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
     AdropBodyView,
     AdropHeadLineView,
+    AdropMediaView,
     AdropNativeAd,
     AdropNativeAdView,
     AdropProfileLogoView,
@@ -17,6 +18,7 @@ import {
     Text,
     View,
     Linking,
+    Platform,
 } from 'react-native'
 import { descriptionOf } from '../utils/Utils'
 import type { AdropNativeAdListener } from 'adrop-ads-react-native'
@@ -27,6 +29,11 @@ const NativeAdExample: React.FC = () => {
     const [errorCode, setErrorCode] = useState('')
 
     const disabledReset = !errorCode
+
+    const unit = useMemo(() => {
+        // Use your actual native ad unit IDs here
+        return Platform.OS === 'android' ? testUnitId_native : testUnitId_native
+    }, [])
 
     const openUrl = useCallback((url: string) => {
         Linking.openURL(url).catch((err) =>
@@ -73,13 +80,13 @@ const NativeAdExample: React.FC = () => {
     )
 
     useEffect(() => {
-        initialize(testUnitId_native)
-    }, [initialize])
+        initialize(unit)
+    }, [initialize, unit])
 
     const load = () => nativeAd?.load()
 
     const resetTestAd = () => {
-        initialize(testUnitId_native)
+        initialize(unit)
     }
 
     const resetEmptyAd = () => {
@@ -105,32 +112,36 @@ const NativeAdExample: React.FC = () => {
                 <AdropHeadLineView style={styles.headline} />
                 <AdropBodyView style={styles.body} />
 
-                <WebView
-                    source={{
-                        html: nativeAd?.properties?.creative ?? '',
-                    }}
-                    style={styles.adStyle}
-                    javaScriptEnabled={true}
-                    mediaPlaybackRequiresUserAction={false}
-                    allowsInlineMediaPlayback={true}
-                    scrollEnabled={false}
-                    onNavigationStateChange={(event) => {
-                        // Android webview event
-                        if (
-                            event.url &&
-                            event.url !== 'about:blank' &&
-                            !event.url.startsWith('data:')
-                        ) {
-                            openUrl(event.url)
-                        }
-                    }}
-                    onOpenWindow={(event) => {
-                        // iOS webview event (window.open)
-                        if (event.nativeEvent?.targetUrl) {
-                            openUrl(event.nativeEvent.targetUrl)
-                        }
-                    }}
-                />
+                {nativeAd?.isBackfilled ? (
+                    <AdropMediaView style={styles.adStyle} />
+                ) : (
+                    <WebView
+                        source={{
+                            html: nativeAd?.properties?.creative ?? '',
+                        }}
+                        style={styles.adStyle}
+                        javaScriptEnabled={true}
+                        mediaPlaybackRequiresUserAction={false}
+                        allowsInlineMediaPlayback={true}
+                        scrollEnabled={false}
+                        onNavigationStateChange={(event) => {
+                            // Android webview event
+                            if (
+                                event.url &&
+                                event.url !== 'about:blank' &&
+                                !event.url.startsWith('data:')
+                            ) {
+                                openUrl(event.url)
+                            }
+                        }}
+                        onOpenWindow={(event) => {
+                            // iOS webview event (window.open)
+                            if (event.nativeEvent?.targetUrl) {
+                                openUrl(event.nativeEvent.targetUrl)
+                            }
+                        }}
+                    />
+                )}
             </AdropNativeAdView>
         )
     }, [isLoaded, nativeAd, openUrl])

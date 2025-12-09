@@ -15,8 +15,8 @@ Prerequisites
         * Uses Android 6.0 or higher
             * minSdkVersion 23
         * Uses [Jetpack (AndroidX)](https://developer.android.com/jetpack/androidx/migrate), which includes meeting these version requirements:
-            * ```com.android.tools.build:gradle``` v7.3.0 or later
-            * ```compileSdkVersion``` 33
+            * ```com.android.tools.build:gradle``` v7.6.3 or later
+            * ```compileSdkVersion``` 34
         * Kotlin 1.7.10 or higher
     * **iOS**
         * ios 13.0
@@ -27,7 +27,7 @@ Prerequisites
 &nbsp;
 
 ### Step 1: Create a Adrop project
-Before you can add Adrop to your React Native app, you need to [create a Adrop project](https://help.adrop.io/publisher-guide/start-ads-platform) to connect to your app.
+Before you can add Adrop to your React Native app, you need to [create a Adrop project](https://help.adrop.io/adcontrol/console-guide/quick-start/start-ads-platform) to connect to your app.
 
 ### Step 2: Register your app with Adrop
 To use Adrop in your React Native app, you need to register your app with your Adrop project. Registering your app is often called "adding" your app to your project.
@@ -129,7 +129,7 @@ end
 To create a new Ad unit:
 1. From the left navigation menu, select **Ad Units**.
 2. Select **Create Ad unit** to bring up the ad unit builder.
-3. Enter an Ad unit name, then select your app (iOS or Android) and [Ad format](https://help.adrop.io/publisher-guide/ads-builder) (Banner, Interstitial, Rewarded, Native, Popup, or Splash).
+3. Enter an Ad unit name, then select your app (iOS or Android) and [Ad format](https://help.adrop.io/adcontrol/appdeveloper-guide/ad-unit/kinds) (Banner, Interstitial, Rewarded, Native, Popup, or Splash).
 4. Select **Create** to save your Ad unit.
 
 ### Ad unit ID
@@ -469,7 +469,10 @@ const YourComponent: React.FC = () => {
             <AdropHeadLineView  style={...}/>
             <AdropBodyView  style={...}/>
 
-            <AdropMediaView style={...}/>
+            {nativeAd?.isBackfilled ? <AdropMediaView style={...}/> :
+                <WebView
+                    source={{ html: nativeAd?.properties?.creative || '' }}/>
+            }
         </AdropNativeAdView>
     )
 

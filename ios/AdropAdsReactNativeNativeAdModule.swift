@@ -44,7 +44,8 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
                           "creative": creative, "creativeId": ad.creativeId,
                           "profileName": ad.profile.displayName, "profileLogo": ad.profile.displayLogo,
                           "extra": dictionaryToJSONString(ad.extra), "asset": ad.asset,
-                          "txId": ad.txId, "campaignId": ad.campaignId
+                          "txId": ad.txId, "campaignId": ad.campaignId,
+                          "isBackfilled": ad.isBackfilled
                         ])
     }
 

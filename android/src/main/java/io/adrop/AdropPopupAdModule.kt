@@ -1,5 +1,7 @@
 package io.adrop
 
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -36,9 +38,11 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun show(unitId: String, requestId: String) {
-        _popupAds[requestId]?.let {
+        _popupAds[requestId]?.let { ad ->
             currentActivity?.let { fromActivity ->
-                it.show(fromActivity)
+                Handler(Looper.getMainLooper()).post {
+                    ad.show(fromActivity)
+                }
             }
         }
             ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)

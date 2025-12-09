@@ -12,16 +12,16 @@
     if (![scene isKindOfClass:[UIWindowScene class]]) {
         return;
     }
-    
+
     UIWindowScene *windowScene = (UIWindowScene *)scene;
-    
+
     RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:nil];
     RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"AdropAdsReactNativeExample" initialProperties:nil];
-    
+
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
-    
+
     [Adrop initializeWithProduction:false useInAppBrowser:false targetCountries:nil];
-    
+
     UIViewController *rootViewController = [UIViewController new];
     rootViewController.view = rootView;
 

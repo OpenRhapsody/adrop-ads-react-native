@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import io.adrop.ads.Adrop
 import io.adrop.ads.model.AdropErrorCode
+import io.adrop.ads.model.AdropTheme
 import java.lang.Exception
 
 class AdropAdsModule(reactContext: ReactApplicationContext) :
@@ -32,6 +33,17 @@ class AdropAdsModule(reactContext: ReactApplicationContext) :
         if (uid.isEmpty()) return
 
         Adrop.setUID(uid)
+    }
+
+    @ReactMethod
+    fun setTheme(theme: String) {
+        val converted = when (theme.lowercase()) {
+            "light" -> AdropTheme.LIGHT
+            "dark" -> AdropTheme.DARK
+            else -> AdropTheme.AUTO
+        }
+
+        Adrop.setTheme(converted)
     }
 
     companion object {

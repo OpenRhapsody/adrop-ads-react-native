@@ -27,7 +27,8 @@ const AdropNativeAdView: React.FC<Props> = ({
     const nativeAdRef = useRef(null)
 
     const onLayout = useCallback((_: any) => {
-        setNativeAdView(nativeAdRef.current)
+        const view = nativeAdRef.current
+        setNativeAdView(view)
     }, [])
 
     const onCustomClick = useCallback(() => {
@@ -51,11 +52,17 @@ const AdropNativeAdView: React.FC<Props> = ({
     return (
         <AdropNativeContext.Provider value={{ nativeAd, nativeAdView }}>
             <NativeAdViewComponent ref={nativeAdRef}>
-                <Pressable onPress={onCustomClick}>
+                {nativeAd?.isBackfilled ? (
                     <View {...props} onLayout={onLayout}>
                         {children}
                     </View>
-                </Pressable>
+                ) : (
+                    <Pressable onPress={onCustomClick}>
+                        <View {...props} onLayout={onLayout}>
+                            {children}
+                        </View>
+                    </Pressable>
+                )}
             </NativeAdViewComponent>
         </AdropNativeContext.Provider>
     )

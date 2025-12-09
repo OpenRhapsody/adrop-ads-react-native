@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { Button, Platform, StyleSheet, Text, View } from 'react-native'
 import { type AdropListener, AdropRewardedAd } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_rewarded } from '../TestUnitIds'
 import { descriptionOf } from '../utils/Utils'
@@ -47,6 +47,13 @@ const RewardedAdClassExample: React.FC = () => {
         }
     }, [rewardedAd])
 
+    const unit = useMemo(() => {
+        // Use your actual rewarded ad unit IDs here
+        return Platform.OS === 'android'
+            ? testUnitId_rewarded
+            : testUnitId_rewarded
+    }, [])
+
     const initialize = useCallback(
         (unitId: string) => {
             let adropRewardedAd = new AdropRewardedAd(unitId)
@@ -60,8 +67,8 @@ const RewardedAdClassExample: React.FC = () => {
     )
 
     useEffect(() => {
-        initialize(testUnitId_rewarded)
-    }, [initialize])
+        initialize(unit)
+    }, [initialize, unit])
 
     const load = () => rewardedAd?.load()
     const show = () => {
@@ -69,7 +76,7 @@ const RewardedAdClassExample: React.FC = () => {
         setIsShown(true)
     }
     const resetTestAd = () => {
-        initialize(testUnitId_rewarded)
+        initialize(unit)
         resetState()
     }
 

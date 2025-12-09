@@ -80,6 +80,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
                 putString("profileLogo", ad.profile.displayLogo)
                 putString("extra", ad.extra.toString())
                 putString("asset", ad.asset)
+                putBoolean("isBackfilled", ad.isBackfilled)
             })
     }
 

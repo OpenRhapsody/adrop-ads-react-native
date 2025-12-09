@@ -24,7 +24,7 @@ export default class AdropPopupAd extends AdropAd {
     }
 
     public close() {
-        const module = this.getNativeModule()
+        const module = super.getNativeModule()
         if (module && module.close) {
             module.close(this._requestId)
         }

@@ -18,6 +18,7 @@ type AdropBannerNativeProp = {
     style: { height: number; width: number | string }
     unitId: string
     useCustomClick?: boolean
+    adSize?: { width: number; height: number } | null
 }
 
 export type AdropBannerMetadata = {
@@ -30,6 +31,7 @@ export type AdropBannerMetadata = {
 type AdropBannerProp = AdropBannerNativeProp & {
     autoLoad?: boolean
     onAdReceived?: (unitId: string, metadata?: AdropBannerMetadata) => void
+    onAdImpression?: (unitId: string, metadata?: AdropBannerMetadata) => void
     onAdClicked?: (unitId: string, metadata?: AdropBannerMetadata) => void
     onAdFailedToReceive?: (unitId: string, errorCode?: any) => void
 }
@@ -45,6 +47,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             autoLoad = true,
             useCustomClick = false,
             onAdClicked,
+            onAdImpression,
             onAdFailedToReceive,
             onAdReceived,
             style,
@@ -53,6 +56,11 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
     ) => {
         const bannerRef = useRef(null)
         const isLoaded = useRef(false)
+
+        const adSize =
+            typeof style.width === 'number'
+                ? { width: style.width, height: style.height }
+                : null
 
         const getViewTag = useCallback(
             () => findNodeHandle(bannerRef.current) ?? 0,
@@ -107,6 +115,20 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             [onAdReceived, validateView, unitId]
         )
 
+        const handleAdImpression = useCallback(
+            (event: any) => {
+                if (!validateView(event.tag)) return
+                const metadata: AdropBannerMetadata = {
+                    creativeId: event.creativeId ?? '',
+                    txId: event.txId ?? '',
+                    destinationURL: event.destinationURL ?? '',
+                    campaignId: event.campaignId ?? '',
+                }
+                onAdImpression?.(unitId, metadata)
+            },
+            [onAdImpression, validateView, unitId]
+        )
+
         const handleAdFailedReceive = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
@@ -132,6 +154,9 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                         case AdropMethod.didReceiveAd:
                             handleAdReceived(event)
                             break
+                        case AdropMethod.didImpression:
+                            handleAdImpression(event)
+                            break
                         case AdropMethod.didFailToReceiveAd:
                             handleAdFailedReceive(event)
                             break
@@ -145,6 +170,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
         }, [
             handleCreated,
             handleAdClicked,
+            handleAdImpression,
             handleAdReceived,
             handleAdFailedReceive,
         ])
@@ -155,6 +181,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                 style={style}
                 unitId={unitId}
                 useCustomClick={useCustomClick}
+                adSize={adSize}
             />
         )
     }

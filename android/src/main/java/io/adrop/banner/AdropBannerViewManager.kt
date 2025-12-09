@@ -3,6 +3,7 @@ package io.adrop.banner
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import com.facebook.react.bridge.WritableNativeMap
@@ -12,6 +13,7 @@ import com.facebook.react.uimanager.annotations.ReactProp
 import io.adrop.ads.banner.AdropBanner
 import io.adrop.ads.banner.AdropBannerListener
 import io.adrop.ads.model.AdropErrorCode
+import io.adrop.ads.model.CreativeSize
 import io.adrop.bridge.AdropChannel
 import io.adrop.bridge.AdropMethod
 
@@ -46,6 +48,14 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
         banner.useCustomClick = useCustomClick
     }
 
+    @ReactProp(name = "adSize")
+    fun setAdSize(banner: AdropBanner, adSize: ReadableMap?) {
+        if (adSize == null) return
+        val width = adSize.getDouble("width")
+        val height = adSize.getDouble("height")
+        banner.adSize = CreativeSize(width, height)
+    }
+
     override fun onAdClicked(banner: AdropBanner) {
         sendEvent(banner, AdropMethod.DID_CLICK_AD)
     }
@@ -55,10 +65,61 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
     }
 
     override fun onAdReceived(banner: AdropBanner) {
+        // Force layout update for React Native when backfill ad is added as child view
+        if (banner.isBackfilled) {
+            triggerBackfillViewability(banner)
+        }
+
         sendEvent(banner, AdropMethod.DID_RECEIVE_AD)
     }
 
-    override fun onAdImpression(banner: AdropBanner) {}
+    private fun triggerBackfillViewability(banner: AdropBanner) {
+        banner.post { forceLayoutRecursive(banner) }
+    }
+
+    private fun forceLayoutRecursive(view: android.view.View, depth: Int = 0) {
+        val width = view.width
+        val height = view.height
+        val indent = "  ".repeat(depth)
+
+        if (width > 0 && height > 0) {
+            view.measure(
+                android.view.View.MeasureSpec.makeMeasureSpec(width, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(height, android.view.View.MeasureSpec.EXACTLY)
+            )
+            view.layout(view.left, view.top, view.right, view.bottom)
+        }
+
+        view.requestLayout()
+        view.invalidate()
+
+        if (view is android.view.ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val child = view.getChildAt(i)
+                child.visibility = android.view.View.VISIBLE
+
+                val parentWidth = if (width > 0) width else view.measuredWidth
+                val parentHeight = if (height > 0) height else view.measuredHeight
+
+                if (child.width == 0 || child.height == 0) {
+                    child.measure(
+                        android.view.View.MeasureSpec.makeMeasureSpec(parentWidth, android.view.View.MeasureSpec.EXACTLY),
+                        android.view.View.MeasureSpec.makeMeasureSpec(parentHeight, android.view.View.MeasureSpec.EXACTLY)
+                    )
+                    child.layout(0, 0, parentWidth, parentHeight)
+                }
+
+                forceLayoutRecursive(child, depth + 1)
+            }
+        }
+
+        // Trigger global layout listeners
+        view.viewTreeObserver.dispatchOnGlobalLayout()
+    }
+
+    override fun onAdImpression(banner: AdropBanner) {
+        sendEvent(banner, AdropMethod.DID_IMPRESSION)
+    }
 
     private fun sendEvent(banner: AdropBanner, method: String, errorCode: String? = null) {
         context.getJSModule(RCTNativeAppEventEmitter::class.java)

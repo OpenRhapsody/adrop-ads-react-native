@@ -1,11 +1,18 @@
-import React, { useCallback, useState } from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Button, Platform, StyleSheet, Text, View } from 'react-native'
 import { testUnitId, testUnitId_rewarded } from '../TestUnitIds'
 import { useAdropRewardedAd } from 'adrop-ads-react-native'
 import { descriptionOf } from '../utils/Utils'
 
 const RewardedAdHookExample: React.FC = () => {
-    const [unitId, setUnitId] = useState(testUnitId_rewarded)
+    const unit = useMemo(() => {
+        // Use your actual rewarded ad unit IDs here
+        return Platform.OS === 'android'
+            ? testUnitId_rewarded
+            : testUnitId_rewarded
+    }, [])
+
+    const [unitId, setUnitId] = useState(unit)
 
     const { load, show, errorCode, reset, isLoaded, isOpened, isReady } =
         useAdropRewardedAd(unitId)
@@ -19,8 +26,8 @@ const RewardedAdHookExample: React.FC = () => {
 
     const resetTestAd = useCallback(() => {
         reset()
-        setUnitId(testUnitId_rewarded)
-    }, [reset])
+        setUnitId(unit)
+    }, [reset, unit])
 
     const resetEmptyAd = useCallback(() => {
         reset()

@@ -1,11 +1,18 @@
-import React, { useCallback, useState } from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Button, Platform, StyleSheet, Text, View } from 'react-native'
 import { useAdropInterstitialAd } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_interstitialAd } from '../TestUnitIds'
 import { descriptionOf } from '../utils/Utils'
 
 const InterstitialAdHookExample: React.FC = () => {
-    const [unitId, setUnitId] = useState(testUnitId_interstitialAd)
+    const unit = useMemo(() => {
+        // Use your actual interstitial ad unit IDs here
+        return Platform.OS === 'android'
+            ? testUnitId_interstitialAd
+            : testUnitId_interstitialAd
+    }, [])
+
+    const [unitId, setUnitId] = useState(unit)
 
     const { load, show, errorCode, reset, isLoaded, isOpened, isReady } =
         useAdropInterstitialAd(unitId)
@@ -19,8 +26,8 @@ const InterstitialAdHookExample: React.FC = () => {
 
     const resetTestAd = useCallback(() => {
         reset()
-        setUnitId(testUnitId_interstitialAd)
-    }, [reset])
+        setUnitId(unit)
+    }, [reset, unit])
 
     const resetEmptyAd = useCallback(() => {
         reset()
