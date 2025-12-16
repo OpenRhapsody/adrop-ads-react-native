@@ -16,6 +16,7 @@ interface IBanner {
 }
 
 const BannerExample: React.FC = () => {
+    // Create a ref to control banner ad loading
     const bannerRef = useRef<IBanner>(null)
     const emptyBannerRef = useRef<IBanner>(null)
     const [errorCode, setErrorCode] = useState('')
@@ -26,6 +27,7 @@ const BannerExample: React.FC = () => {
         return Platform.OS === 'android' ? testUnitId_50 : testUnitId_50
     }, [])
 
+    // Load banner ad
     const loadBanner = () => {
         bannerRef.current?.load()
         setErrorCode('')
@@ -36,15 +38,21 @@ const BannerExample: React.FC = () => {
         setEmptyErrorCode('')
     }
 
+    // Callback: Called when the ad is clicked
     const onAdClicked = (unitId: string, metadata?: AdropBannerMetadata) =>
         console.log('banner clicked', unitId, metadata)
+
+    // Callback: Called when the ad is successfully loaded
     const onAdReceived = (unitId: string, metadata?: AdropBannerMetadata) =>
         console.log('banner received', unitId, metadata)
+
+    // Callback: Called when the ad fails to load
     const onAdFailedToReceive = (unitId: string, error?: string) => {
         console.log('banner onAdFailedToReceive', unitId, error)
         setErrorCode(error ?? '')
     }
 
+    // Callback: Called when the ad is displayed and an impression is recorded
     const onAdImpression = (unitId: string, metadata?: AdropBannerMetadata) =>
         console.log('banner onAdImpression', unitId, metadata)
 
@@ -59,6 +67,7 @@ const BannerExample: React.FC = () => {
         <View style={styles.container}>
             <Button title={'Load banner (test ad)'} onPress={loadBanner} />
 
+            {/* AdropBanner component with callbacks */}
             <AdropBanner
                 ref={bannerRef}
                 unitId={unit}

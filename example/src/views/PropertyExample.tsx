@@ -20,45 +20,56 @@ const PropertyExample: React.FC<{ navigation: any }> = () => {
         setValue(text)
     }, [])
 
+    // Set custom property with automatic type detection
     const sendProperty = useCallback(async () => {
         if (value.trim() === '') {
+            // Set property to null (remove)
             await AdropMetrics.setProperty(key, null)
         } else if (
             value.toLowerCase() === 'true' ||
             value.toLowerCase() === 'false'
         ) {
+            // Set boolean property
             console.log('boolean value', value)
             await AdropMetrics.setProperty(key, value.toLowerCase() === 'true')
         } else if (
             !isNaN(parseInt(value, 10)) &&
             Number.isInteger(Number(value))
         ) {
+            // Set integer property
             console.log('int value', value)
             await AdropMetrics.setProperty(key, parseInt(value, 10))
         } else if (!isNaN(parseFloat(value))) {
+            // Set float property
             console.log('float value', value)
             await AdropMetrics.setProperty(key, parseFloat(value))
         } else {
+            // Set string property
             await AdropMetrics.setProperty(key, value)
         }
 
+        // Log saved properties after a delay
         setTimeout(async () => {
             console.log('saved properties', await AdropMetrics.properties())
         }, 500)
     }, [key, value])
 
+    // Set user age property
     const setAge = (age: number) => {
         AdropMetrics.setProperty(AdropProperties.AGE, age.toString())
     }
 
+    // Set user birth date property
     const setBirth = (birth: string) => {
         AdropMetrics.setProperty(AdropProperties.BIRTH, birth)
     }
 
+    // Set user gender property
     const setGender = (gender: AdropGender) => {
         AdropMetrics.setProperty(AdropProperties.GENDER, gender)
     }
 
+    // Log custom event with parameters
     const sendEvent = () => {
         let params = {
             key1: true,
@@ -73,6 +84,7 @@ const PropertyExample: React.FC<{ navigation: any }> = () => {
         console.log(
             `sendEvent key: CustomKey, params ${JSON.stringify(params)}`
         )
+        // Log custom event with event name and parameters
         AdropMetrics.logEvent('RN_CustomKey', params)
     }
 

@@ -12,5 +12,6 @@ export enum AdropErrorCode {
     adShown = 'ERROR_CODE_AD_SHOWN',
     adHideForToday = 'ERROR_CODE_AD_HIDE_FOR_TODAY',
     adLandscapeUnsupported = 'ERROR_CODE_LANDSCAPE_UNSUPPORTED',
+    backfillNoFill = 'ERROR_CODE_AD_BACKFILL_NO_FILL',
     undefined = 'UNDEFINED',
 }

@@ -41,8 +41,10 @@ const NativeAdExample: React.FC = () => {
         )
     }, [])
 
+    // Define ad event listener
     const listener = useMemo(
         (): AdropNativeAdListener => ({
+            // Callback: Called when the ad is successfully loaded
             onAdReceived: (ad) => {
                 console.log(
                     `nativeAd received ${ad.unitId}`,
@@ -54,22 +56,34 @@ const NativeAdExample: React.FC = () => {
                 setIsLoaded(true)
                 setErrorCode('')
             },
+
+            // Callback: Called when the ad fails to load
             onAdFailedToReceive: (_, error) => {
                 console.log('nativeAd onAdFailedToReceive', error)
                 setErrorCode(error)
             },
+
+            // Callback: Called when the ad is clicked
             onAdClicked: (ad) => console.log(`nativeAd clicked ${ad.unitId}`),
+
+            // Callback: Called when the ad is displayed and an impression is recorded
             onAdImpression: (ad) =>
                 console.log(`nativeAd impressed ${ad.unitId}`),
         }),
         []
     )
 
+    // Initialize native ad with unit ID and listener
     const initialize = useCallback(
         (unitId: string) => {
+            // Create new AdropNativeAd instance
             let adropNativeAd = new AdropNativeAd(unitId)
+
+            // Set event listener
             adropNativeAd.listener = listener
+
             setNativeAd((prev) => {
+                // Destroy previous ad instance
                 prev?.destroy()
                 return adropNativeAd
             })
@@ -83,6 +97,7 @@ const NativeAdExample: React.FC = () => {
         initialize(unit)
     }, [initialize, unit])
 
+    // Load the ad
     const load = () => nativeAd?.load()
 
     const resetTestAd = () => {
@@ -93,10 +108,12 @@ const NativeAdExample: React.FC = () => {
         initialize(testUnitId)
     }
 
+    // Native ad view component
     const adView = useMemo(() => {
         if (!isLoaded) return null
 
         return (
+            // AdropNativeAdView container for native ad components
             <AdropNativeAdView
                 nativeAd={nativeAd}
                 style={{
@@ -105,13 +122,18 @@ const NativeAdExample: React.FC = () => {
                 }}
             >
                 <View style={styles.rowContainer}>
+                    {/* Profile logo component */}
                     <AdropProfileLogoView style={styles.icon} />
+                    {/* Profile name component */}
                     <AdropProfileNameView style={styles.name} />
                 </View>
 
+                {/* Headline text component */}
                 <AdropHeadLineView style={styles.headline} />
+                {/* Body text component */}
                 <AdropBodyView style={styles.body} />
 
+                {/* Media view for backfilled ads or WebView for custom creatives */}
                 {nativeAd?.isBackfilled ? (
                     <AdropMediaView style={styles.adStyle} />
                 ) : (

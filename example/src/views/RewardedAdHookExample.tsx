@@ -14,21 +14,32 @@ const RewardedAdHookExample: React.FC = () => {
 
     const [unitId, setUnitId] = useState(unit)
 
+    // useAdropRewardedAd hook provides ad management functions
+    // - load: Load the ad
+    // - show: Show the ad
+    // - reset: Reset ad state
+    // - isLoaded: Whether ad is loaded
+    // - isOpened: Whether ad is currently displayed
+    // - isReady: Whether ad can be loaded
+    // - errorCode: Error code if failed
     const { load, show, errorCode, reset, isLoaded, isOpened, isReady } =
         useAdropRewardedAd(unitId)
     const disabledReset = !(isOpened || errorCode)
 
+    // Load ad when ready
     const loadAd = useCallback(() => {
         if (isReady) {
             load()
         }
     }, [isReady, load])
 
+    // Reset and load test ad
     const resetTestAd = useCallback(() => {
         reset()
         setUnitId(unit)
     }, [reset, unit])
 
+    // Reset and load empty ad (for error testing)
     const resetEmptyAd = useCallback(() => {
         reset()
         setUnitId(testUnitId)

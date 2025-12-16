@@ -12,10 +12,14 @@ const InterstitialAdClassExample: React.FC = () => {
 
     const disabledReset = !(errorCode || isShown)
 
+    // Define ad event listener
     const listener: AdropListener = useMemo(() => {
         return {
+            // Callback: Called when the ad is clicked
             onAdClicked: (ad: AdropInterstitialAd) =>
                 console.log(`interstitialAd clicked ${ad.unitId}`),
+
+            // Callback: Called when the ad is successfully loaded
             onAdReceived: (ad: AdropInterstitialAd) => {
                 setIsLoaded(true)
                 console.log(
@@ -23,14 +27,22 @@ const InterstitialAdClassExample: React.FC = () => {
                 )
                 setErrorCode('')
             },
+
+            // Callback: Called when the ad fails to load
             onAdFailedToReceive: (_: AdropInterstitialAd, error: any) => {
                 console.log('interstitialAd onAdFailedToReceive', error)
                 setErrorCode(error)
             },
+
+            // Callback: Called when the full-screen ad is dismissed
             onAdDidDismissFullScreen: (ad: AdropInterstitialAd) =>
                 console.log(`interstitialAd dismiss ${ad.unitId}`),
+
+            // Callback: Called when the full-screen ad is presented
             onAdDidPresentFullScreen: (ad: AdropInterstitialAd) =>
                 console.log(`interstitialAd present ${ad.unitId}`),
+
+            // Callback: Called when the full-screen ad fails to show
             onAdFailedToShowFullScreen: (_: AdropInterstitialAd, error: any) =>
                 setErrorCode(error),
         } as AdropListener
@@ -43,17 +55,24 @@ const InterstitialAdClassExample: React.FC = () => {
             : testUnitId_interstitialAd
     }, [])
 
+    // Clean up: Destroy ad instance when component unmounts
     useEffect(() => {
         return () => {
             interstitialAd?.destroy()
         }
     }, [interstitialAd])
 
+    // Initialize interstitial ad with unit ID and listener
     const initialize = useCallback(
         (unitId: string) => {
+            // Create new AdropInterstitialAd instance
             let adropInterstitialAd = new AdropInterstitialAd(unitId)
+
+            // Set event listener
             adropInterstitialAd.listener = listener
+
             setInterstitialAd((prev) => {
+                // Destroy previous ad instance
                 prev?.destroy()
                 return adropInterstitialAd
             })
@@ -65,11 +84,15 @@ const InterstitialAdClassExample: React.FC = () => {
         initialize(unit)
     }, [initialize, unit])
 
+    // Load the ad
     const load = () => interstitialAd?.load()
+
+    // Show the ad
     const show = () => {
         interstitialAd?.show()
         setIsShown(true)
     }
+
     const resetTestAd = () => {
         initialize(unit)
         resetState()

@@ -28,6 +28,8 @@ export const descriptionOf = (errorCode: String) => {
             return "You can't load for today"
         case AdropErrorCode.adLandscapeUnsupported:
             return 'Unable to display ad in landscape mode'
+        case AdropErrorCode.backfillNoFill:
+            return 'Unable to receive backfill ads that meet the criteria. Please retry'
         case AdropErrorCode.undefined:
             return 'undefined error'
         default:

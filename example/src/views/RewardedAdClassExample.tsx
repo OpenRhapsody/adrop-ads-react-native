@@ -11,10 +11,15 @@ const RewardedAdClassExample: React.FC = () => {
     const [rewardedAd, setRewardedAd] = useState<AdropRewardedAd>()
 
     const disabledReset = !(errorCode || isShown)
+
+    // Define ad event listener
     const listener: AdropListener = useMemo(() => {
         return {
+            // Callback: Called when the ad is clicked
             onAdClicked: (ad: AdropRewardedAd) =>
                 console.log(`rewardedAd clicked ${ad.unitId}`),
+
+            // Callback: Called when the ad is successfully loaded
             onAdReceived: (ad: AdropRewardedAd) => {
                 console.log(
                     `rewardedAd received ${ad.unitId} ${ad.txId}, ${ad.campaignId}, ${ad.creativeId}`
@@ -22,14 +27,24 @@ const RewardedAdClassExample: React.FC = () => {
                 setErrorCode('')
                 setIsLoaded(true)
             },
+
+            // Callback: Called when the ad fails to load
             onAdFailedToReceive: (_: AdropRewardedAd, error: any) =>
                 setErrorCode(error),
+
+            // Callback: Called when the full-screen ad is dismissed
             onAdDidDismissFullScreen: (ad: AdropRewardedAd) =>
                 console.log(`rewardedAd dismiss ${ad.unitId}`),
+
+            // Callback: Called when the full-screen ad is presented
             onAdDidPresentFullScreen: (ad: AdropRewardedAd) =>
                 console.log(`rewardedAd present ${ad.unitId}`),
+
+            // Callback: Called when the full-screen ad fails to show
             onAdFailedToShowFullScreen: (_: AdropRewardedAd, error: any) =>
                 setErrorCode(error),
+
+            // Callback: Called when the user earns a reward
             onAdEarnRewardHandler: (
                 ad: AdropRewardedAd,
                 type: number,
@@ -41,6 +56,7 @@ const RewardedAdClassExample: React.FC = () => {
         } as AdropListener
     }, [])
 
+    // Clean up: Destroy ad instance when component unmounts
     useEffect(() => {
         return () => {
             rewardedAd?.destroy()
@@ -54,11 +70,17 @@ const RewardedAdClassExample: React.FC = () => {
             : testUnitId_rewarded
     }, [])
 
+    // Initialize rewarded ad with unit ID and listener
     const initialize = useCallback(
         (unitId: string) => {
+            // Create new AdropRewardedAd instance
             let adropRewardedAd = new AdropRewardedAd(unitId)
+
+            // Set event listener
             adropRewardedAd.listener = listener
+
             setRewardedAd((prev) => {
+                // Destroy previous ad instance
                 prev?.destroy()
                 return adropRewardedAd
             })
@@ -70,11 +92,15 @@ const RewardedAdClassExample: React.FC = () => {
         initialize(unit)
     }, [initialize, unit])
 
+    // Load the ad
     const load = () => rewardedAd?.load()
+
+    // Show the ad
     const show = () => {
         rewardedAd?.show()
         setIsShown(true)
     }
+
     const resetTestAd = () => {
         initialize(unit)
         resetState()
