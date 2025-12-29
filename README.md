@@ -19,21 +19,29 @@ Language: English | [한국어](https://github.com/OpenRhapsody/adrop-ads-react-
 
 ### Adrop Ads
 
-|  | Example |
-|--|---------|
-| Banner | [BannerExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/BannerExample.tsx) |
+|                      | Example |
+|----------------------|---------|
+| Banner               | [BannerExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/BannerExample.tsx) |
 | Interstitial (Class) | [InterstitialAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/InterstitialAdClassExample.tsx) |
-| Interstitial (Hook) | [InterstitialAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/InterstitialAdHookExample.tsx) |
-| Rewarded (Class) | [RewardedAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/RewardedAdClassExample.tsx) |
-| Rewarded (Hook) | [RewardedAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/RewardedAdHookExample.tsx) |
-| Native | [NativeAdExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/NativeAdExample.tsx) |
-| Popup | [PopupAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/PopupAdClassExample.tsx) |
+| Interstitial (Hook)  | [InterstitialAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/InterstitialAdHookExample.tsx) |
+| Rewarded (Class)     | [RewardedAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/RewardedAdClassExample.tsx) |
+| Rewarded (Hook)      | [RewardedAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/RewardedAdHookExample.tsx) |
+| Native               | [NativeAdExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/NativeAdExample.tsx) |
+| Popup                | [PopupAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/PopupAdClassExample.tsx) |
 
 ### Targeting
 
-|  | Example |
-|--|---------|
+|                  | Example |
+|------------------|---------|
 | Property & Event | [PropertyExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/PropertyExample.tsx) |
+
+### Consent (UMP)
+
+> **Note:** Requires [adrop-ads-backfill](https://docs.adrop.io/sdk/react-native/backfill) module.
+
+|                     | Example |
+|---------------------|---------|
+| Consent (GDPR/CCPA) | [ConsentExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/ConsentExample.tsx) |
 
 
 ## How to Run

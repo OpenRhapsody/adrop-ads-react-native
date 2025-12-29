@@ -1,5 +1,6 @@
 export * from './ads'
 export * from './metrics'
+export * from './consent'
 export * from './AdropErrorCode'
 export * from './AdropTheme'
 export * from './hooks'

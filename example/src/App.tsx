@@ -4,6 +4,7 @@ import * as React from 'react'
 
 import {
     BannerExample,
+    ConsentExample,
     Home,
     InterstitialAdClassExample,
     InterstitialAdHookExample,
@@ -49,6 +50,10 @@ export default function App() {
                 <Stack.Screen
                     name="PropertyExample"
                     component={PropertyExample}
+                />
+                <Stack.Screen
+                    name="ConsentExample"
+                    component={ConsentExample}
                 />
             </Stack.Navigator>
         </NavigationContainer>

@@ -19,21 +19,29 @@ Language: [English](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/
 
 ### Adrop Ads
 
-|  | 예제 |
-|--|------|
-| 배너 | [BannerExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/BannerExample.tsx) |
-| 전면 (Class) | [InterstitialAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/InterstitialAdClassExample.tsx) |
-| 전면 (Hook) | [InterstitialAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/InterstitialAdHookExample.tsx) |
+|             | 예제 |
+|-------------|------|
+| 배너          | [BannerExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/BannerExample.tsx) |
+| 전면 (Class)  | [InterstitialAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/InterstitialAdClassExample.tsx) |
+| 전면 (Hook)   | [InterstitialAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/InterstitialAdHookExample.tsx) |
 | 보상형 (Class) | [RewardedAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/RewardedAdClassExample.tsx) |
-| 보상형 (Hook) | [RewardedAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/RewardedAdHookExample.tsx) |
-| 네이티브 | [NativeAdExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/NativeAdExample.tsx) |
-| 팝업 | [PopupAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/PopupAdClassExample.tsx) |
+| 보상형 (Hook)  | [RewardedAdHookExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/RewardedAdHookExample.tsx) |
+| 네이티브        | [NativeAdExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/NativeAdExample.tsx) |
+| 팝업          | [PopupAdClassExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/PopupAdClassExample.tsx) |
 
 ### 타겟팅
 
-|  | 예제 |
-|--|------|
+|          | 예제 |
+|----------|------|
 | 속성 & 이벤트 | [PropertyExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/PropertyExample.tsx) |
+
+### 개인정보 & 동의
+
+> **참고:** [adrop-ads-backfill](https://docs.adrop.io/ko/sdk/react-native/backfill) 모듈이 필요합니다.
+
+|                   | 예제 |
+|-------------------|------|
+| 동의 관리 (GDPR/CCPA) | [ConsentExample.tsx](https://github.com/OpenRhapsody/adrop-ads-react-native/blob/master/example/src/views/ConsentExample.tsx) |
 
 
 ## 실행 방법

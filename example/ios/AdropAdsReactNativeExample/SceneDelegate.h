@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 #import <React/RCTBridgeDelegate.h>
-#import <AdropAds/AdropAds.h>
+@import AdropAds;
 
 @interface SceneDelegate : UIResponder <UIWindowSceneDelegate, RCTBridgeDelegate, AdropSplashAdDelegate>
 

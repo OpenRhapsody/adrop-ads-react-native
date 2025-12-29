@@ -1,3 +1,7 @@
 ios/
 lib/
 example/ios/
+**/build/
+build/
+example/android/build/
+example/android/app/build/

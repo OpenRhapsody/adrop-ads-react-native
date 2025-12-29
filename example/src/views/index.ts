@@ -1,4 +1,5 @@
 import BannerExample from './BannerExample'
+import ConsentExample from './ConsentExample'
 import Home from './Home'
 import InterstitialAdClassExample from './InterstitialAdClassExample'
 import InterstitialAdHookExample from './InterstitialAdHookExample'
@@ -9,6 +10,7 @@ import RewardedAdHookExample from './RewardedAdHookExample'
 
 export {
     BannerExample,
+    ConsentExample,
     Home,
     InterstitialAdClassExample,
     InterstitialAdHookExample,

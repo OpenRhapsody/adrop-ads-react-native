@@ -17,7 +17,8 @@ class AdropAdsPackage : ReactPackage {
             AdropRewardedAdModule(reactContext),
             AdropMetricsModule(reactContext),
             AdropPopupAdModule(reactContext),
-            AdropNativeAdModule(reactContext)
+            AdropNativeAdModule(reactContext),
+            AdropConsentModule(reactContext)
         )
     }
 

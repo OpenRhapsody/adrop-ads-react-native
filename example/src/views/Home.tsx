@@ -23,6 +23,7 @@ const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
 
     const showNativeAdExample = () => navigation.navigate('NativeAdExample')
     const showPropertyExample = () => navigation.navigate('PropertyExample')
+    const showConsentExample = () => navigation.navigate('ConsentExample')
 
     return (
         <View style={styles.container}>
@@ -69,6 +70,12 @@ const Home: React.FC<{ navigation: any }> = ({ navigation }) => {
                 <Button
                     title={'Property Example'}
                     onPress={showPropertyExample}
+                />
+            </View>
+            <View style={styles.button}>
+                <Button
+                    title={'Consent Example'}
+                    onPress={showConsentExample}
                 />
             </View>
         </View>
