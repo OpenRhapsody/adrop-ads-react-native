@@ -21,7 +21,7 @@ class AdropConsentModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun requestConsentInfoUpdate(promise: Promise) {
-        val activity = currentActivity
+        val activity = reactApplicationContext.currentActivity
         if (activity == null) {
             promise.reject("ERROR", "Activity is null")
             return

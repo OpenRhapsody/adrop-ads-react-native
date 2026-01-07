@@ -39,7 +39,7 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     @ReactMethod
     fun show(unitId: String, requestId: String) {
         _rewardedAds[requestId]?.let { ad ->
-            currentActivity?.let { fromActivity ->
+            reactApplicationContext.currentActivity?.let { fromActivity ->
                 Handler(Looper.getMainLooper()).post {
                     ad.show(fromActivity) { type, amount ->
                         sendEarnEvent(ad, type, amount)

@@ -39,7 +39,7 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     @ReactMethod
     fun show(unitId: String, requestId: String) {
         _popupAds[requestId]?.let { ad ->
-            currentActivity?.let { fromActivity ->
+            reactApplicationContext.currentActivity?.let { fromActivity ->
                 Handler(Looper.getMainLooper()).post {
                     ad.show(fromActivity)
                 }

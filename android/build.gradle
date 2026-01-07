@@ -1,29 +1,14 @@
-buildscript {
-    // Buildscript is evaluated before everything else so we can't use getExtOrDefault
-    def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["AdropAdsReactNative_kotlinVersion"]
-
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath "com.android.tools.build:gradle:7.4.2"
-        // noinspection DifferentKotlinGradleVersion
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
 def isNewArchitectureEnabled() {
     return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
 }
 
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
 
 if (isNewArchitectureEnabled()) {
     apply plugin: "com.facebook.react"
 }
+
+apply plugin: "kotlin-android"
 
 def getExtOrDefault(name) {
     return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["AdropAdsReactNative_" + name]
@@ -41,6 +26,7 @@ def supportsNamespace() {
     // Namespace support was added in 7.3.0
     return (major == 7 && minor >= 3) || major >= 8
 }
+
 
 android {
     if (supportsNamespace()) {
@@ -71,27 +57,45 @@ android {
         disable "GradleCompatible"
     }
 
+    // RN 0.71-0.81: JVM 11, RN 0.82+: JVM 17
+    def reactNativeVersion = 0
+    try {
+        def jsonSlurper = new groovy.json.JsonSlurper()
+        def possiblePackageJsonFiles = [
+            new File(rootProject.projectDir, "../node_modules/react-native/package.json"),
+            new File(rootProject.projectDir, "node_modules/react-native/package.json"),
+            new File(rootDir, "node_modules/react-native/package.json")
+        ]
+        def packageJsonFile = possiblePackageJsonFiles.find { it.exists() }
+        if (packageJsonFile != null) {
+            def packageJson = jsonSlurper.parseText(packageJsonFile.text)
+            def versionParts = packageJson.version.split("\\.")
+            if (versionParts.length >= 2) {
+                reactNativeVersion = versionParts[1].replaceAll("[^0-9]", "").toInteger()
+            }
+        } else {
+            println "[AdropAds] Warning: react-native package.json not found, defaulting to JVM 11"
+        }
+    } catch (Exception e) {
+        println "[AdropAds] Warning: Could not detect React Native version, defaulting to JVM 11"
+    }
+
+    def javaVersion = reactNativeVersion >= 82 ? JavaVersion.VERSION_17 : JavaVersion.VERSION_11
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility javaVersion
+        targetCompatibility javaVersion
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = javaVersion.majorVersion
     }
 }
 
 def kotlin_version = getExtOrDefault("kotlinVersion")
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
 dependencies {
-    implementation "com.facebook.react:react-android:0.71.0"
+    implementation "com.facebook.react:react-android"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     implementation "io.adrop:adrop-ads:[1.7.3, 1.8)"
