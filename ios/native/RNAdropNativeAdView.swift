@@ -160,6 +160,13 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
     }
 
+    // MARK: - Direct Native Ad Setting (for use without asset views)
+
+    @objc func setNativeAdRequestId(_ requestId: String?) {
+        guard let requestId = requestId, !requestId.isEmpty else { return }
+        setNativeAd(requestId)
+    }
+
     // MARK: - Click Handling
 
     @objc func performClick(_ requestId: String) {

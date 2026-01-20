@@ -50,8 +50,9 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
     ) {
         var creative = ad.creative
         val adPlayerCallback = "window.adPlayerVisibilityCallback"
+        val isVideoAd = creative?.contains(adPlayerCallback) == true
 
-        if (creative?.contains(adPlayerCallback) == true && !creative.contains("callback(true);$adPlayerCallback")) {
+        if (isVideoAd && !creative.contains("callback(true);$adPlayerCallback")) {
             creative = creative.replace(adPlayerCallback, "callback(true);$adPlayerCallback")
         }
 
@@ -81,6 +82,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
                 putString("extra", ad.extra.toString())
                 putString("asset", ad.asset)
                 putBoolean("isBackfilled", ad.isBackfilled)
+                putBoolean("isVideoAd", isVideoAd)
             })
     }
 

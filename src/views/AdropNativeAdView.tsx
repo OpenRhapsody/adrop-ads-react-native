@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Pressable, type ViewProps, Platform } from 'react-native'
 import {
     requireNativeComponent,
@@ -16,7 +16,12 @@ type Props = ViewProps & {
     nativeAd?: AdropNativeAd
 }
 
-const NativeAdViewComponent = requireNativeComponent('AdropNativeAdView')
+type NativeAdViewProps = ViewProps & {
+    nativeAdRequestId?: string
+}
+
+const NativeAdViewComponent =
+    requireNativeComponent<NativeAdViewProps>('AdropNativeAdView')
 
 const AdropNativeAdView: React.FC<Props> = ({
     nativeAd,
@@ -49,9 +54,17 @@ const AdropNativeAdView: React.FC<Props> = ({
         }
     }, [nativeAd])
 
+    const nativeAdRequestId = useMemo(() => {
+        if (!nativeAd) return undefined
+        return nativeAdRequestIds.get(nativeAd)?.()
+    }, [nativeAd])
+
     return (
         <AdropNativeContext.Provider value={{ nativeAd, nativeAdView }}>
-            <NativeAdViewComponent ref={nativeAdRef}>
+            <NativeAdViewComponent
+                ref={nativeAdRef}
+                nativeAdRequestId={nativeAdRequestId}
+            >
                 {nativeAd?.isBackfilled ? (
                     <View {...props} onLayout={onLayout}>
                         {children}

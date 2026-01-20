@@ -9,6 +9,7 @@ RCT_EXPORT_VIEW_PROPERTY(icon, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(mediaView, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(advertiser, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(callToAction, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(nativeAdRequestId, NSString)
 
 RCT_EXTERN_METHOD(performClick:(nonnull NSNumber *)node requestId:(NSString *)requestId)
 

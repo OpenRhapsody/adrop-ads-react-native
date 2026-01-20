@@ -34,6 +34,8 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
             creative = creative.replacingOccurrences(of: adPlayerCallback, with: "callback(true);\(adPlayerCallback)")
         }
 
+        let isVideoAd = creative.contains(adPlayerCallback)
+
         sendEvent(withName: AdropChannel.invokeNativeChannel,
                   body: [ "unitId": ad.unitId, "method": method, "errorCode": errorCode ?? "",
                           "requestId": AdropAdsNativeAdManager.instance.requestIdFor(ad),
@@ -45,7 +47,8 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
                           "profileName": ad.profile.displayName, "profileLogo": ad.profile.displayLogo,
                           "extra": dictionaryToJSONString(ad.extra), "asset": ad.asset,
                           "txId": ad.txId, "campaignId": ad.campaignId,
-                          "isBackfilled": ad.isBackfilled
+                          "isBackfilled": ad.isBackfilled,
+                          "isVideoAd": isVideoAd
                         ])
     }
 

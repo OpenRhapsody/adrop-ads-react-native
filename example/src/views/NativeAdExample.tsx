@@ -77,7 +77,7 @@ const NativeAdExample: React.FC = () => {
     const initialize = useCallback(
         (unitId: string) => {
             // Create new AdropNativeAd instance
-            let adropNativeAd = new AdropNativeAd(unitId)
+            let adropNativeAd = new AdropNativeAd(unitId, true)
 
             // Set event listener
             adropNativeAd.listener = listener
@@ -122,9 +122,9 @@ const NativeAdExample: React.FC = () => {
                 }}
             >
                 <View style={styles.rowContainer}>
-                    {/* Profile logo component */}
+                    {/*     Profile logo component */}
                     <AdropProfileLogoView style={styles.icon} />
-                    {/* Profile name component */}
+                    {/*     Profile name component */}
                     <AdropProfileNameView style={styles.name} />
                 </View>
 
@@ -134,7 +134,7 @@ const NativeAdExample: React.FC = () => {
                 <AdropBodyView style={styles.body} />
 
                 {/* Media view for backfilled ads or WebView for custom creatives */}
-                {nativeAd?.isBackfilled ? (
+                {!nativeAd?.isVideoAd || nativeAd?.isBackfilled ? (
                     <AdropMediaView style={styles.adStyle} />
                 ) : (
                     <WebView
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     },
     adStyle: {
         width: '100%',
-        height: 360,
+        height: 400,
         marginBottom: 24,
     },
     icon: {

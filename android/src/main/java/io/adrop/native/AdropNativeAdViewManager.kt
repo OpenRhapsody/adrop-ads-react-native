@@ -89,6 +89,11 @@ class AdropNativeAdViewManager() : ViewGroupManager<RNAdropNativeView>() {
         view.setPendingNativeAd(map.getString(REQUEST_ID))
     }
 
+    @ReactProp(name = NATIVE_AD_REQUEST_ID)
+    fun setNativeAdRequestId(view: RNAdropNativeView, requestId: String?) {
+        view.setPendingNativeAd(requestId)
+    }
+
     companion object {
         const val ICON = "icon"
         const val HEADLINE = "headline"
@@ -98,6 +103,7 @@ class AdropNativeAdViewManager() : ViewGroupManager<RNAdropNativeView>() {
         const val CTA = "callToAction"
         const val PROFILE_NAME = "profileName"
         const val PROFILE_LOGO = "profileLogo"
+        const val NATIVE_AD_REQUEST_ID = "nativeAdRequestId"
 
         const val SET_NATIVE_AD = "setNativeAd"
         const val TAG = "tag"

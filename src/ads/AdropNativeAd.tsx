@@ -39,6 +39,7 @@ interface AdropNativeEvent extends AdropNativeProperties {
     creative?: string
     requestId?: string
     isBackfilled?: boolean
+    isVideoAd?: boolean
 }
 
 export interface AdropNativeAdListener {
@@ -113,6 +114,10 @@ export default class AdropNativeAd {
 
     public get isBackfilled(): boolean {
         return this._event?.isBackfilled ?? false
+    }
+
+    public get isVideoAd(): boolean {
+        return this._event?.isVideoAd ?? false
     }
 
     public get properties(): AdropNativeProperties {
