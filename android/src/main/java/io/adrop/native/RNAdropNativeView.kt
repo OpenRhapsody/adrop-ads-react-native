@@ -153,7 +153,9 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     private fun findWebView(viewGroup: ViewGroup): View? {
         for (i in 0 until viewGroup.childCount) {
             val child = viewGroup.getChildAt(i)
-            if (child.javaClass.name.contains("WebView")) {
+            // Use instanceof check instead of class name string matching
+            // to work correctly with R8/ProGuard obfuscation
+            if (child is android.webkit.WebView) {
                 return child
             }
             if (child is ViewGroup) {
