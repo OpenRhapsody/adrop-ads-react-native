@@ -80,6 +80,7 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
                 putString("method", method)
                 putString("creativeId", ad.creativeId)
                 putString("errorCode", errorCode)
+                putInt("browserTarget", ad.browserTarget)
             })
     }
 

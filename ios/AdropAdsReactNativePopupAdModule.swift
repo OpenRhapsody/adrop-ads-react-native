@@ -142,7 +142,8 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
                     "creativeId": ad.creativeId,
                     "destinationURL": ad.destinationURL ?? "",
                     "txId": ad.txId,
-                    "campaignId": ad.campaignId
+                    "campaignId": ad.campaignId,
+                    "browserTarget": ad.browserTargetValue.rawValue
                   ])
     }
 

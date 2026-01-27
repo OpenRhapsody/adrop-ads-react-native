@@ -48,7 +48,8 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
                           "extra": dictionaryToJSONString(ad.extra), "asset": ad.asset,
                           "txId": ad.txId, "campaignId": ad.campaignId,
                           "isBackfilled": ad.isBackfilled,
-                          "isVideoAd": isVideoAd
+                          "isVideoAd": isVideoAd,
+                          "browserTarget": ad.browserTargetValue.rawValue
                         ])
     }
 

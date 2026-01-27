@@ -17,13 +17,15 @@ const InterstitialAdClassExample: React.FC = () => {
         return {
             // Callback: Called when the ad is clicked
             onAdClicked: (ad: AdropInterstitialAd) =>
-                console.log(`interstitialAd clicked ${ad.unitId}`),
+                console.log(
+                    `interstitialAd clicked ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the ad is successfully loaded
             onAdReceived: (ad: AdropInterstitialAd) => {
                 setIsLoaded(true)
                 console.log(
-                    `interstitialAd received ${ad.unitId} ${ad.txId}, ${ad.campaignId}, ${ad.creativeId}`
+                    `interstitialAd received ${ad.unitId} ${ad.txId}, ${ad.campaignId}, ${ad.creativeId}, browserTarget: ${ad.browserTarget}`
                 )
                 setErrorCode('')
             },
@@ -36,11 +38,15 @@ const InterstitialAdClassExample: React.FC = () => {
 
             // Callback: Called when the full-screen ad is dismissed
             onAdDidDismissFullScreen: (ad: AdropInterstitialAd) =>
-                console.log(`interstitialAd dismiss ${ad.unitId}`),
+                console.log(
+                    `interstitialAd dismiss ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the full-screen ad is presented
             onAdDidPresentFullScreen: (ad: AdropInterstitialAd) =>
-                console.log(`interstitialAd present ${ad.unitId}`),
+                console.log(
+                    `interstitialAd present ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the full-screen ad fails to show
             onAdFailedToShowFullScreen: (_: AdropInterstitialAd, error: any) =>

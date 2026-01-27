@@ -2,7 +2,7 @@ import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
 
 import { nanoid } from '../utils/id'
 import { AdropChannel, AdropMethod } from '../bridge'
-import { AdType } from './AdropAd'
+import { AdType, BrowserTarget } from './AdropAd'
 import { AdropErrorCode } from '../AdropErrorCode'
 import { nativeAdRequestIds } from '../contexts/AdropNativeContext'
 
@@ -40,6 +40,7 @@ interface AdropNativeEvent extends AdropNativeProperties {
     requestId?: string
     isBackfilled?: boolean
     isVideoAd?: boolean
+    browserTarget?: BrowserTarget
 }
 
 export interface AdropNativeAdListener {
@@ -118,6 +119,10 @@ export default class AdropNativeAd {
 
     public get isVideoAd(): boolean {
         return this._event?.isVideoAd ?? false
+    }
+
+    public get browserTarget(): BrowserTarget {
+        return this._event?.browserTarget ?? BrowserTarget.EXTERNAL
     }
 
     public get properties(): AdropNativeProperties {

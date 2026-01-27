@@ -132,6 +132,7 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
                 putString("campaignId", ad.campaignId)
                 putString("destinationURL", ad.destinationURL)
                 putString("errorCode", errorCode)
+                putInt("browserTarget", ad.browserTarget)
             })
     }
 

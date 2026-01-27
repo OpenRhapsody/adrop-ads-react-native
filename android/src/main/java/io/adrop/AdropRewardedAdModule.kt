@@ -83,6 +83,7 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
                 putString("txId", ad.txId)
                 putString("campaignId", ad.campaignId)
                 putString("errorCode", errorCode)
+                putInt("browserTarget", ad.browserTarget)
             })
     }
 

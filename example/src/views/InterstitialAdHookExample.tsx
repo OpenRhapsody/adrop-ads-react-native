@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Platform, StyleSheet, Text, View } from 'react-native'
 import { useAdropInterstitialAd } from 'adrop-ads-react-native'
 import { testUnitId, testUnitId_interstitialAd } from '../TestUnitIds'
@@ -22,8 +22,26 @@ const InterstitialAdHookExample: React.FC = () => {
     // - isOpened: Whether ad is currently displayed
     // - isReady: Whether ad can be loaded
     // - errorCode: Error code if failed
-    const { load, show, errorCode, reset, isLoaded, isOpened, isReady } =
-        useAdropInterstitialAd(unitId)
+    // - browserTarget: Browser target value (0: external, 1: internal)
+    const {
+        load,
+        show,
+        errorCode,
+        reset,
+        isLoaded,
+        isOpened,
+        isReady,
+        browserTarget,
+    } = useAdropInterstitialAd(unitId)
+
+    // Log browserTarget when ad is loaded
+    useEffect(() => {
+        if (isLoaded) {
+            console.log(
+                `interstitialAd (hook) received, browserTarget: ${browserTarget}`
+            )
+        }
+    }, [isLoaded, browserTarget])
     const disabledReset = !(isOpened || errorCode)
 
     // Load ad when ready

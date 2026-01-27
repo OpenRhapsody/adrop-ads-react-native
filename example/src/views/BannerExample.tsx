@@ -40,11 +40,21 @@ const BannerExample: React.FC = () => {
 
     // Callback: Called when the ad is clicked
     const onAdClicked = (unitId: string, metadata?: AdropBannerMetadata) =>
-        console.log('banner clicked', unitId, metadata)
+        console.log(
+            'banner clicked',
+            unitId,
+            metadata,
+            `browserTarget: ${metadata?.browserTarget}`
+        )
 
     // Callback: Called when the ad is successfully loaded
     const onAdReceived = (unitId: string, metadata?: AdropBannerMetadata) =>
-        console.log('banner received', unitId, metadata)
+        console.log(
+            'banner received',
+            unitId,
+            metadata,
+            `browserTarget: ${metadata?.browserTarget}`
+        )
 
     // Callback: Called when the ad fails to load
     const onAdFailedToReceive = (unitId: string, error?: string) => {
@@ -54,7 +64,12 @@ const BannerExample: React.FC = () => {
 
     // Callback: Called when the ad is displayed and an impression is recorded
     const onAdImpression = (unitId: string, metadata?: AdropBannerMetadata) =>
-        console.log('banner onAdImpression', unitId, metadata)
+        console.log(
+            'banner onAdImpression',
+            unitId,
+            metadata,
+            `browserTarget: ${metadata?.browserTarget}`
+        )
 
     const onEmptyAdFailedToReceive = (_: string, error?: string) => {
         console.log('banner onAdFailedToReceive', _, error)

@@ -13,6 +13,7 @@ import {
     UIManager,
 } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
+import { BrowserTarget } from './AdropAd'
 
 type AdropBannerNativeProp = {
     style: { height: number; width: number | string }
@@ -26,6 +27,7 @@ export type AdropBannerMetadata = {
     txId: string
     campaignId: string
     destinationURL: string
+    browserTarget: BrowserTarget
 }
 
 type AdropBannerProp = AdropBannerNativeProp & {
@@ -94,6 +96,8 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                     txId: event.txId ?? '',
                     destinationURL: event.destinationURL ?? '',
                     campaignId: event.campaignId ?? '',
+                    browserTarget:
+                        event.browserTarget ?? BrowserTarget.EXTERNAL,
                 }
                 onAdClicked?.(unitId, metadata)
             },
@@ -108,6 +112,8 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                     txId: event.txId ?? '',
                     destinationURL: event.destinationURL ?? '',
                     campaignId: event.campaignId ?? '',
+                    browserTarget:
+                        event.browserTarget ?? BrowserTarget.EXTERNAL,
                 }
                 onAdReceived?.(unitId, metadata)
                 isLoaded.current = true
@@ -123,6 +129,8 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                     txId: event.txId ?? '',
                     destinationURL: event.destinationURL ?? '',
                     campaignId: event.campaignId ?? '',
+                    browserTarget:
+                        event.browserTarget ?? BrowserTarget.EXTERNAL,
                 }
                 onAdImpression?.(unitId, metadata)
             },

@@ -5,7 +5,7 @@ import {
     useMemo,
     useReducer,
 } from 'react'
-import { AdropInterstitialAd, AdropRewardedAd } from '../ads'
+import { AdropInterstitialAd, AdropRewardedAd, BrowserTarget } from '../ads'
 
 interface AdHookReturns {
     load: () => void
@@ -22,6 +22,7 @@ interface AdStates {
     isReady: boolean
     errorCode?: string
     reward?: { type: number; amount: number }
+    browserTarget?: BrowserTarget
 }
 
 const initState: AdStates = {
@@ -33,6 +34,7 @@ const initState: AdStates = {
     isReady: false,
     errorCode: undefined,
     reward: undefined,
+    browserTarget: undefined,
 }
 
 function useAdropFullScreenAd<
@@ -60,8 +62,12 @@ function useAdropFullScreenAd<
         if (ad) {
             setStates({ isReady: true })
             ad.listener = {
-                onAdReceived: (_) => {
-                    setStates({ isLoaded: true, errorCode: '' })
+                onAdReceived: (receivedAd) => {
+                    setStates({
+                        isLoaded: true,
+                        errorCode: '',
+                        browserTarget: receivedAd.browserTarget,
+                    })
                 },
                 onAdFailedToReceive: (_, errorCode) => {
                     setStates({ errorCode })

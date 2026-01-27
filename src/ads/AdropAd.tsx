@@ -10,6 +10,11 @@ export enum AdType {
     adropNativeAd = 'AdropNativeAd',
 }
 
+export enum BrowserTarget {
+    EXTERNAL = 0,
+    INTERNAL = 1,
+}
+
 type AdropEvent = {
     unitId: string
     method: string
@@ -20,6 +25,7 @@ type AdropEvent = {
     type?: number
     amount?: number
     destinationURL?: string
+    browserTarget?: BrowserTarget
 }
 
 export type AdropListener = {
@@ -44,6 +50,7 @@ export abstract class AdropAd {
     protected _txId: string = ''
     protected _campaignId: string = ''
     protected _destinationURL: string = ''
+    protected _browserTarget: BrowserTarget = BrowserTarget.EXTERNAL
     public listener?: AdropListener
 
     protected constructor(adType: AdType, unitId: string) {
@@ -88,6 +95,10 @@ export abstract class AdropAd {
 
     public get destinationURL() {
         return this._destinationURL
+    }
+
+    public get browserTarget(): BrowserTarget {
+        return this._browserTarget
     }
 
     public load() {
@@ -153,6 +164,7 @@ export abstract class AdropAd {
             this._txId = event.txId ?? ''
             this._campaignId = event.campaignId ?? ''
             this._destinationURL = event.destinationURL ?? ''
+            this._browserTarget = event.browserTarget ?? BrowserTarget.EXTERNAL
         }
 
         switch (event.method) {

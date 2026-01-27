@@ -67,7 +67,8 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
                                        "creativeId": ad.creativeId,
                                        "destinationURL": ad.destinationURL,
                                        "txId": ad.txId,
-                                       "campaignId": ad.campaignId
+                                       "campaignId": ad.campaignId,
+                                       "browserTarget": ad.browserTargetValue.rawValue
                                    ])
         }
     }

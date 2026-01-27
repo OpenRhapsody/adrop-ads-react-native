@@ -17,12 +17,14 @@ const RewardedAdClassExample: React.FC = () => {
         return {
             // Callback: Called when the ad is clicked
             onAdClicked: (ad: AdropRewardedAd) =>
-                console.log(`rewardedAd clicked ${ad.unitId}`),
+                console.log(
+                    `rewardedAd clicked ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the ad is successfully loaded
             onAdReceived: (ad: AdropRewardedAd) => {
                 console.log(
-                    `rewardedAd received ${ad.unitId} ${ad.txId}, ${ad.campaignId}, ${ad.creativeId}`
+                    `rewardedAd received ${ad.unitId} ${ad.txId}, ${ad.campaignId}, ${ad.creativeId}, browserTarget: ${ad.browserTarget}`
                 )
                 setErrorCode('')
                 setIsLoaded(true)
@@ -34,11 +36,15 @@ const RewardedAdClassExample: React.FC = () => {
 
             // Callback: Called when the full-screen ad is dismissed
             onAdDidDismissFullScreen: (ad: AdropRewardedAd) =>
-                console.log(`rewardedAd dismiss ${ad.unitId}`),
+                console.log(
+                    `rewardedAd dismiss ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the full-screen ad is presented
             onAdDidPresentFullScreen: (ad: AdropRewardedAd) =>
-                console.log(`rewardedAd present ${ad.unitId}`),
+                console.log(
+                    `rewardedAd present ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the full-screen ad fails to show
             onAdFailedToShowFullScreen: (_: AdropRewardedAd, error: any) =>

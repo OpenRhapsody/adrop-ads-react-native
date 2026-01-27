@@ -31,13 +31,15 @@ const PopupAdClassExample: React.FC = () => {
                 console.log(
                     `popupAd impressed ${ad.unitId}, ${ad.createIds()} , ${
                         ad.txId
-                    }, ${ad.campaignId} ${ad.destinationURL}`
+                    }, ${ad.campaignId} ${ad.destinationURL}, browserTarget: ${
+                        ad.browserTarget
+                    }`
                 ),
 
             // Callback: Called when the ad is clicked
             onAdClicked: (ad: AdropPopupAd) => {
                 console.log(
-                    `popupAd clicked ${ad.unitId} , ${ad.destinationURL}`
+                    `popupAd clicked ${ad.unitId} , ${ad.destinationURL}, browserTarget: ${ad.browserTarget}`
                 )
                 // Close the popup ad when clicked
                 ad.close()
@@ -46,7 +48,9 @@ const PopupAdClassExample: React.FC = () => {
             // Callback: Called when the ad is successfully loaded
             onAdReceived: (ad: AdropPopupAd) => {
                 setIsLoaded(true)
-                console.log(`popupAd received ${ad.unitId}`)
+                console.log(
+                    `popupAd received ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                )
                 setErrorCode('')
             },
 
@@ -58,11 +62,15 @@ const PopupAdClassExample: React.FC = () => {
 
             // Callback: Called when the popup ad is dismissed
             onAdDidDismissFullScreen: (ad: AdropPopupAd) =>
-                console.log(`popupAd dismiss ${ad.unitId}`),
+                console.log(
+                    `popupAd dismiss ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the popup ad is presented
             onAdDidPresentFullScreen: (ad: AdropPopupAd) =>
-                console.log(`popupAd present ${ad.unitId}`),
+                console.log(
+                    `popupAd present ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the popup ad fails to show
             onAdFailedToShowFullScreen: (_: AdropPopupAd, error: any) =>

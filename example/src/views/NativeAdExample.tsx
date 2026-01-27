@@ -51,7 +51,8 @@ const NativeAdExample: React.FC = () => {
                     ad.properties,
                     ad.txId,
                     ad.campaignId,
-                    ad.creativeId
+                    ad.creativeId,
+                    `browserTarget: ${ad.browserTarget}`
                 )
                 setIsLoaded(true)
                 setErrorCode('')
@@ -64,11 +65,16 @@ const NativeAdExample: React.FC = () => {
             },
 
             // Callback: Called when the ad is clicked
-            onAdClicked: (ad) => console.log(`nativeAd clicked ${ad.unitId}`),
+            onAdClicked: (ad) =>
+                console.log(
+                    `nativeAd clicked ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
 
             // Callback: Called when the ad is displayed and an impression is recorded
             onAdImpression: (ad) =>
-                console.log(`nativeAd impressed ${ad.unitId}`),
+                console.log(
+                    `nativeAd impressed ${ad.unitId}, browserTarget: ${ad.browserTarget}`
+                ),
         }),
         []
     )

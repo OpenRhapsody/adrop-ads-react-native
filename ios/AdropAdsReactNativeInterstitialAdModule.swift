@@ -72,7 +72,8 @@ class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
                     "errorCode": errorCode ?? "",
                     "creativeId": ad.creativeId,
                     "txId": ad.txId,
-                    "campaignId": ad.campaignId
+                    "campaignId": ad.campaignId,
+                    "browserTarget": ad.browserTargetValue.rawValue
                   ])
     }
 
