@@ -29,7 +29,7 @@ const AdropCallToActionView: React.FC<TextProps> = (props) => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    const content = useMemo(() => nativeAd?.properties.advertiser, [nativeAd])
+    const content = useMemo(() => nativeAd?.properties.callToAction, [nativeAd])
     if (!content) return null
 
     return (
