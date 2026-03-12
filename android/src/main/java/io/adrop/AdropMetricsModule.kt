@@ -1,5 +1,6 @@
 package io.adrop
 
+import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -53,6 +54,52 @@ class AdropMetricsModule(reactContext: ReactApplicationContext) :
             }
         }
         AdropMetrics.logEvent(name, builder.build())
+    }
+
+    @ReactMethod
+    fun sendEvent(name: String, params: ReadableMap? = null) {
+        try {
+            if (params == null) {
+                AdropMetrics.sendEvent(name)
+                return
+            }
+            AdropMetrics.sendEvent(name, toEventParam(params))
+        } catch (e: Throwable) {
+            val safeName = name.replace(Regex("[\\n\\r\\t\\u0000-\\u001F]"), "")
+            Log.e("AdropMetrics", "Failed to send event: $safeName", e)
+        }
+    }
+
+    private fun toEventParam(map: ReadableMap, depth: Int = 0): AdropEventParam {
+        if (depth > 10) return AdropEventParam.Builder().build()
+        val builder = AdropEventParam.Builder()
+        map.entryIterator.forEach { entry ->
+            val key = entry.key
+            when (val value = entry.value) {
+                is String -> builder.putString(key, value)
+                is Boolean -> builder.putBoolean(key, value)
+                is Double -> {
+                    if (value.isNaN() || value.isInfinite()) return@forEach
+                    // JS Number.MAX_SAFE_INTEGER (2^53-1) is within Long range; integer detection is accurate for JS-origin values
+                    if (value == value.toLong().toDouble()) {
+                        builder.putLong(key, value.toLong())
+                    } else {
+                        builder.putFloat(key, value.toFloat())
+                    }
+                }
+                is com.facebook.react.bridge.ReadableArray -> {
+                    val items = mutableListOf<AdropEventParam>()
+                    for (i in 0 until value.size()) {
+                        if (value.getType(i) == ReadableType.Map) {
+                            value.getMap(i)?.let { items.add(toEventParam(it, depth + 1)) }
+                        }
+                    }
+                    if (items.isNotEmpty()) builder.putItems(items)
+                }
+                else -> {}
+            }
+        }
+        return builder.build()
     }
 
     @ReactMethod

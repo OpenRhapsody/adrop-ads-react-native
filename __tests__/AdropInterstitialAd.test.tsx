@@ -1,7 +1,12 @@
 import { AdropErrorCode, AdropInterstitialAd } from '../src'
 import { DeviceEventEmitter, NativeModules } from 'react-native'
 import { AdropChannel, AdropMethod } from '../src/bridge'
-import { AdType } from '../src/ads/AdropAd'
+import { AdType, BrowserTarget } from '../src/ads/AdropAd'
+
+let mockNanoidSeq = 0
+jest.mock('../src/utils/id', () => ({
+    nanoid: jest.fn(() => `req_${++mockNanoidSeq}`),
+}))
 
 jest.mock('react-native', () => {
     const RN = jest.requireActual('react-native')
@@ -327,4 +332,119 @@ describe('AdropInterstitialAdTest', () => {
             }
         )
     }
+})
+
+describe('AdropInterstitialAd P2 — metadata & edge cases', () => {
+    const unitId = 'P2_TEST_UNIT_INTERSTITIAL'
+
+    const createAdAndChannel = () => {
+        const ad = new AdropInterstitialAd(unitId)
+        const requestId =
+            NativeModules.AdropInterstitialAd.create.mock.calls.slice(-1)[0][1]
+        const ch = AdropChannel.adropEventListenerChannel(
+            AdType.adropInterstitialAd,
+            requestId
+        )
+        const emitEvent = (method: string, extra?: Record<string, any>) => {
+            DeviceEventEmitter.emit(ch, {
+                unitId,
+                method,
+                creativeId: '',
+                errorCode: '',
+                ...extra,
+            })
+        }
+        return { ad, emitEvent }
+    }
+
+    afterEach(() => {
+        jest.clearAllMocks()
+    })
+
+    test('didReceiveAd updates creativeId', () => {
+        const { ad, emitEvent } = createAdAndChannel()
+        emitEvent(AdropMethod.didReceiveAd, { creativeId: 'cr_abc' })
+        expect(ad.creativeId).toBe('cr_abc')
+        ad.destroy()
+    })
+
+    test('didReceiveAd updates txId', () => {
+        const { ad, emitEvent } = createAdAndChannel()
+        emitEvent(AdropMethod.didReceiveAd, { txId: 'tx_abc' })
+        expect(ad.txId).toBe('tx_abc')
+        ad.destroy()
+    })
+
+    test('didReceiveAd updates destinationURL', () => {
+        const { ad, emitEvent } = createAdAndChannel()
+        emitEvent(AdropMethod.didReceiveAd, {
+            destinationURL: 'https://dest.com',
+        })
+        expect(ad.destinationURL).toBe('https://dest.com')
+        ad.destroy()
+    })
+
+    test('didReceiveAd updates browserTarget', () => {
+        const { ad, emitEvent } = createAdAndChannel()
+        emitEvent(AdropMethod.didReceiveAd, {
+            browserTarget: BrowserTarget.INTERNAL,
+        })
+        expect(ad.browserTarget).toBe(BrowserTarget.INTERNAL)
+        ad.destroy()
+    })
+
+    test('handleEarnReward event passes type and amount', () => {
+        const { ad, emitEvent } = createAdAndChannel()
+        const onAdEarnRewardHandler = jest.fn()
+        ad.listener = { onAdEarnRewardHandler }
+
+        emitEvent(AdropMethod.handleEarnReward, { type: 2, amount: 200 })
+        expect(onAdEarnRewardHandler).toHaveBeenCalledWith(ad, 2, 200)
+        ad.destroy()
+    })
+
+    test('load() with null module calls onAdFailedToReceive', () => {
+        const ad = new AdropInterstitialAd(unitId)
+        const onAdFailedToReceive = jest.fn()
+        ad.listener = { onAdFailedToReceive }
+
+        const originalModule = NativeModules.AdropInterstitialAd
+        NativeModules.AdropInterstitialAd = undefined as any
+
+        ad.load()
+        expect(onAdFailedToReceive).toHaveBeenCalledWith(
+            ad,
+            AdropErrorCode.initialize
+        )
+
+        NativeModules.AdropInterstitialAd = originalModule
+        ad.destroy()
+    })
+
+    test('show() with null module calls onAdFailedToReceive', () => {
+        const ad = new AdropInterstitialAd(unitId)
+        const onAdFailedToReceive = jest.fn()
+        ad.listener = { onAdFailedToReceive }
+
+        const originalModule = NativeModules.AdropInterstitialAd
+        NativeModules.AdropInterstitialAd = undefined as any
+
+        ad.show()
+        expect(onAdFailedToReceive).toHaveBeenCalledWith(
+            ad,
+            AdropErrorCode.initialize
+        )
+
+        NativeModules.AdropInterstitialAd = originalModule
+        ad.destroy()
+    })
+
+    test('destinationUrl (deprecated) equals destinationURL', () => {
+        const { ad, emitEvent } = createAdAndChannel()
+        emitEvent(AdropMethod.didReceiveAd, {
+            destinationURL: 'https://example.com',
+        })
+        expect(ad.destinationUrl).toBe(ad.destinationURL)
+        ad.destroy()
+    })
 })

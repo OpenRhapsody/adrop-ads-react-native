@@ -5,8 +5,13 @@ class AdropMetrics {
         NativeModules.AdropMetrics.setProperty(key, [value])
     }
 
+    static sendEvent = (name: string, params?: Record<string, any>) => {
+        NativeModules.AdropMetrics.sendEvent(name, params ?? null)
+    }
+
+    /** @deprecated Use sendEvent instead */
     static logEvent = (name: string, params?: Record<string, any>) => {
-        NativeModules.AdropMetrics.logEvent(name, params)
+        NativeModules.AdropMetrics.sendEvent(name, params ?? null)
     }
 
     static properties = async (): Promise<Record<string, any>> => {

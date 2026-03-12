@@ -34,7 +34,7 @@ target 'AdropAdsReactNativeExample' do
 
   use_frameworks! :linkage => :static
 
-  pod 'adrop-ads-backfill', '>= 1.7.5', '< 1.8.0'
+  pod 'adrop-ads-backfill', '>= 1.8.0', '< 1.9.0'
 
   use_react_native!(
     :path => config[:reactNativePath],

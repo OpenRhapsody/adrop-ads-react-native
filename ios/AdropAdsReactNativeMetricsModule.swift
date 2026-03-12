@@ -24,6 +24,11 @@ class AdropAnalyticsModule: RCTEventEmitter {
         AdropMetrics.logEvent(name: name, params: encodableParams)
     }
     
+    @objc(sendEvent:params:)
+    func sendEvent(name: String, params: [String:Any]?) {
+        AdropMetrics.sendEvent(name: name, params: params)
+    }
+
     @objc
     func properties(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {

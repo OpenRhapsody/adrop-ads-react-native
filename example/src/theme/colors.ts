@@ -1,0 +1,17 @@
+export const Colors = {
+    primary: '#6C5CE7',
+    primaryDark: '#5A4BD1',
+    accent: '#00D2D3',
+    background: '#F8F9FA',
+    surface: '#FFFFFF',
+    textPrimary: '#2D3436',
+    textSecondary: '#636E72',
+    success: '#00B894',
+    warning: '#FDCB6E',
+    error: '#FF7675',
+    divider: '#E0E0E0',
+    white: '#FFFFFF',
+    heroGradientStart: '#6C5CE7',
+    heroGradientEnd: '#a29bfe',
+    sponsoredBadge: '#636E72',
+} as const
