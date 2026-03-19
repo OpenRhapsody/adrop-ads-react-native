@@ -39,6 +39,7 @@ export type AdropListener = {
     onAdWillDismissFullScreen?: (ad: AdropAd) => void
     onAdFailedToShowFullScreen?: (ad: AdropAd, errorCode?: any) => void
     onAdEarnRewardHandler?: (ad: AdropAd, type: number, amount: number) => void
+    onAdBackButtonPressed?: (ad: AdropAd) => void
 }
 
 export abstract class AdropAd {
@@ -154,6 +155,10 @@ export abstract class AdropAd {
         module.setUseCustomClick(this._requestId, useCustomClick)
     }
 
+    public close() {
+        this.getNativeModule()?.close?.(this._requestId)
+    }
+
     public destroy() {
         this.getNativeModule()?.destroy(this._requestId)
     }
@@ -205,6 +210,9 @@ export abstract class AdropAd {
                     event.type ?? 0,
                     event.amount ?? 0
                 )
+                break
+            case AdropMethod.onAdBackButtonPressed:
+                this.listener?.onAdBackButtonPressed?.(this)
                 break
         }
     }

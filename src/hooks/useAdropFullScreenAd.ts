@@ -14,6 +14,7 @@ interface AdHookReturns {
 }
 
 interface AdStates {
+    isBackPressed: boolean
     isClicked: boolean
     isClosed: boolean
     isEarnRewarded: boolean
@@ -26,6 +27,7 @@ interface AdStates {
 }
 
 const initState: AdStates = {
+    isBackPressed: false,
     isClosed: false,
     isClicked: false,
     isEarnRewarded: false,
@@ -90,6 +92,9 @@ function useAdropFullScreenAd<
                 },
                 onAdFailedToShowFullScreen: (_, errorCode) => {
                     setStates({ errorCode })
+                },
+                onAdBackButtonPressed: (_) => {
+                    setStates({ isBackPressed: true })
                 },
             }
         } else {

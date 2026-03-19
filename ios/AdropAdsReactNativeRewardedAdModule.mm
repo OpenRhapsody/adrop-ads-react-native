@@ -6,6 +6,10 @@
 RCT_EXTERN_METHOD(create:(NSString *)unitId
                   requestId:(NSString) requestId)
 
+RCT_EXTERN_METHOD(setServerSideVerificationOptions:(NSString *)requestId
+                  userId:(NSString *)userId
+                  customData:(NSString *)customData)
+
 RCT_EXTERN_METHOD(load:(NSString *)unitId
                   requestId:(NSString) requestId)
 

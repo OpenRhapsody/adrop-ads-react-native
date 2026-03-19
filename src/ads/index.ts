@@ -17,3 +17,4 @@ export {
     BrowserTarget,
 }
 export type { AdropListener, AdropPopupAdColors, AdropNativeAdListener }
+export type { ServerSideVerificationOptions } from './AdropRewardedAd'

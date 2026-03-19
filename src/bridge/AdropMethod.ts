@@ -10,6 +10,7 @@ const enum AdropMethod {
     didFailToShowFullScreen = 'onAdFailedToShowFullScreen',
     didImpression = 'onAdImpression',
     handleEarnReward = 'handleEarnReward',
+    onAdBackButtonPressed = 'onAdBackButtonPressed',
 }
 
 export default AdropMethod

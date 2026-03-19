@@ -12,6 +12,7 @@ import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.rewardedAd.AdropRewardedAd
 import io.adrop.ads.rewardedAd.AdropRewardedAdListener
+import io.adrop.ads.rewardedAd.ServerSideVerificationOptions
 import io.adrop.bridge.AdropChannel
 import io.adrop.bridge.AdropMethod
 
@@ -28,6 +29,17 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
             val rewardedAd = AdropRewardedAd(reactApplicationContext, unitId)
             rewardedAd.rewardedAdListener = this
             _rewardedAds[requestId] = rewardedAd
+        }
+    }
+
+    @ReactMethod
+    fun setServerSideVerificationOptions(requestId: String, userId: String?, customData: String?) {
+        _rewardedAds[requestId]?.let { ad ->
+            if (userId != null || customData != null) {
+                ad.serverSideVerificationOptions = ServerSideVerificationOptions(userId, customData)
+            } else {
+                ad.serverSideVerificationOptions = null
+            }
         }
     }
 

@@ -13,6 +13,17 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
         }
     }
 
+    @objc(setServerSideVerificationOptions:userId:customData:)
+    func setServerSideVerificationOptions(_ requestId: String, _ userId: String?, _ customData: String?) -> Void {
+        if let rewardedAd = self._rewardedAds[requestId] {
+            if userId != nil || customData != nil {
+                rewardedAd.serverSideVerificationOptions = AdropServerSideVerificationOptions(userId: userId, customData: customData)
+            } else {
+                rewardedAd.serverSideVerificationOptions = nil
+            }
+        }
+    }
+
     @objc(load:requestId:)
     func load(_ unitId: String, _ requestId: String) -> Void {
         DispatchQueue.main.async { [weak self] in

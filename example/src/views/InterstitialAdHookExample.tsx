@@ -31,6 +31,7 @@ const InterstitialAdHookExample: React.FC = () => {
         isLoaded,
         isOpened,
         isReady,
+        isBackPressed,
         browserTarget,
     } = useAdropInterstitialAd(unitId)
 
@@ -42,6 +43,13 @@ const InterstitialAdHookExample: React.FC = () => {
             )
         }
     }, [isLoaded, browserTarget])
+
+    // Log when back button is pressed (Android only)
+    useEffect(() => {
+        if (isBackPressed) {
+            console.log('interstitialAd (hook) backButtonPressed')
+        }
+    }, [isBackPressed])
     const disabledReset = !(isOpened || errorCode)
 
     // Load ad when ready

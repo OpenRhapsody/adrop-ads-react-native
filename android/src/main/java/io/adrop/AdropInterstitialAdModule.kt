@@ -10,13 +10,14 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.interstitial.AdropInterstitialAd
+import io.adrop.ads.interstitial.AdropInterstitialAdCloseListener
 import io.adrop.ads.interstitial.AdropInterstitialAdListener
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.bridge.AdropChannel
 import io.adrop.bridge.AdropMethod
 
 class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), AdropInterstitialAdListener {
+    ReactContextBaseJavaModule(reactContext), AdropInterstitialAdListener, AdropInterstitialAdCloseListener {
     private val _interstitialAds = mutableMapOf<String, AdropInterstitialAd>()
 
     override fun getName(): String = NAME
@@ -26,6 +27,7 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
         _interstitialAds[requestId] ?: let {
             val interstitialAd = AdropInterstitialAd(reactApplicationContext, unitId)
             interstitialAd.interstitialAdListener = this
+            interstitialAd.closeListener = this
             _interstitialAds[requestId] = interstitialAd
         }
     }
@@ -54,6 +56,11 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun customize(requestId: String, data: ReadableMap? = null) {}
+
+    @ReactMethod
+    fun close(requestId: String) {
+        _interstitialAds[requestId]?.close()
+    }
 
     @ReactMethod
     fun destroy(requestId: String) {
@@ -110,6 +117,10 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
 
     override fun onAdFailedToShowFullScreen(ad: AdropInterstitialAd, errorCode: AdropErrorCode) {
         sendEvent(ad, AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode = errorCode.name)
+    }
+
+    override fun onBackPressed(ad: AdropInterstitialAd) {
+        sendEvent(ad, AdropMethod.ON_AD_BACK_BUTTON_PRESSED)
     }
 
     companion object {

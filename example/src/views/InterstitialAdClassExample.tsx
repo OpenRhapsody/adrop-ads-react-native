@@ -51,6 +51,12 @@ const InterstitialAdClassExample: React.FC = () => {
             // Callback: Called when the full-screen ad fails to show
             onAdFailedToShowFullScreen: (_: AdropInterstitialAd, error: any) =>
                 setErrorCode(error),
+
+            // Callback: Called when the back button is pressed (Android only)
+            onAdBackButtonPressed: (ad: AdropInterstitialAd) => {
+                console.log(`interstitialAd backButtonPressed ${ad.unitId}`)
+                ad.close()
+            },
         } as AdropListener
     }, [])
 
