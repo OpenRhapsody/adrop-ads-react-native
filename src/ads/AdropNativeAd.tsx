@@ -4,7 +4,10 @@ import { nanoid } from '../utils/id'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { AdType, BrowserTarget } from './AdropAd'
 import { AdropErrorCode } from '../AdropErrorCode'
-import { nativeAdRequestIds } from '../contexts/AdropNativeContext'
+import {
+    nativeAdRequestIds,
+    nativeAdDataListeners,
+} from '../contexts/AdropNativeContext'
 
 export type AdropNativeProfile = {
     displayName: string
@@ -172,6 +175,7 @@ export default class AdropNativeAd {
     public destroy() {
         this.getNativeModule()?.destroy(this._requestId)
         nativeAdRequestIds.delete(this)
+        nativeAdDataListeners.delete(this)
     }
 
     private _handleEvent(event: AdropNativeEvent) {
@@ -182,6 +186,7 @@ export default class AdropNativeAd {
         switch (event.method) {
             case AdropMethod.didReceiveAd:
                 this._loaded = true
+                nativeAdDataListeners.get(this)?.forEach((fn) => fn())
                 this.listener?.onAdReceived?.(this)
                 break
             case AdropMethod.didClickAd:

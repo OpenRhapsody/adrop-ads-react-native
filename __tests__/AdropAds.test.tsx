@@ -7,6 +7,7 @@ jest.mock('react-native', () => {
         initialize: jest.fn(),
         setUID: jest.fn(),
         setTheme: jest.fn(),
+        registerWebView: jest.fn().mockResolvedValue(undefined),
     }
 
     const eventEmitter = {
@@ -78,5 +79,10 @@ describe('Adrop Test', () => {
     test('setTheme calls native', () => {
         Adrop.setTheme('dark' as any)
         expect(NativeModules.AdropAds.setTheme).toHaveBeenCalledWith('dark')
+    })
+
+    test('registerWebView calls native with viewTag', () => {
+        Adrop.registerWebView(42)
+        expect(NativeModules.AdropAds.registerWebView).toHaveBeenCalledWith(42)
     })
 })

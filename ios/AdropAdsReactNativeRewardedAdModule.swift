@@ -4,6 +4,8 @@ import AdropAds
 class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
     private var _rewardedAds = [String: AdropRewardedAd]()
 
+    override var methodQueue: DispatchQueue! { DispatchQueue.main }
+
     @objc(create:requestId:)
     func create(_ unitId: String, _ requestId: String) -> Void {
         if self._rewardedAds[requestId] == nil {
@@ -26,37 +28,29 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
 
     @objc(load:requestId:)
     func load(_ unitId: String, _ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            if let rewardedAd = self?._rewardedAds[requestId] {
-                rewardedAd.load()
-            }
-        }
+        self._rewardedAds[requestId]?.load()
     }
 
     @objc(show:requestId:)
     func show(_ unitId: String, _ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            if let rewardedAd = self?._rewardedAds[requestId], let viewController = RCTPresentedViewController() {
-                rewardedAd.show(fromRootViewController: viewController) { [weak self] type, amount in
-                    guard let strongSelf = self else { return }
+        if let rewardedAd = self._rewardedAds[requestId], let viewController = RCTPresentedViewController() {
+            rewardedAd.show(fromRootViewController: viewController) { [weak self] type, amount in
+                guard let strongSelf = self else { return }
 
-                    strongSelf.sendEarnEvent(rewardedAd, method: AdropMethod.HANDLE_EARN_REWARD, type: type, amount: amount)
-                }
-            } else {
-                self?.sendEvent(withName: AdropChannel.invokeRewardedChannel(id: requestId),
-                          body: [ "unitId": unitId,
-                                  "method": AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-                                  "errorCode": AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY),
-                                ])
+                strongSelf.sendEarnEvent(rewardedAd, method: AdropMethod.HANDLE_EARN_REWARD, type: type, amount: amount)
             }
+        } else {
+            self.sendEvent(withName: AdropChannel.invokeRewardedChannel(id: requestId),
+                      body: [ "unitId": unitId,
+                              "method": AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
+                              "errorCode": AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY),
+                            ])
         }
     }
 
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            self?._rewardedAds.removeValue(forKey: requestId)
-        }
+        self._rewardedAds.removeValue(forKey: requestId)
     }
 
     private func requestIdFor(_ ad: AdropRewardedAd) -> String {
@@ -69,7 +63,9 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
     }
 
     private func sendAdEvent(_ ad: AdropRewardedAd, method: String, errorCode: String? = nil) {
-        sendEvent(withName: AdropChannel.invokeRewardedChannel(id: requestIdFor(ad)),
+        let requestId = requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
+        sendEvent(withName: AdropChannel.invokeRewardedChannel(id: requestId),
                   body: [ "unitId": ad.unitId,
                           "method": method,
                           "errorCode": errorCode ?? "",
@@ -81,7 +77,9 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
     }
 
     private func sendEarnEvent(_ ad: AdropRewardedAd, method: String, type: Int, amount: Int) {
-        sendEvent(withName: AdropChannel.invokeRewardedChannel(id: requestIdFor(ad)),
+        let requestId = requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
+        sendEvent(withName: AdropChannel.invokeRewardedChannel(id: requestId),
                   body: [ "unitId": ad.unitId, "method": method, "type": type, "amount": amount])
     }
 

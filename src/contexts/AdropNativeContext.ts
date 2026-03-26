@@ -1,5 +1,5 @@
 import React from 'react'
-import AdropNativeAd from '../ads/AdropNativeAd'
+import type AdropNativeAd from '../ads/AdropNativeAd'
 
 interface Props {
     nativeAd?: AdropNativeAd
@@ -12,3 +12,8 @@ export const AdropNativeContext = React.createContext<Props>({
 })
 
 export const nativeAdRequestIds = new WeakMap<AdropNativeAd, () => string>()
+
+export const nativeAdDataListeners = new WeakMap<
+    AdropNativeAd,
+    Set<() => void>
+>()

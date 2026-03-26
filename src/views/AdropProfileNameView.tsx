@@ -1,10 +1,4 @@
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-} from 'react'
+import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import { findNodeHandle, Text } from 'react-native'
 import type { TextProps } from 'react-native'
 import {
@@ -33,11 +27,7 @@ const AdropProfileNameView: React.FC<TextProps> = (props) => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    const content = useMemo(
-        () => nativeAd?.properties.profile?.displayName,
-        [nativeAd]
-    )
-
+    const content = nativeAd?.properties.profile?.displayName
     if (!content) return null
     return (
         <Text {...props} ref={viewRef} onLayout={onLayout}>

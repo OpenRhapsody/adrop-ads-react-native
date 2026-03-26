@@ -4,6 +4,8 @@ import AdropAds
 class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
     private var _popupAds = [String:AdropPopupAd]()
 
+    override var methodQueue: DispatchQueue! { DispatchQueue.main }
+
     @objc(create:requestId:)
     func create(_ unitId: String, _ requestId: String) -> Void {
         if self._popupAds[requestId] == nil {
@@ -15,85 +17,65 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
 
     @objc(load:requestId:)
     func load(_ unitId: String, _ requestId: String) -> Void {
-
         if self._popupAds[requestId] == nil {
             let popupAd = AdropPopupAd(unitId: unitId)
             popupAd.delegate = self
             self._popupAds[requestId] = popupAd
         }
 
-        DispatchQueue.main.async { [weak self] in
-            if let popupAd = self?._popupAds[requestId] {
-                popupAd.load()
-            }
-        }
-
+        self._popupAds[requestId]?.load()
     }
 
     @objc(show:requestId:)
     func show(_ unitId: String, _ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            if let popupAd = self?._popupAds[requestId], let viewController = RCTPresentedViewController() {
-                popupAd.show(fromRootViewController: viewController)
-            } else {
-                self?.sendEvent(withName: AdropChannel.invokePopupChannel(id: requestId),
-                          body: [
-                            "unitId": unitId,
-                            "method": AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-                            "errorCode": AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY),
-                          ])
-            }
+        if let popupAd = self._popupAds[requestId], let viewController = RCTPresentedViewController() {
+            popupAd.show(fromRootViewController: viewController)
+        } else {
+            self.sendEvent(withName: AdropChannel.invokePopupChannel(id: requestId),
+                      body: [
+                        "unitId": unitId,
+                        "method": AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
+                        "errorCode": AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY),
+                      ])
         }
     }
 
     @objc(customize:data:)
     func customize(_ requestId: String, data: [String:Any]?) {
-        DispatchQueue.main.async { [weak self] in
-            guard let popupAd = self?._popupAds[requestId] else { return }
+        guard let popupAd = self._popupAds[requestId] else { return }
 
-            if let closeTextColor = data?["closeTextColor"] as? String,
-                let color = self?.hexStringToColorInt(closeTextColor) {
-                popupAd.closeTextColor = UIColor(fromRNColor: color)
-            }
+        if let closeTextColor = data?["closeTextColor"] as? String {
+            let color = self.hexStringToColorInt(closeTextColor)
+            popupAd.closeTextColor = UIColor(fromRNColor: color)
+        }
 
-            if let hideForTodayTextColor = data?["hideForTodayTextColor"] as? String,
-                let color = self?.hexStringToColorInt(hideForTodayTextColor) {
-                popupAd.hideForTodayTextColor = UIColor(fromRNColor: color)
-            }
+        if let hideForTodayTextColor = data?["hideForTodayTextColor"] as? String {
+            let color = self.hexStringToColorInt(hideForTodayTextColor)
+            popupAd.hideForTodayTextColor = UIColor(fromRNColor: color)
+        }
 
-            if let backgroundColor = data?["backgroundColor"] as? String,
-               let color = self?.hexStringToColorInt(backgroundColor) {
-                popupAd.backgroundColor = UIColor(fromRNColor: color)
-            }
-
+        if let backgroundColor = data?["backgroundColor"] as? String {
+            let color = self.hexStringToColorInt(backgroundColor)
+            popupAd.backgroundColor = UIColor(fromRNColor: color)
         }
     }
 
     @objc(setUseCustomClick:useCustomClick:)
     func setUseCustomClick(_ requestId: String, useCustomClick: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let popupAd = self?._popupAds[requestId] else { return }
-            popupAd.useCustomClick = useCustomClick
-        }
+        guard let popupAd = self._popupAds[requestId] else { return }
+        popupAd.useCustomClick = useCustomClick
     }
 
     @objc(close:)
     func close(_ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            guard let popupAd = self?._popupAds[requestId] else { return }
-            popupAd.close()
-        }
+        guard let popupAd = self._popupAds[requestId] else { return }
+        popupAd.close()
     }
 
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            self?._popupAds.first(where: { $0.key == requestId })?.value.close()
-
-            DispatchQueue.main.async { [weak self] in
-                self?._popupAds.removeValue(forKey: requestId)
-            }
-        }
+        self._popupAds[requestId]?.close()
+        self._popupAds.removeValue(forKey: requestId)
     }
 
     func hexStringToColorInt(_ hexString: String) -> UInt32 {
@@ -134,7 +116,9 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
 
 
     private func sendEvent(_ ad: AdropPopupAd, method: String, errorCode: String? = nil) {
-        sendEvent(withName: AdropChannel.invokePopupChannel(id: requestIdFor(ad)),
+        let requestId = requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
+        sendEvent(withName: AdropChannel.invokePopupChannel(id: requestId),
                   body: [
                     "unitId": ad.unitId,
                     "method": method,

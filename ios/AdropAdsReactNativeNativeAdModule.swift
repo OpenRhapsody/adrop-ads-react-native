@@ -4,22 +4,16 @@ import AdropAds
 @objc(AdropNativeAd)
 class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate {
 
+    override var methodQueue: DispatchQueue! { DispatchQueue.main }
+
     @objc(create:requestId:useCustomClick:)
     func create(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false) {
-        let manager = AdropAdsNativeAdManager.instance
-        DispatchQueue.main.async { [weak self, weak manager] in
-            guard let self = self, let manager = manager else { return }
-            manager.create(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
-        }
+        AdropAdsNativeAdManager.instance.create(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
     }
 
     @objc(load:requestId:useCustomClick:)
     func load(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false) {
-        let manager = AdropAdsNativeAdManager.instance
-        DispatchQueue.main.async { [weak self, weak manager] in
-            guard let self = self, let manager = manager else { return }
-            manager.load(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
-        }
+        AdropAdsNativeAdManager.instance.load(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
     }
 
     @objc(destroy:)
@@ -36,9 +30,11 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
 
         let isVideoAd = creative.contains(adPlayerCallback)
 
+        let requestId = AdropAdsNativeAdManager.instance.requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
         sendEvent(withName: AdropChannel.invokeNativeChannel,
                   body: [ "unitId": ad.unitId, "method": method, "errorCode": errorCode ?? "",
-                          "requestId": AdropAdsNativeAdManager.instance.requestIdFor(ad),
+                          "requestId": requestId,
                           "icon": ad.icon, "cover": ad.cover, "headline": ad.headline, "body": ad.body,
                           "destinationURL": ad.destinationURL, "advertiserURL": ad.advertiserURL,
                           "accountTag": dictionaryToJSONString(ad.accountTag), "creativeTag": dictionaryToJSONString(ad.creativeTag),
@@ -54,6 +50,10 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
     }
 
     func onAdReceived(_ ad: AdropNativeAd) {
+        if ad.isBackfilled {
+            let requestId = AdropAdsNativeAdManager.instance.requestIdFor(ad)
+            AdropAdsNativeAdManager.instance.viewFor(requestId)?.refreshMediaViewLayout()
+        }
         sendEvent(ad, method: AdropMethod.DID_RECEIVE_AD)
     }
 

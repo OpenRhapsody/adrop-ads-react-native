@@ -18,16 +18,17 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONObject
 
 object AdropNativeAdManager {
 
     val handler = Handler(Looper.getMainLooper())
-    private val _nativeAds = mutableMapOf<String, AdropNativeAd>()
+    private val _nativeAds = ConcurrentHashMap<String, AdropNativeAd>()
 
     fun create(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false) {
-        _nativeAds[requestId] ?: let {
-            handler.post {
+        handler.post {
+            _nativeAds[requestId] ?: let {
                 val nativeAd = AdropNativeAd(context, unitId, "")
                 nativeAd.useCustomClick = useCustomClick
                 nativeAd.listener = listener
@@ -37,18 +38,20 @@ object AdropNativeAdManager {
     }
 
     fun load(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false) {
-        create(context, unitId, requestId, listener, useCustomClick)
-
         handler.post {
+            if (_nativeAds[requestId] == null) {
+                val nativeAd = AdropNativeAd(context, unitId, "")
+                nativeAd.useCustomClick = useCustomClick
+                nativeAd.listener = listener
+                _nativeAds[requestId] = nativeAd
+            }
             _nativeAds[requestId]?.load()
         }
     }
 
     fun destroy(requestId: String) {
-        _nativeAds.remove(requestId)?.let {
-            handler.post {
-                it.destroy()
-            }
+        handler.post {
+            _nativeAds.remove(requestId)?.destroy()
         }
     }
 

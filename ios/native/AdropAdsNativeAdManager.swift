@@ -5,6 +5,7 @@ public class AdropAdsNativeAdManager: NSObject {
     static var instance = AdropAdsNativeAdManager()
 
     private var _nativeAds =  [String: AdropNativeAd]()
+    private var _nativeAdViews = NSMapTable<NSString, RNAdropNativeAdView>.strongToWeakObjects()
 
     func create(_ unitId: String, _ requestId: String, delegate: AdropNativeAdDelegate, useCustomClick: Bool) {
         if self._nativeAds[requestId] == nil {
@@ -29,11 +30,20 @@ public class AdropAdsNativeAdManager: NSObject {
     func destroy(_ requestId: String) {
         DispatchQueue.main.async { [weak self] in
             self?._nativeAds.removeValue(forKey: requestId)
+            self?._nativeAdViews.removeObject(forKey: requestId as NSString)
         }
     }
 
     func getAd(_ requestId: String) -> AdropNativeAd? {
         return self._nativeAds[requestId]
+    }
+
+    func registerView(_ requestId: String, _ view: RNAdropNativeAdView) {
+        _nativeAdViews.setObject(view, forKey: requestId as NSString)
+    }
+
+    func viewFor(_ requestId: String) -> RNAdropNativeAdView? {
+        return _nativeAdViews.object(forKey: requestId as NSString)
     }
 
     func requestIdFor(_ ad: AdropNativeAd) -> String {

@@ -15,43 +15,49 @@ import io.adrop.ads.interstitial.AdropInterstitialAdListener
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.bridge.AdropChannel
 import io.adrop.bridge.AdropMethod
+import java.util.concurrent.ConcurrentHashMap
 
 class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), AdropInterstitialAdListener, AdropInterstitialAdCloseListener {
-    private val _interstitialAds = mutableMapOf<String, AdropInterstitialAd>()
+    private val handler = Handler(Looper.getMainLooper())
+    private val _interstitialAds = ConcurrentHashMap<String, AdropInterstitialAd>()
 
     override fun getName(): String = NAME
 
     @ReactMethod
     fun create(unitId: String, requestId: String) {
-        _interstitialAds[requestId] ?: let {
-            val interstitialAd = AdropInterstitialAd(reactApplicationContext, unitId)
-            interstitialAd.interstitialAdListener = this
-            interstitialAd.closeListener = this
-            _interstitialAds[requestId] = interstitialAd
+        handler.post {
+            _interstitialAds[requestId] ?: let {
+                val interstitialAd = AdropInterstitialAd(reactApplicationContext, unitId)
+                interstitialAd.interstitialAdListener = this
+                interstitialAd.closeListener = this
+                _interstitialAds[requestId] = interstitialAd
+            }
         }
     }
 
     @ReactMethod
     fun load(unitId: String, requestId: String) {
-        _interstitialAds[requestId]?.load()
+        handler.post {
+            _interstitialAds[requestId]?.load()
+        }
     }
 
     @ReactMethod
     fun show(unitId: String, requestId: String) {
-        _interstitialAds[requestId]?.let { ad ->
-            reactApplicationContext.currentActivity?.let { fromActivity ->
-                Handler(Looper.getMainLooper()).post {
+        handler.post {
+            _interstitialAds[requestId]?.let { ad ->
+                reactApplicationContext.currentActivity?.let { fromActivity ->
                     ad.show(fromActivity)
                 }
             }
+                ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                    .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
+                        putString("unitId", unitId)
+                        putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
+                        putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
+                    })
         }
-            ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-                .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
-                    putString("unitId", unitId)
-                    putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
-                    putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
-                })
     }
 
     @ReactMethod
@@ -59,13 +65,15 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun close(requestId: String) {
-        _interstitialAds[requestId]?.close()
+        handler.post {
+            _interstitialAds[requestId]?.close()
+        }
     }
 
     @ReactMethod
     fun destroy(requestId: String) {
-        _interstitialAds.remove(requestId)?.let {
-            it.destroy()
+        handler.post {
+            _interstitialAds.remove(requestId)?.destroy()
         }
     }
 
@@ -79,16 +87,20 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
         method: String,
         errorCode: String? = null
     ) {
-        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokeInterstitialChannel(requestIdFor(ad)), Arguments.createMap().apply {
-                putString("unitId", ad.unitId)
-                putString("txId", ad.txId)
-                putString("campaignId", ad.campaignId)
-                putString("method", method)
-                putString("creativeId", ad.creativeId)
-                putString("errorCode", errorCode)
-                putInt("browserTarget", ad.browserTarget)
-            })
+        handler.post {
+            val requestId = requestIdFor(ad)
+            if (requestId.isEmpty()) return@post
+            reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
+                    putString("unitId", ad.unitId)
+                    putString("txId", ad.txId)
+                    putString("campaignId", ad.campaignId)
+                    putString("method", method)
+                    putString("creativeId", ad.creativeId)
+                    putString("errorCode", errorCode)
+                    putInt("browserTarget", ad.browserTarget)
+                })
+        }
     }
 
     override fun onAdFailedToReceive(ad: AdropInterstitialAd, errorCode: AdropErrorCode) {

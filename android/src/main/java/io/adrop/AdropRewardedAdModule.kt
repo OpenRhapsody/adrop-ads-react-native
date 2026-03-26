@@ -15,56 +15,64 @@ import io.adrop.ads.rewardedAd.AdropRewardedAdListener
 import io.adrop.ads.rewardedAd.ServerSideVerificationOptions
 import io.adrop.bridge.AdropChannel
 import io.adrop.bridge.AdropMethod
+import java.util.concurrent.ConcurrentHashMap
 
 class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), AdropRewardedAdListener {
 
-    private val _rewardedAds = mutableMapOf<String, AdropRewardedAd>()
+    private val handler = Handler(Looper.getMainLooper())
+    private val _rewardedAds = ConcurrentHashMap<String, AdropRewardedAd>()
 
     override fun getName(): String = NAME
 
     @ReactMethod
     fun create(unitId: String, requestId: String) {
-        _rewardedAds[requestId] ?: let {
-            val rewardedAd = AdropRewardedAd(reactApplicationContext, unitId)
-            rewardedAd.rewardedAdListener = this
-            _rewardedAds[requestId] = rewardedAd
+        handler.post {
+            _rewardedAds[requestId] ?: let {
+                val rewardedAd = AdropRewardedAd(reactApplicationContext, unitId)
+                rewardedAd.rewardedAdListener = this
+                _rewardedAds[requestId] = rewardedAd
+            }
         }
     }
 
     @ReactMethod
     fun setServerSideVerificationOptions(requestId: String, userId: String?, customData: String?) {
-        _rewardedAds[requestId]?.let { ad ->
-            if (userId != null || customData != null) {
-                ad.serverSideVerificationOptions = ServerSideVerificationOptions(userId, customData)
-            } else {
-                ad.serverSideVerificationOptions = null
+        handler.post {
+            _rewardedAds[requestId]?.let { ad ->
+                if (userId != null || customData != null) {
+                    ad.serverSideVerificationOptions = ServerSideVerificationOptions(userId, customData)
+                } else {
+                    ad.serverSideVerificationOptions = null
+                }
             }
         }
     }
 
     @ReactMethod
     fun load(unitId: String, requestId: String) {
-        _rewardedAds[requestId]?.load()
+        handler.post {
+            _rewardedAds[requestId]?.load()
+        }
     }
 
     @ReactMethod
     fun show(unitId: String, requestId: String) {
-        _rewardedAds[requestId]?.let { ad ->
-            reactApplicationContext.currentActivity?.let { fromActivity ->
-                Handler(Looper.getMainLooper()).post {
+        handler.post {
+            _rewardedAds[requestId]?.let { ad ->
+                reactApplicationContext.currentActivity?.let { fromActivity ->
                     ad.show(fromActivity) { type, amount ->
                         sendEarnEvent(ad, type, amount)
                     }
                 }
             }
+                ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                    .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
+                        putString("unitId", unitId)
+                        putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
+                        putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
+                    })
         }
-            ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-                .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
-                    putString("unitId", unitId)
-                    putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
-                    putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
-                })
     }
 
     @ReactMethod
@@ -72,8 +80,8 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun destroy(requestId: String) {
-        _rewardedAds.remove(requestId)?.let {
-            it.destroy()
+        handler.post {
+            _rewardedAds.remove(requestId)?.destroy()
         }
     }
 
@@ -87,26 +95,34 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
         method: String,
         errorCode: String? = null
     ) {
-        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokeRewardedChannelOf(requestIdFor(ad)), Arguments.createMap().apply {
-                putString("unitId", ad.unitId)
-                putString("method", method)
-                putString("creativeId", ad.creativeId)
-                putString("txId", ad.txId)
-                putString("campaignId", ad.campaignId)
-                putString("errorCode", errorCode)
-                putInt("browserTarget", ad.browserTarget)
-            })
+        handler.post {
+            val requestId = requestIdFor(ad)
+            if (requestId.isEmpty()) return@post
+            reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
+                    putString("unitId", ad.unitId)
+                    putString("method", method)
+                    putString("creativeId", ad.creativeId)
+                    putString("txId", ad.txId)
+                    putString("campaignId", ad.campaignId)
+                    putString("errorCode", errorCode)
+                    putInt("browserTarget", ad.browserTarget)
+                })
+        }
     }
 
     private fun sendEarnEvent(ad: AdropRewardedAd, type: Int, amount: Int) {
-        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokeRewardedChannelOf(requestIdFor(ad)), Arguments.createMap().apply {
-                putString("unitId", ad.unitId)
-                putString("method", AdropMethod.HANDLE_EARN_REWARD)
-                putInt("type", type)
-                putInt("amount", amount)
-            })
+        handler.post {
+            val requestId = requestIdFor(ad)
+            if (requestId.isEmpty()) return@post
+            reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
+                    putString("unitId", ad.unitId)
+                    putString("method", AdropMethod.HANDLE_EARN_REWARD)
+                    putInt("type", type)
+                    putInt("amount", amount)
+                })
+        }
     }
 
     override fun onAdFailedToReceive(ad: AdropRewardedAd, errorCode: AdropErrorCode) {

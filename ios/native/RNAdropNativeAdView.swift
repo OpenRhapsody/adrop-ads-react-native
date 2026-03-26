@@ -26,6 +26,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
 
         self.clipsToBounds = true
         self.addSubview(adView)
+
         if let gesture = adView.gestureRecognizers?.first {
             gesture.delegate = self
             addGestureRecognizer(gesture)
@@ -201,6 +202,8 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
             }
             self.lastSetRequestId = requestId
 
+            AdropAdsNativeAdManager.instance.registerView(requestId, self)
+
             self.isEntireClick = false
             self.isBackfillAd = ad.isBackfilled
 
@@ -221,6 +224,12 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
 
         pendingSetNativeAdWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: workItem)
+    }
+
+    // MARK: - Backfill Refresh Layout
+
+    func refreshMediaViewLayout() {
+        mediaView?.refreshLayout()
     }
 
     // MARK: - Backfill Ad View Reparenting

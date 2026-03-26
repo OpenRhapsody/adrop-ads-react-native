@@ -1,7 +1,10 @@
 import AdropAds
+import WebKit
 
 @objc(AdropAds)
 class AdropAds: NSObject {
+
+    @objc weak var bridge: RCTBridge?
 
     @objc(initialize:targetCountries:useInAppBrowser:withResolver:withRejecter:)
     func initialize(_ production: Bool, targetCountries: [String], useInAppBrowser: Bool, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
@@ -36,5 +39,29 @@ class AdropAds: NSObject {
 
             Adrop.setTheme(converted)
         }
+    }
+
+    @objc(registerWebView:withResolver:withRejecter:)
+    func registerWebView(_ viewTag: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        DispatchQueue.main.async { [weak self] in
+            guard let bridge = self?.bridge,
+                  let view = bridge.uiManager.view(forReactTag: viewTag) else {
+                resolve(nil)
+                return
+            }
+
+            if let webView = self?.findWKWebView(in: view) {
+                Adrop.registerWebView(webView)
+            }
+            resolve(nil)
+        }
+    }
+
+    private func findWKWebView(in view: UIView) -> WKWebView? {
+        if let webView = view as? WKWebView { return webView }
+        for subview in view.subviews {
+            if let found = findWKWebView(in: subview) { return found }
+        }
+        return nil
     }
 }

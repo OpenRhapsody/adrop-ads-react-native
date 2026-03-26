@@ -14,65 +14,73 @@ import io.adrop.ads.popupAd.AdropPopupAd
 import io.adrop.ads.popupAd.AdropPopupAdListener
 import io.adrop.bridge.AdropChannel
 import io.adrop.bridge.AdropMethod
+import java.util.concurrent.ConcurrentHashMap
 
 class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), AdropPopupAdListener {
 
-    private val _popupAds = mutableMapOf<String, AdropPopupAd>()
+    private val handler = Handler(Looper.getMainLooper())
+    private val _popupAds = ConcurrentHashMap<String, AdropPopupAd>()
 
     override fun getName(): String = NAME
 
     @ReactMethod
     fun create(unitId: String, requestId: String) {
-        _popupAds[requestId] ?: let {
-            val popupAd = AdropPopupAd(reactApplicationContext, unitId)
-            popupAd.popupAdListener = this
-            _popupAds[requestId] = popupAd
+        handler.post {
+            _popupAds[requestId] ?: let {
+                val popupAd = AdropPopupAd(reactApplicationContext, unitId)
+                popupAd.popupAdListener = this
+                _popupAds[requestId] = popupAd
+            }
         }
     }
 
     @ReactMethod
     fun load(unitId: String, requestId: String) {
-        _popupAds[requestId]?.load()
+        handler.post {
+            _popupAds[requestId]?.load()
+        }
     }
 
     @ReactMethod
     fun show(unitId: String, requestId: String) {
-        _popupAds[requestId]?.let { ad ->
-            reactApplicationContext.currentActivity?.let { fromActivity ->
-                Handler(Looper.getMainLooper()).post {
+        handler.post {
+            _popupAds[requestId]?.let { ad ->
+                reactApplicationContext.currentActivity?.let { fromActivity ->
                     ad.show(fromActivity)
                 }
             }
+                ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                    .emit(AdropChannel.invokePopupChannelOf(requestId), Arguments.createMap().apply {
+                        putString("unitId", unitId)
+                        putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
+                        putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
+                    })
         }
-            ?: reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-                .emit(AdropChannel.invokePopupChannelOf(requestId), Arguments.createMap().apply {
-                    putString("unitId", unitId)
-                    putString("method", AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN)
-                    putString("errorCode", AdropErrorCode.ERROR_CODE_AD_EMPTY.name)
-                })
     }
 
     @ReactMethod
     fun customize(requestId: String, data: ReadableMap? = null) {
-        _popupAds[requestId]?.let { ad ->
-            data?.entryIterator?.forEach {
-                val dataKey = it.key
-                val color = when (val value = it.value) {
-                    is String -> hexStringToColorInt(value)
-                    else -> 0
-                }
+        handler.post {
+            _popupAds[requestId]?.let { ad ->
+                data?.entryIterator?.forEach {
+                    val dataKey = it.key
+                    val color = when (val value = it.value) {
+                        is String -> hexStringToColorInt(value)
+                        else -> 0
+                    }
 
-                if (dataKey == "closeTextColor") {
-                    ad.closeTextColor = color
-                }
+                    if (dataKey == "closeTextColor") {
+                        ad.closeTextColor = color
+                    }
 
-                if (dataKey == "hideForTodayTextColor" ) {
-                    ad.hideForTodayTextColor = color
-                }
+                    if (dataKey == "hideForTodayTextColor" ) {
+                        ad.hideForTodayTextColor = color
+                    }
 
-                if (dataKey == "backgroundColor") {
-                    ad.backgroundColor = color
+                    if (dataKey == "backgroundColor") {
+                        ad.backgroundColor = color
+                    }
                 }
             }
         }
@@ -80,20 +88,24 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun setUseCustomClick(requestId: String, useCustomClick: Boolean) {
-        _popupAds[requestId]?.let { ad ->
-            ad.useCustomClick = useCustomClick
+        handler.post {
+            _popupAds[requestId]?.let { ad ->
+                ad.useCustomClick = useCustomClick
+            }
         }
     }
 
     @ReactMethod
     fun close(requestId: String) {
-        _popupAds[requestId]?.close()
+        handler.post {
+            _popupAds[requestId]?.close()
+        }
     }
 
     @ReactMethod
     fun destroy(requestId: String) {
-        _popupAds.remove(requestId)?.let {
-            it.destroy()
+        handler.post {
+            _popupAds.remove(requestId)?.destroy()
         }
     }
 
@@ -123,17 +135,21 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
         method: String,
         errorCode: String? = null
     ) {
-        reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
-            .emit(AdropChannel.invokePopupChannelOf(requestIdFor(ad)), Arguments.createMap().apply {
-                putString("unitId", ad.unitId)
-                putString("method", method)
-                putString("creativeId", ad.creativeId)
-                putString("txId", ad.txId)
-                putString("campaignId", ad.campaignId)
-                putString("destinationURL", ad.destinationURL)
-                putString("errorCode", errorCode)
-                putInt("browserTarget", ad.browserTarget)
-            })
+        handler.post {
+            val requestId = requestIdFor(ad)
+            if (requestId.isEmpty()) return@post
+            reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokePopupChannelOf(requestId), Arguments.createMap().apply {
+                    putString("unitId", ad.unitId)
+                    putString("method", method)
+                    putString("creativeId", ad.creativeId)
+                    putString("txId", ad.txId)
+                    putString("campaignId", ad.campaignId)
+                    putString("destinationURL", ad.destinationURL)
+                    putString("errorCode", errorCode)
+                    putInt("browserTarget", ad.browserTarget)
+                })
+        }
     }
 
     override fun onAdFailedToReceive(ad: AdropPopupAd, errorCode: AdropErrorCode) {

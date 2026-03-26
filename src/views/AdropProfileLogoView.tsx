@@ -1,10 +1,4 @@
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-} from 'react'
+import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import type { ImageProps, ImageSourcePropType } from 'react-native'
 import { findNodeHandle, Image } from 'react-native'
 import {
@@ -37,11 +31,7 @@ const AdropProfileLogoView: React.FC<IconViewProps> = (props) => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    const src = useMemo(
-        () => nativeAd?.properties.profile?.displayLogo,
-        [nativeAd]
-    )
-
+    const src = nativeAd?.properties.profile?.displayLogo
     if (!src) return null
     return (
         <Image

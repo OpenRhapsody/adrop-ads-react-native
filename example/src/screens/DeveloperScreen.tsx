@@ -109,6 +109,21 @@ const DeveloperScreen: React.FC = () => {
 
                 <View style={CommonStyles.divider} />
 
+                {/* WebView API for Ads Test */}
+                <Text style={[Typography.sectionTitle, styles.mb12]}>
+                    WebView API for Ads
+                </Text>
+                <TouchableOpacity
+                    style={[styles.testButton, styles.mb8]}
+                    onPress={() => navigateTo('WebViewExample')}
+                >
+                    <Text style={styles.testButtonText}>
+                        WebView Register Test
+                    </Text>
+                </TouchableOpacity>
+
+                <View style={CommonStyles.divider} />
+
                 <Text style={[Typography.sectionTitle, styles.mb12]}>
                     Shopping Ad Test
                 </Text>

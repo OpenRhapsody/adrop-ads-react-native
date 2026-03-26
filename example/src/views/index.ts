@@ -7,6 +7,7 @@ import PopupAdClassExample from './PopupAdClassExample'
 import PropertyExample from './PropertyExample'
 import RewardedAdClassExample from './RewardedAdClassExample'
 import RewardedAdHookExample from './RewardedAdHookExample'
+import WebViewExample from './WebViewExample'
 
 export {
     BannerExample,
@@ -18,4 +19,5 @@ export {
     PropertyExample,
     RewardedAdClassExample,
     RewardedAdHookExample,
+    WebViewExample,
 }

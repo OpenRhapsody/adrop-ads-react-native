@@ -1,10 +1,4 @@
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-} from 'react'
+import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import { findNodeHandle, Text } from 'react-native'
 import type { TextProps } from 'react-native'
 import {
@@ -17,19 +11,23 @@ const AdropCallToActionView: React.FC<TextProps> = (props) => {
 
     const callToActionRef = useRef(null)
     const onLayout = useCallback(() => {
-        nativeAdView?.setNativeProps({
-            callToAction: {
-                tag: findNodeHandle(callToActionRef.current) ?? 0,
-                requestId: nativeAd ? nativeAdRequestIds.get(nativeAd)?.() : '',
-            },
-        })
+        const tag = findNodeHandle(callToActionRef.current) ?? 0
+        tag > 0 &&
+            nativeAdView?.setNativeProps({
+                callToAction: {
+                    tag,
+                    requestId: nativeAd
+                        ? nativeAdRequestIds.get(nativeAd)?.()
+                        : '',
+                },
+            })
     }, [nativeAd, nativeAdView])
 
     useEffect(() => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    const content = useMemo(() => nativeAd?.properties.callToAction, [nativeAd])
+    const content = nativeAd?.properties.callToAction
     if (!content) return null
 
     return (

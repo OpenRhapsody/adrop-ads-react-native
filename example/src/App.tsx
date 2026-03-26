@@ -16,6 +16,7 @@ import {
     PropertyExample,
     RewardedAdClassExample,
     RewardedAdHookExample,
+    WebViewExample,
 } from './views'
 import NativeAdExample from './views/NativeAdExample'
 import { ShoppingAdExampleScreen, ShoppingAdDetailScreen } from './shopping'
@@ -82,6 +83,10 @@ export default function App() {
                 <Stack.Screen
                     name="ConsentExample"
                     component={ConsentExample}
+                />
+                <Stack.Screen
+                    name="WebViewExample"
+                    component={WebViewExample}
                 />
                 <Stack.Screen
                     name="ShoppingAdExample"

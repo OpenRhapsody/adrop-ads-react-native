@@ -23,6 +23,7 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     private var mediaView: AdropMediaView? = null
     private var pendingRequestId: String? = null
     private val pendingRunnables = mutableListOf<Runnable>()
+    private var backfillRefreshObserver: BackfillRefreshObserver? = null
     private val setNativeAdRunnable = Runnable {
         pendingRequestId?.let { requestId ->
             AdropNativeAdManager.getAd(requestId)?.let { ad ->
@@ -43,10 +44,7 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
         requestId ?: return
         pendingRequestId = requestId
 
-        // Remove any pending callbacks
         removeCallbacks(setNativeAdRunnable)
-
-        // Post with delay to ensure all views are set first
         postDelayed(setNativeAdRunnable, 50)
     }
 
@@ -60,10 +58,9 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     }
 
     fun setNativeAd(nativeAd: AdropNativeAd) {
-        // For AdMob ads, ensure MediaView is set (required for impression tracking)
         if (nativeAd.isBackfilled && mediaView == null) {
             val hiddenMediaView = RNAdropMediaView(context)
-            hiddenMediaView.layoutParams = FrameLayout.LayoutParams(1, 1) // 1x1 pixel
+            hiddenMediaView.layoutParams = FrameLayout.LayoutParams(1, 1)
             hiddenMediaView.visibility = View.INVISIBLE
             nativeAdView.addView(hiddenMediaView)
             mediaView = hiddenMediaView
@@ -72,40 +69,14 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
 
         nativeAdView.setNativeAd(nativeAd)
 
-        // For AdMob backfill ads, trigger viewability detection
         if (nativeAd.isBackfilled) {
+            attachBackfillRefreshObserverIfNeeded()
             triggerAdMobViewabilityCheck()
         }
 
-        // Check MediaView and force child layout for AdMob media content
         mediaView?.let {
             postDelayed({
-                for (i in 0 until it.childCount) {
-                    val child = it.getChildAt(i)
-
-                    // Force child to have correct size
-                    if (child.width == 0 || child.height == 0) {
-                        child.layoutParams = FrameLayout.LayoutParams(
-                            FrameLayout.LayoutParams.MATCH_PARENT,
-                            FrameLayout.LayoutParams.MATCH_PARENT
-                        )
-                        child.measure(
-                            View.MeasureSpec.makeMeasureSpec(it.width, View.MeasureSpec.EXACTLY),
-                            View.MeasureSpec.makeMeasureSpec(it.height, View.MeasureSpec.EXACTLY)
-                        )
-                        child.layout(0, 0, it.width, it.height)
-                    }
-
-                    // For AdMob MediaView, also force layout of its children (ImageView inside MediaView)
-                    if (child is ViewGroup && child.javaClass.name.contains("MediaView")) {
-                        // Use ViewTreeObserver to track when MediaView's layout is complete
-                        setupMediaViewLayoutObserver(child)
-                    }
-                }
-
-                // Force layout
-                it.requestLayout()
-                it.invalidate()
+                forceMediaViewChildLayout(it, forceAll = false)
             }, 100)
         }
 
@@ -126,8 +97,6 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
             it.requestLayout()
         }
     }
-
-    // Handle video ads
 
     private fun updateWebViewRect() {
         webView = findWebView(this)
@@ -153,8 +122,6 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     private fun findWebView(viewGroup: ViewGroup): View? {
         for (i in 0 until viewGroup.childCount) {
             val child = viewGroup.getChildAt(i)
-            // Use instanceof check instead of class name string matching
-            // to work correctly with R8/ProGuard obfuscation
             if (child is android.webkit.WebView) {
                 return child
             }
@@ -208,18 +175,20 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     }
 
     private var mediaViewLayoutListener: android.view.ViewTreeObserver.OnGlobalLayoutListener? = null
+    private var mediaViewLayoutObserver: android.view.ViewTreeObserver? = null
     private var mediaViewLayoutRunnable: Runnable? = null
 
     private fun setupMediaViewLayoutObserver(mediaView: ViewGroup) {
-        // Initial force layout
         forceMediaViewImageViewSize(mediaView)
 
-        // Remove previous listener if exists
-        mediaViewLayoutListener?.let {
-            mediaView.viewTreeObserver.removeOnGlobalLayoutListener(it)
+        mediaViewLayoutListener?.let { listener ->
+            mediaViewLayoutObserver?.let { vto ->
+                if (vto.isAlive) vto.removeOnGlobalLayoutListener(listener)
+            }
         }
 
-        // Use ViewTreeObserver to monitor layout changes
+        val vto = mediaView.viewTreeObserver
+        mediaViewLayoutObserver = vto
         mediaViewLayoutListener = object : android.view.ViewTreeObserver.OnGlobalLayoutListener {
             private var layoutCount = 0
             private val maxLayoutAttempts = 3
@@ -227,24 +196,21 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
             override fun onGlobalLayout() {
                 layoutCount++
 
-                // Force layout on all children
                 forceMediaViewImageViewSize(mediaView)
 
-                // Remove listener after max attempts
                 if (layoutCount >= maxLayoutAttempts) {
-                    mediaView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    if (vto.isAlive) vto.removeOnGlobalLayoutListener(this)
                     mediaViewLayoutListener = null
+                    mediaViewLayoutObserver = null
                 }
             }
         }
-        mediaView.viewTreeObserver.addOnGlobalLayoutListener(mediaViewLayoutListener)
+        vto.addOnGlobalLayoutListener(mediaViewLayoutListener)
 
-        // Remove previous runnable if exists
         mediaViewLayoutRunnable?.let {
             mediaView.removeCallbacks(it)
         }
 
-        // Also force layout after delays as fallback
         mediaViewLayoutRunnable = Runnable {
             if (isAttachedToWindow) {
                 forceMediaViewImageViewSize(mediaView)
@@ -255,16 +221,13 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     }
 
     private fun forceMediaViewImageViewSize(mediaView: ViewGroup) {
-        // Force size on all children of the MediaView, especially ImageViews
         for (i in 0 until mediaView.childCount) {
             val child = mediaView.getChildAt(i)
 
-            // Always force size, even if it's not 0x0
             val parentWidth = mediaView.width
             val parentHeight = mediaView.height
 
             if (parentWidth > 0 && parentHeight > 0) {
-                // Set layout params to match parent
                 val lp = child.layoutParams ?: FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.MATCH_PARENT
@@ -273,19 +236,16 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
                 lp.height = FrameLayout.LayoutParams.MATCH_PARENT
                 child.layoutParams = lp
 
-                // Force measure and layout
                 child.measure(
                     View.MeasureSpec.makeMeasureSpec(parentWidth, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(parentHeight, View.MeasureSpec.EXACTLY)
                 )
                 child.layout(0, 0, parentWidth, parentHeight)
 
-                // Special handling for ImageView
                 if (child is ImageView) {
                     child.scaleType = ImageView.ScaleType.FIT_CENTER
                     child.adjustViewBounds = true
 
-                    // Force visibility
                     child.visibility = View.VISIBLE
                     child.alpha = 1.0f
                 }
@@ -293,7 +253,6 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
                 child.requestLayout()
                 child.invalidate()
 
-                // If this is a ViewGroup, recurse
                 if (child is ViewGroup) {
                     forceMediaViewImageViewSize(child)
                 }
@@ -301,11 +260,62 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
         }
     }
 
+    private fun forceMediaViewChildLayout(mv: AdropMediaView, forceAll: Boolean) {
+        for (i in 0 until mv.childCount) {
+            val child = mv.getChildAt(i)
+
+            if (forceAll || child.width == 0 || child.height == 0) {
+                child.layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+                child.measure(
+                    View.MeasureSpec.makeMeasureSpec(mv.width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(mv.height, View.MeasureSpec.EXACTLY)
+                )
+                child.layout(0, 0, mv.width, mv.height)
+            }
+
+            if (child is ViewGroup && child.javaClass.name.contains("MediaView")) {
+                setupMediaViewLayoutObserver(child)
+            }
+        }
+
+        mv.requestLayout()
+        mv.invalidate()
+    }
+
+    private fun attachBackfillRefreshObserverIfNeeded() {
+        if (backfillRefreshObserver != null) return
+
+        backfillRefreshObserver = BackfillRefreshObserver(nativeAdView) {
+            handleBackfillRefresh()
+        }
+        backfillRefreshObserver?.attach()
+    }
+
+    private var pendingRefreshRunnable: Runnable? = null
+
+    private fun handleBackfillRefresh() {
+        mediaView?.let { mv ->
+            pendingRefreshRunnable?.let { removeCallbacks(it) }
+
+            val refreshRunnable = Runnable {
+                if (isAttachedToWindow) {
+                    forceMediaViewChildLayout(mv, forceAll = true)
+                    triggerAdMobViewabilityCheck()
+                }
+                pendingRefreshRunnable = null
+            }
+            pendingRefreshRunnable = refreshRunnable
+            pendingRunnables.add(refreshRunnable)
+            postDelayed(refreshRunnable, 300)
+        }
+    }
+
     private fun triggerAdMobViewabilityCheck() {
-        // Clear any pending runnables first
         clearPendingRunnables()
 
-        // Strategy: Force AdMob's OM SDK to detect viewability by triggering multiple signals
         val delays = listOf(0L, 100L, 300L, 500L, 1000L)
 
         delays.forEach { delay ->
@@ -325,20 +335,16 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     }
 
     private fun forceViewabilitySignals() {
-        // Trigger global layout listeners (which OM SDK uses for viewability detection)
         if (viewTreeObserver.isAlive) {
             viewTreeObserver.dispatchOnGlobalLayout()
         }
 
-        // Force layout pass
         requestLayout()
         invalidate()
 
-        // Also trigger on nativeAdView
         nativeAdView.requestLayout()
         nativeAdView.invalidate()
 
-        // Trigger on mediaView if exists
         mediaView?.let {
             it.requestLayout()
             it.invalidate()
@@ -354,14 +360,21 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        // Clean up all pending callbacks to prevent memory leaks
         clearPendingRunnables()
         removeCallbacks(setNativeAdRunnable)
 
-        // Clean up mediaView observers
-        mediaViewLayoutListener?.let {
-            mediaView?.viewTreeObserver?.removeOnGlobalLayoutListener(it)
+        pendingRefreshRunnable?.let { removeCallbacks(it) }
+        pendingRefreshRunnable = null
+
+        backfillRefreshObserver?.detach()
+        backfillRefreshObserver = null
+
+        mediaViewLayoutListener?.let { listener ->
+            mediaViewLayoutObserver?.let { vto ->
+                if (vto.isAlive) vto.removeOnGlobalLayoutListener(listener)
+            }
             mediaViewLayoutListener = null
+            mediaViewLayoutObserver = null
         }
         mediaViewLayoutRunnable?.let {
             mediaView?.removeCallbacks(it)

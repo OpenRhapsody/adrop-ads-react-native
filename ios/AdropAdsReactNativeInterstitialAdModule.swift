@@ -4,54 +4,45 @@ import AdropAds
 class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
     private var _interstitialAds = [String:AdropInterstitialAd]()
 
+    override var methodQueue: DispatchQueue! { DispatchQueue.main }
+
     @objc(create:requestId:)
     func create(_ unitId: String, _ requestId: String) -> Void {
-
         if self._interstitialAds[requestId] == nil {
             let interstitialAd = AdropInterstitialAd(unitId: unitId)
             interstitialAd.delegate = self
             self._interstitialAds[requestId] = interstitialAd
         }
-
     }
 
     @objc(load:requestId:)
     func load(_ unitId: String, _ requestId: String) -> Void {
-
         if self._interstitialAds[requestId] == nil {
             let interstitialAd = AdropInterstitialAd(unitId: unitId)
             interstitialAd.delegate = self
             self._interstitialAds[requestId] = interstitialAd
         }
 
-        DispatchQueue.main.async { [weak self] in
-            if let interstitialAd = self?._interstitialAds[requestId] {
-                interstitialAd.load()
-            }
-        }
+        self._interstitialAds[requestId]?.load()
     }
 
     @objc(show:requestId:)
     func show(_ unitId: String, _ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            if let interstitialAd = self?._interstitialAds[requestId], let viewController = RCTPresentedViewController() {
-                interstitialAd.show(fromRootViewController: viewController)
-            } else {
-                self?.sendEvent(withName: AdropChannel.invokeInterstitialChannel(id: requestId),
-                                body: [
-                                    "unitId": unitId,
-                                    "method": AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
-                                    "errorCode": AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY),
-                                ])
-            }
+        if let interstitialAd = self._interstitialAds[requestId], let viewController = RCTPresentedViewController() {
+            interstitialAd.show(fromRootViewController: viewController)
+        } else {
+            self.sendEvent(withName: AdropChannel.invokeInterstitialChannel(id: requestId),
+                            body: [
+                                "unitId": unitId,
+                                "method": AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN,
+                                "errorCode": AdropErrorCodeToString(code: .ERROR_CODE_AD_EMPTY),
+                            ])
         }
     }
 
     @objc(destroy:)
     func destroy(_ requestId: String) -> Void {
-        DispatchQueue.main.async { [weak self] in
-            self?._interstitialAds.removeValue(forKey: requestId)
-        }
+        self._interstitialAds.removeValue(forKey: requestId)
     }
 
     private func requestIdFor(_ ad: AdropInterstitialAd) -> String {
@@ -65,7 +56,9 @@ class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
 
 
     private func sendEvent(_ ad: AdropInterstitialAd, method: String, errorCode: String? = nil) {
-        sendEvent(withName: AdropChannel.invokeInterstitialChannel(id: requestIdFor(ad)),
+        let requestId = requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
+        sendEvent(withName: AdropChannel.invokeInterstitialChannel(id: requestId),
                   body: [
                     "unitId": ad.unitId,
                     "method": method,

@@ -1,10 +1,4 @@
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-} from 'react'
+import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import type { TextProps } from 'react-native'
 import { findNodeHandle, Text } from 'react-native'
 import {
@@ -33,7 +27,7 @@ const AdropHeadLineView: React.FC<TextProps> = (props) => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    const content = useMemo(() => nativeAd?.properties.headline, [nativeAd])
+    const content = nativeAd?.properties.headline
     if (!content) return null
 
     return (

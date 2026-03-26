@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, type ViewProps, Platform } from 'react-native'
 import {
     requireNativeComponent,
@@ -9,6 +9,7 @@ import {
 import {
     AdropNativeContext,
     nativeAdRequestIds,
+    nativeAdDataListeners,
 } from '../contexts/AdropNativeContext'
 import AdropNativeAd from '../ads/AdropNativeAd'
 
@@ -29,7 +30,20 @@ const AdropNativeAdView: React.FC<Props> = ({
     ...props
 }) => {
     const [nativeAdView, setNativeAdView] = useState<any>()
+    const [revision, setRevision] = useState(0)
     const nativeAdRef = useRef(null)
+
+    useEffect(() => {
+        if (!nativeAd) return
+        if (!nativeAdDataListeners.has(nativeAd)) {
+            nativeAdDataListeners.set(nativeAd, new Set())
+        }
+        const callback = () => setRevision((r) => r + 1)
+        nativeAdDataListeners.get(nativeAd)!.add(callback)
+        return () => {
+            nativeAdDataListeners.get(nativeAd)?.delete(callback)
+        }
+    }, [nativeAd])
 
     const onLayout = useCallback((_: any) => {
         const view = nativeAdRef.current
@@ -42,7 +56,7 @@ const AdropNativeAdView: React.FC<Props> = ({
         const requestId = nativeAd ? nativeAdRequestIds.get(nativeAd)?.() : ''
         const nodeHandle = findNodeHandle(nativeAdRef.current)
 
-        if (nodeHandle) {
+        if (nodeHandle != null) {
             try {
                 NativeModules.AdropNativeAdViewManager.performClick(
                     nodeHandle,
@@ -59,8 +73,14 @@ const AdropNativeAdView: React.FC<Props> = ({
         return nativeAdRequestIds.get(nativeAd)?.()
     }, [nativeAd])
 
+    const contextValue = useMemo(
+        () => ({ nativeAd, nativeAdView }),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [nativeAd, nativeAdView, revision]
+    )
+
     return (
-        <AdropNativeContext.Provider value={{ nativeAd, nativeAdView }}>
+        <AdropNativeContext.Provider value={contextValue}>
             <NativeAdViewComponent
                 ref={nativeAdRef}
                 nativeAdRequestId={nativeAdRequestId}
