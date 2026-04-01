@@ -1,18 +1,19 @@
+import React
 import AdropAds
 
 @objc(AdropMetrics)
 class AdropAnalyticsModule: RCTEventEmitter {
-    
+
     @objc(setProperty:value:)
     func setProperty(key: String, value: [Any]) {
         if (value.isEmpty) {
             return
         }
-        
+
         let encodableValue = self.convertToEncodable(value[0])
         AdropMetrics.setProperty(key: key, value: encodableValue)
     }
-    
+
     @objc(logEvent:params:)
     func logEvent(name: String, params: [String:Any]?) {
         var encodableParams: [String: Encodable] = [:]
@@ -23,7 +24,7 @@ class AdropAnalyticsModule: RCTEventEmitter {
         }
         AdropMetrics.logEvent(name: name, params: encodableParams)
     }
-    
+
     @objc(sendEvent:params:)
     func sendEvent(name: String, params: [String:Any]?) {
         AdropMetrics.sendEvent(name: name, params: params)
@@ -37,7 +38,7 @@ class AdropAnalyticsModule: RCTEventEmitter {
             resolve([:])
         }
     }
-    
+
     private func convertToEncodable(_ value: Any) -> Encodable? {
         switch value {
         case let stringValue as String:

@@ -16,7 +16,11 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
   s.dependency 'adrop-ads', '>= 1.9.0', '< 1.10.0'
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
+    'SWIFT_INCLUDE_PATHS' => '$(PODS_ROOT)/Headers/Public/React-Core'
+  }
   s.swift_version = '5.0'
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
