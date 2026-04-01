@@ -1,3 +1,4 @@
+import React
 import AdropAds
 
 @objc(AdropRewardedAd)
