@@ -14,4 +14,6 @@ object AdropMethod {
     const val WILL_PRESENT_FULL_SCREEN = "onAdWillPresentFullScreen"
     const val HANDLE_EARN_REWARD = "handleEarnReward"
     const val ON_AD_BACK_BUTTON_PRESSED = "onAdBackButtonPressed"
+    const val DID_VIDEO_START = "onAdVideoStart"
+    const val DID_VIDEO_END = "onAdVideoEnd"
 }

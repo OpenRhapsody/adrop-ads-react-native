@@ -40,6 +40,8 @@ export type AdropListener = {
     onAdFailedToShowFullScreen?: (ad: AdropAd, errorCode?: any) => void
     onAdEarnRewardHandler?: (ad: AdropAd, type: number, amount: number) => void
     onAdBackButtonPressed?: (ad: AdropAd) => void
+    onAdVideoStart?: (ad: AdropAd) => void
+    onAdVideoEnd?: (ad: AdropAd) => void
 }
 
 export abstract class AdropAd {
@@ -213,6 +215,12 @@ export abstract class AdropAd {
                 break
             case AdropMethod.onAdBackButtonPressed:
                 this.listener?.onAdBackButtonPressed?.(this)
+                break
+            case AdropMethod.didVideoStart:
+                this.listener?.onAdVideoStart?.(this)
+                break
+            case AdropMethod.didVideoEnd:
+                this.listener?.onAdVideoEnd?.(this)
                 break
         }
     }

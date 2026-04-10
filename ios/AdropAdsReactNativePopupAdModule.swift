@@ -169,6 +169,14 @@ class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {
         sendEvent(ad, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: errorCode))
     }
 
+    func onAdVideoStart(_ ad: AdropPopupAd) {
+        sendEvent(ad, method: AdropMethod.DID_VIDEO_START)
+    }
+
+    func onAdVideoEnd(_ ad: AdropPopupAd) {
+        sendEvent(ad, method: AdropMethod.DID_VIDEO_END)
+    }
+
     override class func requiresMainQueueSetup() -> Bool {
         return true
     }

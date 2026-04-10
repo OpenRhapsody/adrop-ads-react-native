@@ -36,6 +36,8 @@ type AdropBannerProp = AdropBannerNativeProp & {
     onAdImpression?: (unitId: string, metadata?: AdropBannerMetadata) => void
     onAdClicked?: (unitId: string, metadata?: AdropBannerMetadata) => void
     onAdFailedToReceive?: (unitId: string, errorCode?: any) => void
+    onAdVideoStart?: (unitId: string) => void
+    onAdVideoEnd?: (unitId: string) => void
 }
 
 const ComponentName = 'AdropBannerView'
@@ -52,6 +54,8 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             onAdImpression,
             onAdFailedToReceive,
             onAdReceived,
+            onAdVideoStart,
+            onAdVideoEnd,
             style,
         },
         ref
@@ -78,7 +82,15 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             UIManager.dispatchViewManagerCommand(getViewTag(), 'load', [])
         }, [getViewTag])
 
-        useImperativeHandle(ref, () => ({ load }))
+        const play = useCallback(() => {
+            UIManager.dispatchViewManagerCommand(getViewTag(), 'play', [])
+        }, [getViewTag])
+
+        const pause = useCallback(() => {
+            UIManager.dispatchViewManagerCommand(getViewTag(), 'pause', [])
+        }, [getViewTag])
+
+        useImperativeHandle(ref, () => ({ load, play, pause }))
 
         const handleCreated = useCallback(
             (viewTag: number) => {
@@ -146,6 +158,22 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             [onAdFailedToReceive, validateView, unitId]
         )
 
+        const handleAdVideoStart = useCallback(
+            (event: any) => {
+                if (!validateView(event.tag)) return
+                onAdVideoStart?.(unitId)
+            },
+            [onAdVideoStart, validateView, unitId]
+        )
+
+        const handleAdVideoEnd = useCallback(
+            (event: any) => {
+                if (!validateView(event.tag)) return
+                onAdVideoEnd?.(unitId)
+            },
+            [onAdVideoEnd, validateView, unitId]
+        )
+
         useEffect(() => {
             const eventListener = new NativeEventEmitter(
                 NativeModules.BannerEventEmitter
@@ -168,6 +196,12 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                         case AdropMethod.didFailToReceiveAd:
                             handleAdFailedReceive(event)
                             break
+                        case AdropMethod.didVideoStart:
+                            handleAdVideoStart(event)
+                            break
+                        case AdropMethod.didVideoEnd:
+                            handleAdVideoEnd(event)
+                            break
                     }
                 }
             )
@@ -181,6 +215,8 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             handleAdImpression,
             handleAdReceived,
             handleAdFailedReceive,
+            handleAdVideoStart,
+            handleAdVideoEnd,
         ])
 
         return (

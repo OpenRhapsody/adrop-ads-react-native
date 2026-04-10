@@ -23,6 +23,14 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         sendEvent(ad: banner, method: AdropMethod.DID_IMPRESSION)
     }
 
+    func onAdVideoStart(_ banner: AdropBanner) {
+        sendEvent(ad: banner, method: AdropMethod.DID_VIDEO_START)
+    }
+
+    func onAdVideoEnd(_ banner: AdropBanner) {
+        sendEvent(ad: banner, method: AdropMethod.DID_VIDEO_END)
+    }
+
     init (bridge: RCTBridge) {
         self.bridge = bridge
         super.init(frame: .zero)
@@ -53,6 +61,14 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
 
     func load() {
         self.banner?.load()
+    }
+
+    func play() {
+        self.banner?.play()
+    }
+
+    func pause() {
+        self.banner?.pause()
     }
 
     private func sendEvent(ad: AdropBanner, method: String, errorCode: String? = nil) {

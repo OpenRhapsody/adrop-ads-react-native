@@ -69,6 +69,14 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
         sendEvent(ad, method: AdropMethod.DID_IMPRESSION)
     }
 
+    func onAdVideoStart(_ ad: AdropNativeAd) {
+        sendEvent(ad, method: AdropMethod.DID_VIDEO_START)
+    }
+
+    func onAdVideoEnd(_ ad: AdropNativeAd) {
+        sendEvent(ad, method: AdropMethod.DID_VIDEO_END)
+    }
+
     override class func requiresMainQueueSetup() -> Bool {
         return true
     }

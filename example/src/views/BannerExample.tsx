@@ -13,6 +13,8 @@ import { descriptionOf } from '../utils/Utils'
 
 interface IBanner {
     load: () => void
+    play: () => void
+    pause: () => void
 }
 
 const BannerExample: React.FC = () => {

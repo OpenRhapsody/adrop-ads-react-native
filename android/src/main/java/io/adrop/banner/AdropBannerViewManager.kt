@@ -21,6 +21,8 @@ import io.adrop.bridge.AdropMethod
 class AdropBannerViewManager(private val context: ReactApplicationContext) :
     SimpleViewManager<AdropBanner>(), AdropBannerListener {
 
+    private val tagByUnitId: MutableMap<String, Int> = mutableMapOf()
+
     override fun getName(): String = "AdropBannerView"
 
     override fun createViewInstance(context: ThemedReactContext): AdropBanner {
@@ -34,12 +36,15 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
 
         when (command) {
             LOAD -> banner.load()
+            PLAY -> banner.play()
+            PAUSE -> banner.pause()
         }
     }
 
     @ReactProp(name = "unitId")
     fun setUnitId(banner: AdropBanner, unitId: String) {
         banner.setUnitId(unitId)
+        tagByUnitId[unitId] = banner.id
         sendEvent(banner, AdropMethod.DID_CREATED_AD_BANNER)
     }
 
@@ -121,6 +126,14 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
         sendEvent(banner, AdropMethod.DID_IMPRESSION)
     }
 
+    override fun onAdVideoStart(banner: AdropBanner) {
+        sendEvent(banner, AdropMethod.DID_VIDEO_START)
+    }
+
+    override fun onAdVideoEnd(banner: AdropBanner) {
+        sendEvent(banner, AdropMethod.DID_VIDEO_END)
+    }
+
     private fun sendEvent(banner: AdropBanner, method: String, errorCode: String? = null) {
         context.getJSModule(RCTNativeAppEventEmitter::class.java)
             .emit(AdropChannel.invokeBannerChannel, Arguments.createMap().apply {
@@ -137,5 +150,7 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
 
     companion object {
         private const val LOAD = "load"
+        private const val PLAY = "play"
+        private const val PAUSE = "pause"
     }
 }

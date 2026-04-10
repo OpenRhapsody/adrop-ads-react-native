@@ -63,4 +63,8 @@ object AdropNativeAdManager {
     fun getAd(requestId: String): AdropNativeAd? {
         return _nativeAds[requestId]
     }
+
+    fun findAdByUnitId(unitId: String): AdropNativeAd? {
+        return _nativeAds.values.find { it.unitId == unitId }
+    }
 }

@@ -11,6 +11,8 @@ const enum AdropMethod {
     didImpression = 'onAdImpression',
     handleEarnReward = 'handleEarnReward',
     onAdBackButtonPressed = 'onAdBackButtonPressed',
+    didVideoStart = 'onAdVideoStart',
+    didVideoEnd = 'onAdVideoEnd',
 }
 
 export default AdropMethod

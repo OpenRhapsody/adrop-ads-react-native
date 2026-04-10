@@ -13,4 +13,6 @@ struct AdropMethod {
     static let WILL_DISMISS_FULL_SCREEN = "onAdWillDismissFullScreen"
     static let WILL_PRESENT_FULL_SCREEN = "onAdWillPresentFullScreen"
     static let HANDLE_EARN_REWARD = "handleEarnReward"
+    static let DID_VIDEO_START = "onAdVideoStart"
+    static let DID_VIDEO_END = "onAdVideoEnd"
 }

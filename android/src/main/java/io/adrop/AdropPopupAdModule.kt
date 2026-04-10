@@ -180,6 +180,14 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
         sendEvent(ad, AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode = errorCode.name)
     }
 
+    override fun onAdVideoStart(ad: AdropPopupAd) {
+        sendEvent(ad, AdropMethod.DID_VIDEO_START)
+    }
+
+    override fun onAdVideoEnd(ad: AdropPopupAd) {
+        sendEvent(ad, AdropMethod.DID_VIDEO_END)
+    }
+
     companion object {
         const val NAME = "AdropPopupAd"
     }

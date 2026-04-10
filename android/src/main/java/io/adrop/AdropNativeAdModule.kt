@@ -94,7 +94,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
         sendEvent(ad, AdropMethod.DID_RECEIVE_AD)
     }
 
-    override fun onAdClick(ad: AdropNativeAd) {
+    override fun onAdClicked(ad: AdropNativeAd) {
         sendEvent(ad, AdropMethod.DID_CLICK_AD)
     }
 
@@ -104,6 +104,14 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
 
     override fun onAdImpression(ad: AdropNativeAd) {
         sendEvent(ad, AdropMethod.DID_IMPRESSION)
+    }
+
+    override fun onAdVideoStart(ad: AdropNativeAd) {
+        sendEvent(ad, AdropMethod.DID_VIDEO_START)
+    }
+
+    override fun onAdVideoEnd(ad: AdropNativeAd) {
+        sendEvent(ad, AdropMethod.DID_VIDEO_END)
     }
 
     companion object {

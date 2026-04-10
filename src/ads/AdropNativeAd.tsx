@@ -51,6 +51,8 @@ export interface AdropNativeAdListener {
     onAdClicked?: (ad: AdropNativeAd) => void
     onAdImpression?: (ad: AdropNativeAd) => void
     onAdFailedToReceive?: (ad: AdropNativeAd, errorCode?: any) => void
+    onAdVideoStart?: (ad: AdropNativeAd) => void
+    onAdVideoEnd?: (ad: AdropNativeAd) => void
 }
 
 export default class AdropNativeAd {
@@ -197,6 +199,12 @@ export default class AdropNativeAd {
                 break
             case AdropMethod.didImpression:
                 this.listener?.onAdImpression?.(this)
+                break
+            case AdropMethod.didVideoStart:
+                this.listener?.onAdVideoStart?.(this)
+                break
+            case AdropMethod.didVideoEnd:
+                this.listener?.onAdVideoEnd?.(this)
                 break
         }
     }
