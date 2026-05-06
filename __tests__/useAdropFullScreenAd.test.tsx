@@ -19,6 +19,7 @@ jest.mock('react-native', () => {
         create: jest.fn(),
         load: jest.fn(),
         show: jest.fn(),
+        close: jest.fn(),
         destroy: jest.fn(),
     }
 
@@ -48,6 +49,7 @@ const sendEvent = (method: string, extra?: Record<string, any>) => {
 describe('useAdropFullScreenAd', () => {
     afterEach(() => {
         jest.clearAllMocks()
+        DeviceEventEmitter.removeAllListeners(channel)
     })
 
     test('ad=null -> initial state (all boolean false)', () => {
@@ -213,5 +215,28 @@ describe('useAdropFullScreenAd', () => {
         })
 
         expect(NativeModules.AdropInterstitialAd.show).toHaveBeenCalled()
+    })
+
+    test('close() calls ad.close()', () => {
+        const ad = new AdropInterstitialAd('TEST_UNIT')
+        const { result } = renderHook(() => useAdropFullScreenAd(ad))
+
+        act(() => {
+            result.current.close()
+        })
+
+        expect(NativeModules.AdropInterstitialAd.close).toHaveBeenCalled()
+    })
+
+    test('onAdBackButtonPressed -> isBackPressed=true and does not auto close', () => {
+        const ad = new AdropInterstitialAd('TEST_UNIT')
+        const { result } = renderHook(() => useAdropFullScreenAd(ad))
+
+        act(() => {
+            sendEvent(AdropMethod.onAdBackButtonPressed)
+        })
+
+        expect(result.current.isBackPressed).toBe(true)
+        expect(NativeModules.AdropInterstitialAd.close).not.toHaveBeenCalled()
     })
 })

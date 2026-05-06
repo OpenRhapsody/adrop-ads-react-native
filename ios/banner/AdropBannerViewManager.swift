@@ -5,15 +5,15 @@ import UIKit
 
 @objc(AdropBannerViewManager)
 class AdropBannerViewManager: RCTViewManager {
-
+    
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
-
+    
     override func view() -> AdropBannerViewWrapper? {
         return AdropBannerViewWrapper(bridge: self.bridge)
     }
-
+    
     @objc func load(_ reactTag: NSNumber) {
         DispatchQueue.main.async { [weak self] in
             if let uiView =  self?.bridge.uiManager.view(forReactTag: reactTag),

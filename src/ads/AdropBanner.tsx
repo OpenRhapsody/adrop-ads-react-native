@@ -28,6 +28,7 @@ export type AdropBannerMetadata = {
     campaignId: string
     destinationURL: string
     browserTarget: BrowserTarget
+    creativeType: 'display' | 'video'
 }
 
 type AdropBannerProp = AdropBannerNativeProp & {
@@ -110,6 +111,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                     campaignId: event.campaignId ?? '',
                     browserTarget:
                         event.browserTarget ?? BrowserTarget.EXTERNAL,
+                    creativeType: event.creativeType ?? 'display',
                 }
                 onAdClicked?.(unitId, metadata)
             },
@@ -126,6 +128,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                     campaignId: event.campaignId ?? '',
                     browserTarget:
                         event.browserTarget ?? BrowserTarget.EXTERNAL,
+                    creativeType: event.creativeType ?? 'display',
                 }
                 onAdReceived?.(unitId, metadata)
                 isLoaded.current = true
@@ -143,6 +146,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                     campaignId: event.campaignId ?? '',
                     browserTarget:
                         event.browserTarget ?? BrowserTarget.EXTERNAL,
+                    creativeType: event.creativeType ?? 'display',
                 }
                 onAdImpression?.(unitId, metadata)
             },

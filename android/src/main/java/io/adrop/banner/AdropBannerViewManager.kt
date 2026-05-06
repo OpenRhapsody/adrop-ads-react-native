@@ -145,6 +145,7 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
                 putString("campaignId", banner.campaignId)
                 putInt("tag", banner.id)
                 putInt("browserTarget", banner.browserTarget)
+                putString("creativeType", banner.creativeType)
             })
     }
 

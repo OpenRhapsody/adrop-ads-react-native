@@ -86,6 +86,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
                     putBoolean("isBackfilled", ad.isBackfilled)
                     putBoolean("isVideoAd", isVideoAd)
                     putInt("browserTarget", ad.browserTarget)
+                    putString("creativeType", ad.creativeType)
                 })
         }
     }

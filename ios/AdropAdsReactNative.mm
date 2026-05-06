@@ -16,6 +16,8 @@ RCT_EXTERN_METHOD(setTheme:(NSString *)theme
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(setMarketingConsent:(BOOL)consent)
+
 RCT_EXTERN_METHOD(registerWebView:(nonnull NSNumber *)viewTag
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)

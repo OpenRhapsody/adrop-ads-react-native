@@ -44,6 +44,7 @@ interface AdropNativeEvent extends AdropNativeProperties {
     isBackfilled?: boolean
     isVideoAd?: boolean
     browserTarget?: BrowserTarget
+    creativeType?: 'display' | 'video'
 }
 
 export interface AdropNativeAdListener {
@@ -128,6 +129,14 @@ export default class AdropNativeAd {
 
     public get browserTarget(): BrowserTarget {
         return this._event?.browserTarget ?? BrowserTarget.EXTERNAL
+    }
+
+    /**
+     * Creative medium of the loaded ad: `'display'` or `'video'`.
+     * Defaults to `'display'` before an ad is received.
+     */
+    public get creativeType(): 'display' | 'video' {
+        return this._event?.creativeType ?? 'display'
     }
 
     public get properties(): AdropNativeProperties {

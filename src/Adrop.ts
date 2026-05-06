@@ -23,6 +23,26 @@ class Adrop {
     }
 
     /**
+     * Sets the user's marketing consent state for push notification ad targeting.
+     *
+     * The consent state and its change timestamp are stored locally by the native SDK and
+     * forwarded to the server via the next remote-config call. Calling this method with
+     * the same value as the current state is a no-op, so `consentedAt` always represents
+     * the actual decision time.
+     *
+     * Must be called after {@link initialize}; calls before initialization are dropped
+     * with a warning by the native SDK.
+     *
+     * This API is independent of user data consent (GDPR): toggling GDPR off does not
+     * prevent marketing consent from being sent to the server.
+     *
+     * @param consent - `true` for opt-in (stored as 1), `false` for opt-out (stored as 0).
+     */
+    static setMarketingConsent(consent: boolean): void {
+        NativeModules.AdropAds.setMarketingConsent(consent)
+    }
+
+    /**
      * Registers a native WebView for the WebView API for Ads.
      *
      * To serve Google AdSense/Ad Manager ads within a WebView,

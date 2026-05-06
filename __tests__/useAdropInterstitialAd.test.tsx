@@ -16,6 +16,7 @@ jest.mock('react-native', () => {
         create: jest.fn(),
         load: jest.fn(),
         show: jest.fn(),
+        close: jest.fn(),
         destroy: jest.fn(),
     }
 

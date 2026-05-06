@@ -52,6 +52,11 @@ class AdropAdsModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun setMarketingConsent(consent: Boolean) {
+        Adrop.setMarketingConsent(consent)
+    }
+
+    @ReactMethod
     fun registerWebView(viewTag: Int, promise: Promise) {
         val uiManager = reactApplicationContext.getNativeModule(UIManagerModule::class.java)
         if (uiManager == null) {

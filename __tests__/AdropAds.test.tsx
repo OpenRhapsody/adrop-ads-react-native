@@ -7,6 +7,7 @@ jest.mock('react-native', () => {
         initialize: jest.fn(),
         setUID: jest.fn(),
         setTheme: jest.fn(),
+        setMarketingConsent: jest.fn(),
         registerWebView: jest.fn().mockResolvedValue(undefined),
     }
 
@@ -84,5 +85,24 @@ describe('Adrop Test', () => {
     test('registerWebView calls native with viewTag', () => {
         Adrop.registerWebView(42)
         expect(NativeModules.AdropAds.registerWebView).toHaveBeenCalledWith(42)
+    })
+
+    test('setMarketingConsent forwards true to native module', () => {
+        Adrop.setMarketingConsent(true)
+        expect(NativeModules.AdropAds.setMarketingConsent).toHaveBeenCalledWith(
+            true
+        )
+    })
+
+    test('setMarketingConsent forwards false to native module', () => {
+        Adrop.setMarketingConsent(false)
+        expect(NativeModules.AdropAds.setMarketingConsent).toHaveBeenCalledWith(
+            false
+        )
+    })
+
+    test('setMarketingConsent returns void (not a Promise)', () => {
+        const result = Adrop.setMarketingConsent(true)
+        expect(result).toBeUndefined()
     })
 })

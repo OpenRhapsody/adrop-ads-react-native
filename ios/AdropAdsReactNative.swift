@@ -41,6 +41,13 @@ class AdropAds: NSObject {
         }
     }
 
+    @objc(setMarketingConsent:)
+    func setMarketingConsent(_ consent: Bool) -> Void {
+        DispatchQueue.main.async {
+            Adrop.setMarketingConsent(consent)
+        }
+    }
+
     @objc(registerWebView:withResolver:withRejecter:)
     func registerWebView(_ viewTag: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         DispatchQueue.main.async { [weak self] in

@@ -26,6 +26,7 @@ type AdropEvent = {
     amount?: number
     destinationURL?: string
     browserTarget?: BrowserTarget
+    creativeType?: 'display' | 'video'
 }
 
 export type AdropListener = {
@@ -54,6 +55,7 @@ export abstract class AdropAd {
     protected _campaignId: string = ''
     protected _destinationURL: string = ''
     protected _browserTarget: BrowserTarget = BrowserTarget.EXTERNAL
+    protected _creativeType: 'display' | 'video' = 'display'
     public listener?: AdropListener
 
     protected constructor(adType: AdType, unitId: string) {
@@ -102,6 +104,15 @@ export abstract class AdropAd {
 
     public get browserTarget(): BrowserTarget {
         return this._browserTarget
+    }
+
+    /**
+     * Creative medium of the loaded ad: `'display'` or `'video'`.
+     * For carousel popups, updates as the carousel slides between creatives.
+     * Defaults to `'display'` before an ad is shown.
+     */
+    public get creativeType(): 'display' | 'video' {
+        return this._creativeType
     }
 
     public load() {
@@ -172,6 +183,7 @@ export abstract class AdropAd {
             this._campaignId = event.campaignId ?? ''
             this._destinationURL = event.destinationURL ?? ''
             this._browserTarget = event.browserTarget ?? BrowserTarget.EXTERNAL
+            this._creativeType = event.creativeType ?? 'display'
         }
 
         switch (event.method) {

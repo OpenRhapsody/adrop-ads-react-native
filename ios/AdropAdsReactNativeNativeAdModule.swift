@@ -45,7 +45,8 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
                           "txId": ad.txId, "campaignId": ad.campaignId,
                           "isBackfilled": ad.isBackfilled,
                           "isVideoAd": isVideoAd,
-                          "browserTarget": ad.browserTargetValue.rawValue
+                          "browserTarget": ad.browserTargetValue.rawValue,
+                          "creativeType": ad.creativeType
                         ])
     }
 

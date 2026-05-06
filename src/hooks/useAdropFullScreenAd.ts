@@ -10,6 +10,7 @@ import { AdropInterstitialAd, AdropRewardedAd, BrowserTarget } from '../ads'
 interface AdHookReturns {
     load: () => void
     show: () => void
+    close: () => void
     reset: () => void
 }
 
@@ -55,6 +56,8 @@ function useAdropFullScreenAd<
     }, [ad, isReady])
 
     const show = useCallback(() => ad?.show(), [ad])
+
+    const close = useCallback(() => ad?.close(), [ad])
 
     const reset = useCallback(() => {
         setStates(initState)
@@ -106,7 +109,7 @@ function useAdropFullScreenAd<
         }
     }, [ad])
 
-    return { ...states, load, show, reset }
+    return { ...states, load, show, close, reset }
 }
 
 export default useAdropFullScreenAd

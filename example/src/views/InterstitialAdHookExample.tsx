@@ -17,15 +17,19 @@ const InterstitialAdHookExample: React.FC = () => {
     // useAdropInterstitialAd hook provides ad management functions
     // - load: Load the ad
     // - show: Show the ad
+    // - close: Close the currently shown full-screen ad
     // - reset: Reset ad state
     // - isLoaded: Whether ad is loaded
     // - isOpened: Whether ad is currently displayed
     // - isReady: Whether ad can be loaded
+    // - isBackPressed: Whether the hardware back button was pressed (Android only).
+    //   The hook does NOT auto-close — call close() yourself when ready.
     // - errorCode: Error code if failed
     // - browserTarget: Browser target value (0: external, 1: internal)
     const {
         load,
         show,
+        close,
         errorCode,
         reset,
         isLoaded,
@@ -44,12 +48,13 @@ const InterstitialAdHookExample: React.FC = () => {
         }
     }, [isLoaded, browserTarget])
 
-    // Log when back button is pressed (Android only)
+    // Handle back button press (Android only) — call close() yourself
     useEffect(() => {
         if (isBackPressed) {
             console.log('interstitialAd (hook) backButtonPressed')
+            close()
         }
-    }, [isBackPressed])
+    }, [isBackPressed, close])
     const disabledReset = !(isOpened || errorCode)
 
     // Load ad when ready
