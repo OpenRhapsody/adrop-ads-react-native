@@ -1,4 +1,5 @@
 import AdropAds
+import React
 
 @objc(AdropRewardedAd)
 class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {

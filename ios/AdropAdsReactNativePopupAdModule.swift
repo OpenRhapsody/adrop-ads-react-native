@@ -1,4 +1,5 @@
 import AdropAds
+import React
 
 @objc(AdropPopupAd)
 class AdropPopupAdModule: RCTEventEmitter, AdropPopupAdDelegate {

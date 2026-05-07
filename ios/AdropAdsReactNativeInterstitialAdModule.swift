@@ -1,4 +1,5 @@
 import AdropAds
+import React
 
 @objc(AdropInterstitialAd)
 class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {

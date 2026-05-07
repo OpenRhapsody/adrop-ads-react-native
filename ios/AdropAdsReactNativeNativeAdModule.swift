@@ -1,5 +1,6 @@
 import Foundation
 import AdropAds
+import React
 
 @objc(AdropNativeAd)
 class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate {

@@ -1,4 +1,5 @@
 import AdropAds
+import React
 
 @objc(AdropMetrics)
 class AdropAnalyticsModule: RCTEventEmitter {

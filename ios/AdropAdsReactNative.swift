@@ -1,4 +1,5 @@
 import AdropAds
+import React
 import WebKit
 
 @objc(AdropAds)
