@@ -3,6 +3,7 @@ import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
 import { nanoid } from '../utils/id'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { AdType, BrowserTarget } from './AdropAd'
+import { AdropAdChoicesPosition } from './AdropAdChoicesPosition'
 import { AdropErrorCode } from '../AdropErrorCode'
 import {
     nativeAdRequestIds,
@@ -67,19 +68,34 @@ export default class AdropNativeAd {
      * - Enables video controller controls for video ads (when false, AdropNativeAdView intercepts all clicks)
      */
     private readonly _useCustomClick: boolean = false
+
+    /**
+     * Preferred display position for the AdChoices icon on AdMob-backfilled native ads.
+     * Has no effect on direct-sold ads; backfill networks such as AdMob may
+     * ignore this value per their policies.
+     */
+    private readonly _preferredAdChoicesPosition: AdropAdChoicesPosition =
+        AdropAdChoicesPosition.topRight
+
     private _loaded: boolean = false
     private _event?: AdropNativeEvent
     public listener?: AdropNativeAdListener
 
-    constructor(unitId: string, useCustomClick: boolean = false) {
+    constructor(
+        unitId: string,
+        useCustomClick: boolean = false,
+        preferredAdChoicesPosition: AdropAdChoicesPosition = AdropAdChoicesPosition.topRight
+    ) {
         this._unitId = unitId
         this._requestId = nanoid()
         this._useCustomClick = useCustomClick
+        this._preferredAdChoicesPosition = preferredAdChoicesPosition
 
         this.getNativeModule()?.create(
             this._unitId,
             this._requestId,
-            this._useCustomClick
+            this._useCustomClick,
+            this._preferredAdChoicesPosition
         )
         new NativeEventEmitter(this.eventEmitter()).addListener(
             AdropChannel.nativeEventListenerChannel,
@@ -180,7 +196,12 @@ export default class AdropNativeAd {
             return
         }
 
-        nativeModule.load(this._unitId, this._requestId, this._useCustomClick)
+        nativeModule.load(
+            this._unitId,
+            this._requestId,
+            this._useCustomClick,
+            this._preferredAdChoicesPosition
+        )
     }
 
     public destroy() {

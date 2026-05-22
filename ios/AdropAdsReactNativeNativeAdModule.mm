@@ -5,11 +5,13 @@
 
 RCT_EXTERN_METHOD(create:(NSString *)unitId
                   requestId:(NSString) requestId
-                  useCustomClick:(BOOL) useCustomClick)
+                  useCustomClick:(BOOL) useCustomClick
+                  preferredAdChoicesPosition:(NSInteger) preferredAdChoicesPosition)
 
 RCT_EXTERN_METHOD(load:(NSString *)unitId
                   requestId:(NSString) requestId
-                  useCustomClick:(BOOL) useCustomClick)
+                  useCustomClick:(BOOL) useCustomClick
+                  preferredAdChoicesPosition:(NSInteger) preferredAdChoicesPosition)
 
 RCT_EXTERN_METHOD(destroy:(NSString) requestId)
 

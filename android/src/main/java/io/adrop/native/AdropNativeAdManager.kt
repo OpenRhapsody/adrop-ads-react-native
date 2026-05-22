@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import io.adrop.ads.model.AdropErrorCode
+import io.adrop.ads.nativeAd.AdropAdChoicesPosition
 import io.adrop.ads.nativeAd.AdropNativeAd
 import io.adrop.ads.nativeAd.AdropNativeAdListener
 import io.adrop.bridge.AdropChannel
@@ -26,24 +27,36 @@ object AdropNativeAdManager {
     val handler = Handler(Looper.getMainLooper())
     private val _nativeAds = ConcurrentHashMap<String, AdropNativeAd>()
 
-    fun create(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false) {
+    private fun toAdChoicesPosition(value: Int): AdropAdChoicesPosition = when (value) {
+        AdropAdChoicesPosition.TOP_LEFT.value -> AdropAdChoicesPosition.TOP_LEFT
+        AdropAdChoicesPosition.BOTTOM_LEFT.value -> AdropAdChoicesPosition.BOTTOM_LEFT
+        AdropAdChoicesPosition.BOTTOM_RIGHT.value -> AdropAdChoicesPosition.BOTTOM_RIGHT
+        else -> AdropAdChoicesPosition.TOP_RIGHT
+    }
+
+    fun create(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
         handler.post {
             _nativeAds[requestId] ?: let {
                 val nativeAd = AdropNativeAd(context, unitId, "")
                 nativeAd.useCustomClick = useCustomClick
+                nativeAd.preferredAdChoicesPosition = toAdChoicesPosition(preferredAdChoicesPosition)
                 nativeAd.listener = listener
                 _nativeAds[requestId] = nativeAd
             }
         }
     }
 
-    fun load(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false) {
+    fun load(context: Context, unitId: String, requestId: String, listener: AdropNativeAdListener, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
         handler.post {
             if (_nativeAds[requestId] == null) {
                 val nativeAd = AdropNativeAd(context, unitId, "")
                 nativeAd.useCustomClick = useCustomClick
+                nativeAd.preferredAdChoicesPosition = toAdChoicesPosition(preferredAdChoicesPosition)
                 nativeAd.listener = listener
                 _nativeAds[requestId] = nativeAd
+            } else {
+                _nativeAds[requestId]?.preferredAdChoicesPosition =
+                    toAdChoicesPosition(preferredAdChoicesPosition)
             }
             _nativeAds[requestId]?.load()
         }

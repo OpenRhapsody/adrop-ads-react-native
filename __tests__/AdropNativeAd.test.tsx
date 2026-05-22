@@ -4,6 +4,7 @@ import { DeviceEventEmitter, NativeModules } from 'react-native'
 import { AdropChannel, AdropMethod } from '../src/bridge'
 import { nativeAdRequestIds } from '../src/contexts/AdropNativeContext'
 import { BrowserTarget } from '../src/ads/AdropAd'
+import { AdropAdChoicesPosition } from '../src/ads/AdropAdChoicesPosition'
 
 jest.mock('../src/utils/id', () => ({
     nanoid: jest.fn(() => 'test_request_id'),
@@ -64,7 +65,8 @@ describe('AdropNativeAdTest', () => {
         expect(NativeModules.AdropNativeAd.create).toHaveBeenCalledWith(
             unitId,
             'test_request_id',
-            false
+            false,
+            AdropAdChoicesPosition.topRight
         )
     })
 
@@ -83,7 +85,8 @@ describe('AdropNativeAdTest', () => {
         expect(NativeModules.AdropNativeAd.load).toHaveBeenCalledWith(
             unitId,
             'test_request_id',
-            false
+            false,
+            AdropAdChoicesPosition.topRight
         )
     })
 
@@ -236,7 +239,8 @@ describe('AdropNativeAdTest', () => {
         expect(NativeModules.AdropNativeAd.create).toHaveBeenCalledWith(
             unitId,
             'test_request_id',
-            true
+            true,
+            AdropAdChoicesPosition.topRight
         )
         ad.destroy()
     })

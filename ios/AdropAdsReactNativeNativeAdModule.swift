@@ -7,14 +7,14 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
 
     override var methodQueue: DispatchQueue! { DispatchQueue.main }
 
-    @objc(create:requestId:useCustomClick:)
-    func create(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false) {
-        AdropAdsNativeAdManager.instance.create(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
+    @objc(create:requestId:useCustomClick:preferredAdChoicesPosition:)
+    func create(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false, _ preferredAdChoicesPosition: Int = AdropAdChoicesPosition.topRight.rawValue) {
+        AdropAdsNativeAdManager.instance.create(unitId, requestId, delegate: self, useCustomClick: useCustomClick, preferredAdChoicesPosition: preferredAdChoicesPosition)
     }
 
-    @objc(load:requestId:useCustomClick:)
-    func load(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false) {
-        AdropAdsNativeAdManager.instance.load(unitId, requestId, delegate: self, useCustomClick: useCustomClick)
+    @objc(load:requestId:useCustomClick:preferredAdChoicesPosition:)
+    func load(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false, _ preferredAdChoicesPosition: Int = AdropAdChoicesPosition.topRight.rawValue) {
+        AdropAdsNativeAdManager.instance.load(unitId, requestId, delegate: self, useCustomClick: useCustomClick, preferredAdChoicesPosition: preferredAdChoicesPosition)
     }
 
     @objc(destroy:)

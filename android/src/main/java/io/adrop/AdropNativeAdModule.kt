@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
+import io.adrop.ads.nativeAd.AdropAdChoicesPosition
 import io.adrop.ads.nativeAd.AdropNativeAd
 import io.adrop.ads.nativeAd.AdropNativeAdListener
 import io.adrop.bridge.AdropChannel
@@ -28,13 +29,13 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
     override fun getName(): String = NAME
 
     @ReactMethod
-    fun create(unitId: String, requestId: String, useCustomClick: Boolean = false) {
-        AdropNativeAdManager.create(reactContext, unitId, requestId, this, useCustomClick)
+    fun create(unitId: String, requestId: String, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
+        AdropNativeAdManager.create(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition)
     }
 
     @ReactMethod
-    fun load(unitId: String, requestId: String, useCustomClick: Boolean = false) {
-        AdropNativeAdManager.load(reactContext, unitId, requestId, this, useCustomClick)
+    fun load(unitId: String, requestId: String, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
+        AdropNativeAdManager.load(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition)
     }
 
     @ReactMethod
