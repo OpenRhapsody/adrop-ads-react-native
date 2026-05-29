@@ -24,6 +24,19 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     private var pendingRequestId: String? = null
     private val pendingRunnables = mutableListOf<Runnable>()
     private var backfillRefreshObserver: BackfillRefreshObserver? = null
+
+    /**
+     * Tracking list for children added through RN ViewManager.addView.
+     *
+     * Physically the children live inside nativeAdView (or, when the backfill wrap is
+     * active, inside the inner NativeAdView wrapper), but RN's view tree tracks them as
+     * direct children of RNAdropNativeView. To reconcile this mismatch the ViewManager
+     * delegates getChildCount / getChildAt / removeViewAt / addView to this list (the
+     * default implementation only reports RNAdropNativeView's real direct child, the
+     * inflated adView, which causes RN's first manageChildren call to remove the adView
+     * itself and triggers a cascade of IllegalViewOperationException).
+     */
+    private val rnChildren = mutableListOf<View>()
     private val setNativeAdRunnable = Runnable {
         pendingRequestId?.let { requestId ->
             AdropNativeAdManager.getAd(requestId)?.let { ad ->
@@ -38,6 +51,44 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
         val root: View = layoutInflater.inflate(R.layout.rn_adrop_native_ad_view, this, true)
         nativeAdView = root.findViewById<AdropNativeAdView>(R.id.adrop_native_view)
         nativeAdView.isEntireClick = true
+    }
+
+    /**
+     * Register a child that arrived via ViewManager.addView into the RN tracking list,
+     * then actually attach it to nativeAdView. The tracking list is unaffected by
+     * wrap/unwrap cycles and guarantees an ordering consistent with RN's index basis.
+     */
+    fun addRnChild(child: View, index: Int) {
+        val safeIndex = index.coerceIn(0, rnChildren.size)
+        rnChildren.add(safeIndex, child)
+        try {
+            nativeAdView.addView(child, safeIndex)
+        } catch (e: IllegalStateException) {
+            // Race where the same child is already attached to another parent — detach and retry.
+            (child.parent as? ViewGroup)?.removeView(child)
+            try {
+                nativeAdView.addView(child, safeIndex)
+            } catch (retry: IllegalStateException) {
+                // If the retry also fails, drop from the list to keep rnChildren consistent.
+                rnChildren.remove(child)
+            }
+        }
+    }
+
+    fun getRnChildCount(): Int = rnChildren.size
+
+    fun getRnChildAt(index: Int): View? = rnChildren.getOrNull(index)
+
+    /**
+     * Remove a child by its index in the RN tracking list. When the backfill wrap is
+     * active the child's real parent may be the wrap NativeAdView rather than
+     * nativeAdView, so remove it from whichever ViewGroup it currently sits in via
+     * `child.parent`.
+     */
+    fun removeRnChildAt(index: Int) {
+        if (index < 0 || index >= rnChildren.size) return
+        val child = rnChildren.removeAt(index)
+        (child.parent as? ViewGroup)?.removeView(child)
     }
 
     fun setPendingNativeAd(requestId: String?) {
@@ -316,7 +367,12 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     private fun triggerAdMobViewabilityCheck() {
         clearPendingRunnables()
 
-        val delays = listOf(0L, 100L, 300L, 500L, 1000L)
+        // Reduced from 5 to 2 passes (0/300ms). dispatchOnGlobalLayout() fully removed.
+        // ViewTreeObserver is shared at the window level, so there is no such thing as
+        // a "subtree scoped" dispatch — calling dispatch on any child View's vto fires
+        // every listener registered on the window. AdMob's viewability is assumed to be
+        // triggered sufficiently by OnAttachStateChangeListener and the natural layout pass.
+        val delays = listOf(0L, 300L)
 
         delays.forEach { delay ->
             val runnable = Runnable {
@@ -335,16 +391,21 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     }
 
     private fun forceViewabilitySignals() {
-        if (viewTreeObserver.isAlive) {
-            viewTreeObserver.dispatchOnGlobalLayout()
-        }
-
         requestLayout()
         invalidate()
 
         nativeAdView.requestLayout()
         nativeAdView.invalidate()
 
+        // Do NOT call dispatchOnGlobalLayout(). ViewTreeObserver is a single instance
+        // shared at the window level (ViewRootImpl.mAttachInfo.mTreeObserver), so
+        // calling dispatch on any child View synchronously fires every listener
+        // registered on the window from the main thread — this collided with listeners
+        // registered by react-native-screens' ScreenContainer on the same window and
+        // was the root cause of ANRs (top operational issue from partners, ~18.4%).
+        // AdMob's viewability tracker now relies on setupLayoutListeners'
+        // OnAttachStateChangeListener (measure/layout at attach time) and the natural
+        // layout pass.
         mediaView?.let {
             it.requestLayout()
             it.invalidate()

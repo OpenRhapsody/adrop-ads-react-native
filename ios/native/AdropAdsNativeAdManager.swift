@@ -23,6 +23,7 @@ public class AdropAdsNativeAdManager: NSObject {
 
             create(unitId, requestId, delegate: delegate, useCustomClick: useCustomClick, preferredAdChoicesPosition: preferredAdChoicesPosition)
             if let nativeAd = _nativeAds[requestId] {
+                // Update the preferred position on the existing instance if the publisher specified a new one.
                 nativeAd.preferredAdChoicesPosition = AdropAdChoicesPosition(rawValue: preferredAdChoicesPosition) ?? .topRight
                 nativeAd.load()
             }

@@ -1,4 +1,9 @@
-import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
+import {
+    NativeEventEmitter,
+    NativeModules,
+    Platform,
+    type EmitterSubscription,
+} from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { nanoid } from '../utils/id'
 import { AdropErrorCode } from '../AdropErrorCode'
@@ -56,6 +61,7 @@ export abstract class AdropAd {
     protected _destinationURL: string = ''
     protected _browserTarget: BrowserTarget = BrowserTarget.EXTERNAL
     protected _creativeType: 'display' | 'video' = 'display'
+    private _subscription?: EmitterSubscription
     public listener?: AdropListener
 
     protected constructor(adType: AdType, unitId: string) {
@@ -65,7 +71,9 @@ export abstract class AdropAd {
         this._requestId = nanoid()
 
         this.getNativeModule()?.create(this.unitId, this._requestId)
-        new NativeEventEmitter(this.getEventEmitter()).addListener(
+        this._subscription = new NativeEventEmitter(
+            this.getEventEmitter()
+        ).addListener(
             this.getChannel(this._requestId),
             this._handleEvent.bind(this)
         )
@@ -173,6 +181,8 @@ export abstract class AdropAd {
     }
 
     public destroy() {
+        this._subscription?.remove()
+        this._subscription = undefined
         this.getNativeModule()?.destroy(this._requestId)
     }
 

@@ -73,6 +73,23 @@ const AdropNativeAdView: React.FC<Props> = ({
         return nativeAdRequestIds.get(nativeAd)?.()
     }, [nativeAd])
 
+    // When .load() is called repeatedly on the same AdropNativeAd instance, the nativeAd
+    // ref stays stable, so React does not detect a prop change and the
+    // setNativeAdRequestId ReactProp setter is not fired again. As a result the native
+    // chain setNativeAd → handler.setupAdView → setAdMobNativeAd never rebinds to the
+    // new admob ad, and the previous mediaView lingers. Since nativeAdDataListeners
+    // (the event channel) bumps revision for us, explicitly call setNativeProps when
+    // revision changes to re-fire the ReactProp setter and trigger a rebind.
+    useEffect(() => {
+        if (!nativeAdView || !nativeAd) return
+        const requestId = nativeAdRequestIds.get(nativeAd)?.()
+        if (!requestId) return
+        nativeAdView.setNativeProps({ nativeAdRequestId: requestId })
+        // revision is bumped by the nativeAdDataListeners callback; it must be in the
+        // deps so the effect re-runs on a same-instance reload.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [revision, nativeAd, nativeAdView])
+
     const contextValue = useMemo(
         () => ({ nativeAd, nativeAdView }),
         // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,4 +1,9 @@
-import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
+import {
+    NativeEventEmitter,
+    NativeModules,
+    Platform,
+    type EmitterSubscription,
+} from 'react-native'
 
 import { nanoid } from '../utils/id'
 import { AdropChannel, AdropMethod } from '../bridge'
@@ -70,15 +75,16 @@ export default class AdropNativeAd {
     private readonly _useCustomClick: boolean = false
 
     /**
-     * Preferred display position for the AdChoices icon on AdMob-backfilled native ads.
-     * Has no effect on direct-sold ads; backfill networks such as AdMob may
-     * ignore this value per their policies.
+     * Preferred placement for the AdChoices icon on AdMob backfill native ads.
+     * Has no effect on direct ads; the backfill network (e.g. AdMob) may
+     * override this per policy.
      */
     private readonly _preferredAdChoicesPosition: AdropAdChoicesPosition =
         AdropAdChoicesPosition.topRight
 
     private _loaded: boolean = false
     private _event?: AdropNativeEvent
+    private _subscription?: EmitterSubscription
     public listener?: AdropNativeAdListener
 
     constructor(
@@ -97,7 +103,9 @@ export default class AdropNativeAd {
             this._useCustomClick,
             this._preferredAdChoicesPosition
         )
-        new NativeEventEmitter(this.eventEmitter()).addListener(
+        this._subscription = new NativeEventEmitter(
+            this.eventEmitter()
+        ).addListener(
             AdropChannel.nativeEventListenerChannel,
             this._handleEvent.bind(this)
         )
@@ -205,6 +213,8 @@ export default class AdropNativeAd {
     }
 
     public destroy() {
+        this._subscription?.remove()
+        this._subscription = undefined
         this.getNativeModule()?.destroy(this._requestId)
         nativeAdRequestIds.delete(this)
         nativeAdDataListeners.delete(this)

@@ -22,9 +22,50 @@ class AdropNativeAdViewManager() : ViewGroupManager<RNAdropNativeView>() {
         return RNAdropNativeView(context)
     }
 
+    override fun onDropViewInstance(view: RNAdropNativeView) {
+        super.onDropViewInstance(view)
+        view.nativeAdView.destroy()
+    }
+
+    // Delegate the four child-tracking methods to the RN tracking list
+    // (RNAdropNativeView.rnChildren) so that RN UIManager's child tracking stays aligned
+    // with the actual native view tree. The default implementation only reports the real
+    // direct child of RNAdropNativeView (the single inflated adView), so RN's first
+    // manageChildren call would removeViewAt(0) on the adView itself, breaking subsequent
+    // calls with IllegalViewOperationException.
     override fun addView(parent: RNAdropNativeView, child: View, index: Int) {
-        // Add child views to the AdropNativeAdView
-        parent.nativeAdView.addView(child, index)
+        parent.addRnChild(child, index)
+    }
+
+    override fun getChildCount(parent: RNAdropNativeView): Int {
+        return parent.getRnChildCount()
+    }
+
+    override fun getChildAt(parent: RNAdropNativeView, index: Int): View? {
+        return parent.getRnChildAt(index)
+    }
+
+    override fun removeViewAt(parent: RNAdropNativeView, index: Int) {
+        parent.removeRnChildAt(index)
+    }
+
+    // RN UIManager's manageChildren usually only calls removeViewAt, but some paths
+    // (e.g. removeAllViews) may use the default removeView(view), so override both for
+    // consistency. Look up the view's index in the rnChildren list and delegate to
+    // removeRnChildAt.
+    override fun removeView(parent: RNAdropNativeView, view: View) {
+        val index = (0 until parent.getRnChildCount()).firstOrNull {
+            parent.getRnChildAt(it) === view
+        }
+        if (index != null) {
+            parent.removeRnChildAt(index)
+        }
+    }
+
+    override fun removeAllViews(parent: RNAdropNativeView) {
+        while (parent.getRnChildCount() > 0) {
+            parent.removeRnChildAt(parent.getRnChildCount() - 1)
+        }
     }
 
     @ReactProp(name = ICON)
