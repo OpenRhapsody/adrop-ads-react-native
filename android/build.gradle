@@ -39,12 +39,34 @@ android {
         }
     }
 
+    // New Architecture dual-arch source sets.
+    // - newarch: each `<Module>Spec` base extends the codegen-generated
+    //   `Native*Spec` (TurboModule) → real TurboModules under New Architecture.
+    // - oldarch: each `<Module>Spec` base extends `ReactContextBaseJavaModule`
+    //   → classic bridge modules. Old Architecture is preserved unchanged.
+    // Concrete modules in src/main extend `<Module>Spec`, resolved to whichever
+    // base the active build variant compiles.
+    sourceSets {
+        main {
+            if (isNewArchitectureEnabled()) {
+                java.srcDirs += ["src/newarch/java"]
+            } else {
+                java.srcDirs += ["src/oldarch/java"]
+            }
+        }
+    }
+
     compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
 
     defaultConfig {
         minSdkVersion getExtOrIntegerDefault("minSdkVersion")
         targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
         multiDexEnabled true
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -57,7 +79,7 @@ android {
         disable "GradleCompatible"
     }
 
-    // RN 0.71-0.81: JVM 11, RN 0.82+: JVM 17
+    // Detect the React Native minor version (used for the minimum-version guard + JVM target).
     def reactNativeVersion = 0
     try {
         def jsonSlurper = new groovy.json.JsonSlurper()
@@ -80,7 +102,20 @@ android {
         println "[AdropAds] Warning: Could not detect React Native version, defaulting to JVM 11"
     }
 
-    def javaVersion = reactNativeVersion >= 82 ? JavaVersion.VERSION_17 : JavaVersion.VERSION_11
+    // adrop-ads-react-native depends on BaseReactPackage (added in RN 0.74) and the
+    // 6-arg ReactModuleInfo, so RN < 0.74 cannot compile at all. Fail clearly here
+    // instead of with the obscure late-build "unresolved reference: BaseReactPackage".
+    // (reactNativeVersion == 0 = detection failed -> skip the guard.)
+    if (reactNativeVersion > 0 && reactNativeVersion < 74) {
+        throw new GradleException(
+            "adrop-ads-react-native requires React Native >= 0.74 " +
+            "(detected 0.${reactNativeVersion}). For RN < 0.74, use an earlier SDK version."
+        )
+    }
+
+    // RN 0.73+ requires Java/Kotlin target 17 (older RN used 11). Must match the
+    // app's Java target or Gradle fails with "Inconsistent JVM-target".
+    def javaVersion = reactNativeVersion >= 73 ? JavaVersion.VERSION_17 : JavaVersion.VERSION_11
 
     compileOptions {
         sourceCompatibility javaVersion

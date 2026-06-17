@@ -109,6 +109,18 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     }
 
     fun setNativeAd(nativeAd: AdropNativeAd) {
+        // New Architecture (Fabric): asset props are not in the codegen spec, so
+        // `setNativeProps({ mediaView: { tag } })` never reaches @ReactProp setMediaView
+        // (only `nativeAdRequestId` propagates). The media view is still mounted in the
+        // subtree via the legacy-interop layer, so locate and bind it here. On the Old
+        // Architecture this is a no-op because setMediaView already bound it.
+        if (mediaView == null) {
+            findMediaViewInTree(nativeAdView)?.let {
+                mediaView = it
+                nativeAdView.setMediaView(it)
+            }
+        }
+
         if (nativeAd.isBackfilled && mediaView == null) {
             val hiddenMediaView = RNAdropMediaView(context)
             hiddenMediaView.layoutParams = FrameLayout.LayoutParams(1, 1)
@@ -138,15 +150,36 @@ class RNAdropNativeView(context: Context, attrs: AttributeSet? = null) : LinearL
     }
 
     fun setMediaView(id: Int) {
-        val foundMediaView = findViewById<RNAdropMediaView>(id)
+        // Old Architecture: findViewById(reactTag) returns the RNAdropMediaView directly.
+        // New Architecture (Fabric): the legacy `MediaView` component is mounted inside a
+        // LegacyViewManagerInteropComponentView wrapper, so findViewById(reactTag) returns
+        // that wrapper (or null), never RNAdropMediaView — the cast fails and the media
+        // view is never bound. Resolve by searching the real view subtree for an
+        // AdropMediaView instance instead of relying on the React tag.
+        val byId = findViewById<View>(id)
+        val foundMediaView = byId as? AdropMediaView
+            ?: (byId as? ViewGroup)?.let { findMediaViewInTree(it) }
+            ?: findMediaViewInTree(nativeAdView)
 
         foundMediaView?.let {
             mediaView = it
 
-            nativeAdView.setMediaView(it as AdropMediaView)
+            nativeAdView.setMediaView(it)
 
             it.requestLayout()
         }
+    }
+
+    /** Depth-first search for the first AdropMediaView in the given subtree. */
+    private fun findMediaViewInTree(root: ViewGroup): AdropMediaView? {
+        for (i in 0 until root.childCount) {
+            val child = root.getChildAt(i)
+            if (child is AdropMediaView) return child
+            if (child is ViewGroup) {
+                findMediaViewInTree(child)?.let { return it }
+            }
+        }
+        return null
     }
 
     private fun updateWebViewRect() {

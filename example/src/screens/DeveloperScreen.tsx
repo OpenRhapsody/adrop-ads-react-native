@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
     ScrollView,
     View,
@@ -7,14 +7,39 @@ import {
     Alert,
     StyleSheet,
 } from 'react-native'
-import { Adrop } from 'adrop-ads-react-native'
+import { Adrop, AdropPopupAd, type AdropListener } from 'adrop-ads-react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Colors } from '../theme/colors'
 import { Typography } from '../theme/typography'
 import { CommonStyles } from '../theme/styles'
+import { AdropUnitId } from '../constants/AdropUnitId'
 
 const DeveloperScreen: React.FC = () => {
     const navigation = useNavigation<any>()
+    const popupAdRef = useRef<AdropPopupAd | null>(null)
+
+    // Destroy any in-flight popup ad when leaving the screen.
+    useEffect(() => {
+        return () => {
+            popupAdRef.current?.destroy()
+        }
+    }, [])
+
+    const handlePopupTest = () => {
+        popupAdRef.current?.destroy()
+
+        const popupAd = new AdropPopupAd(AdropUnitId.POPUP_BOTTOM)
+        popupAd.listener = {
+            // Show as soon as the ad is loaded.
+            onAdReceived: (ad: AdropPopupAd) => ad.show(),
+            onAdFailedToReceive: (_: AdropPopupAd, error: any) =>
+                Alert.alert('Popup Ad', `Failed to receive: ${error}`),
+            // Close the popup on click.
+            onAdClicked: (ad: AdropPopupAd) => ad.close(),
+        } as AdropListener
+        popupAdRef.current = popupAd
+        popupAd.load()
+    }
 
     const handleInitDebug = () => {
         Adrop.initialize(false)
@@ -88,6 +113,12 @@ const DeveloperScreen: React.FC = () => {
                         </TouchableOpacity>
                     )
                 })}
+                <TouchableOpacity
+                    style={[styles.testButton, styles.mb8]}
+                    onPress={handlePopupTest}
+                >
+                    <Text style={styles.testButtonText}>Popup Ad Test</Text>
+                </TouchableOpacity>
 
                 <View style={CommonStyles.divider} />
 

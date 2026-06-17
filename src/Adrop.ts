@@ -1,5 +1,7 @@
-import { NativeModules } from 'react-native'
 import type { AdropTheme } from './AdropTheme'
+import { getNativeModule } from './specs'
+
+const AdropAds = () => getNativeModule('AdropAds')
 
 class Adrop {
     static initialize = (
@@ -7,7 +9,7 @@ class Adrop {
         targetCountries?: string[],
         useInAppBrowser?: boolean
     ) => {
-        NativeModules.AdropAds.initialize(
+        AdropAds()?.initialize(
             production,
             targetCountries ?? [],
             useInAppBrowser ?? false
@@ -15,11 +17,11 @@ class Adrop {
     }
 
     static setUID(uid: string) {
-        NativeModules.AdropAds.setUID(uid)
+        AdropAds()?.setUID(uid)
     }
 
     static setTheme(theme: AdropTheme) {
-        NativeModules.AdropAds.setTheme(theme)
+        AdropAds()?.setTheme(theme)
     }
 
     /**
@@ -39,7 +41,7 @@ class Adrop {
      * @param consent - `true` for opt-in (stored as 1), `false` for opt-out (stored as 0).
      */
     static setMarketingConsent(consent: boolean): void {
-        NativeModules.AdropAds.setMarketingConsent(consent)
+        AdropAds()?.setMarketingConsent(consent)
     }
 
     /**
@@ -81,7 +83,7 @@ class Adrop {
      * ```
      */
     static registerWebView(viewTag: number): Promise<void> {
-        return NativeModules.AdropAds.registerWebView(viewTag)
+        return AdropAds()?.registerWebView(viewTag) ?? Promise.resolve()
     }
 }
 

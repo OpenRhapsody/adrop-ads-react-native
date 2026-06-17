@@ -5,6 +5,7 @@ import {
     AdropNativeContext,
     nativeAdRequestIds,
 } from '../contexts/AdropNativeContext'
+import AdropAssetWrapper from './AdropAssetWrapper'
 
 interface IconViewProps extends Omit<ImageProps, 'source'> {
     source?: ImageSourcePropType | undefined
@@ -34,13 +35,15 @@ const AdropIconView: React.FC<IconViewProps> = (props) => {
     const src = nativeAd?.properties.icon
     if (!src) return null
     return (
-        <Image
-            {...props}
-            ref={iconRef}
-            source={{ uri: src }}
-            onLayout={onLayout}
-            resizeMode="cover"
-        />
+        <AdropAssetWrapper role="icon">
+            <Image
+                {...props}
+                ref={iconRef}
+                source={{ uri: src }}
+                onLayout={onLayout}
+                resizeMode="cover"
+            />
+        </AdropAssetWrapper>
     )
 }
 

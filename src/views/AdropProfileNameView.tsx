@@ -5,6 +5,7 @@ import {
     AdropNativeContext,
     nativeAdRequestIds,
 } from '../contexts/AdropNativeContext'
+import AdropAssetWrapper from './AdropAssetWrapper'
 
 const AdropProfileNameView: React.FC<TextProps> = (props) => {
     const { nativeAd, nativeAdView } = useContext(AdropNativeContext)
@@ -30,9 +31,11 @@ const AdropProfileNameView: React.FC<TextProps> = (props) => {
     const content = nativeAd?.properties.profile?.displayName
     if (!content) return null
     return (
-        <Text {...props} ref={viewRef} onLayout={onLayout}>
-            {content}
-        </Text>
+        <AdropAssetWrapper role="profileName">
+            <Text {...props} ref={viewRef} onLayout={onLayout}>
+                {content}
+            </Text>
+        </AdropAssetWrapper>
     )
 }
 

@@ -5,6 +5,7 @@ import {
     AdropNativeContext,
     nativeAdRequestIds,
 } from '../contexts/AdropNativeContext'
+import AdropAssetWrapper from './AdropAssetWrapper'
 
 const AdropAdvertiserView: React.FC<TextProps> = (props) => {
     const { nativeAd, nativeAdView } = useContext(AdropNativeContext)
@@ -31,9 +32,11 @@ const AdropAdvertiserView: React.FC<TextProps> = (props) => {
     if (!content) return null
 
     return (
-        <Text {...props} ref={advertiserRef} onLayout={onLayout}>
-            {content}
-        </Text>
+        <AdropAssetWrapper role="advertiser">
+            <Text {...props} ref={advertiserRef} onLayout={onLayout}>
+                {content}
+            </Text>
+        </AdropAssetWrapper>
     )
 }
 

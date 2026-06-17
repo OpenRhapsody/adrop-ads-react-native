@@ -4,7 +4,6 @@ import android.provider.Settings
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import io.adrop.ads.Adrop
 import io.adrop.ads.consent.AdropConsentDebugGeography
@@ -13,14 +12,14 @@ import io.adrop.ads.consent.AdropConsentResult
 import java.security.MessageDigest
 
 class AdropConsentModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext) {
+    AdropConsentModuleSpec(reactContext) {
 
     override fun getName(): String {
         return NAME
     }
 
     @ReactMethod
-    fun requestConsentInfoUpdate(promise: Promise) {
+    override fun requestConsentInfoUpdate(promise: Promise) {
         val activity = reactApplicationContext.currentActivity
         if (activity == null) {
             promise.reject("ERROR", "Activity is null")
@@ -50,7 +49,7 @@ class AdropConsentModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun getConsentStatus(promise: Promise) {
+    override fun getConsentStatus(promise: Promise) {
         val context = reactApplicationContext
         val consentManager = Adrop.consentManager
         if (consentManager == null) {
@@ -63,7 +62,7 @@ class AdropConsentModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun canRequestAds(promise: Promise) {
+    override fun canRequestAds(promise: Promise) {
         val context = reactApplicationContext
         val consentManager = Adrop.consentManager
         if (consentManager == null) {
@@ -76,14 +75,15 @@ class AdropConsentModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun reset() {
+    override fun reset() {
         val context = reactApplicationContext
         val consentManager = Adrop.consentManager ?: return
         consentManager.reset(context)
     }
 
+    // ⚠️ BUILD-VERIFY: `geography` is `Double` to match codegen; converted with `.toInt()`.
     @ReactMethod
-    fun setDebugSettings(geography: Int) {
+    override fun setDebugSettings(geography: Double) {
         val consentManager = Adrop.consentManager ?: return
 
         val androidId = Settings.Secure.getString(
@@ -94,7 +94,7 @@ class AdropConsentModule(reactContext: ReactApplicationContext) :
             .digest(androidId.toByteArray())
             .joinToString("") { "%02X".format(it) }
 
-        val debugGeography = when (geography) {
+        val debugGeography = when (geography.toInt()) {
             0 -> AdropConsentDebugGeography.DISABLED
             1 -> AdropConsentDebugGeography.EEA
             2 -> AdropConsentDebugGeography.NOT_EEA

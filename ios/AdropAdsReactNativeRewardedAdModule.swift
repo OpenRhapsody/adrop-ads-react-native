@@ -18,6 +18,11 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
 
     @objc(setServerSideVerificationOptions:userId:customData:)
     func setServerSideVerificationOptions(_ requestId: String, _ userId: String?, _ customData: String?) -> Void {
+        // JS sends '' for unset values (the codegen spec is non-null); normalize
+        // empty back to nil so "both unset" still clears the options.
+        let userId = userId.flatMap { $0.isEmpty ? nil : $0 }
+        let customData = customData.flatMap { $0.isEmpty ? nil : $0 }
+
         if let rewardedAd = self._rewardedAds[requestId] {
             if userId != nil || customData != nil {
                 rewardedAd.serverSideVerificationOptions = AdropServerSideVerificationOptions(userId: userId, customData: customData)

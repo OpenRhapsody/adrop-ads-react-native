@@ -5,6 +5,7 @@ import {
     AdropNativeContext,
     nativeAdRequestIds,
 } from '../contexts/AdropNativeContext'
+import AdropAssetWrapper from './AdropAssetWrapper'
 
 const AdropCallToActionView: React.FC<TextProps> = (props) => {
     const { nativeAd, nativeAdView } = useContext(AdropNativeContext)
@@ -31,9 +32,11 @@ const AdropCallToActionView: React.FC<TextProps> = (props) => {
     if (!content) return null
 
     return (
-        <Text {...props} ref={callToActionRef} onLayout={onLayout}>
-            {content}
-        </Text>
+        <AdropAssetWrapper role="callToAction">
+            <Text {...props} ref={callToActionRef} onLayout={onLayout}>
+                {content}
+            </Text>
+        </AdropAssetWrapper>
     )
 }
 

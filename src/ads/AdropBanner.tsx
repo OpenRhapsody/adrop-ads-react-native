@@ -7,20 +7,17 @@ import React, {
 } from 'react'
 import {
     findNodeHandle,
-    requireNativeComponent,
     NativeModules,
     NativeEventEmitter,
     UIManager,
 } from 'react-native'
+import type { StyleProp, ViewStyle } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { BrowserTarget } from './AdropAd'
-
-type AdropBannerNativeProp = {
-    style: { height: number; width: number | string }
-    unitId: string
-    useCustomClick?: boolean
-    adSize?: { width: number; height: number } | null
-}
+import BannerView, {
+    Commands as BannerCommands,
+} from '../specs/AdropBannerViewNativeComponent'
+import { isFabricEnabled } from '../utils/arch'
 
 export type AdropBannerMetadata = {
     creativeId: string
@@ -31,7 +28,10 @@ export type AdropBannerMetadata = {
     creativeType: 'display' | 'video'
 }
 
-type AdropBannerProp = AdropBannerNativeProp & {
+type AdropBannerProp = {
+    style: { height: number; width: number | string }
+    unitId: string
+    useCustomClick?: boolean
     autoLoad?: boolean
     onAdReceived?: (unitId: string, metadata?: AdropBannerMetadata) => void
     onAdImpression?: (unitId: string, metadata?: AdropBannerMetadata) => void
@@ -40,10 +40,6 @@ type AdropBannerProp = AdropBannerNativeProp & {
     onAdVideoStart?: (unitId: string) => void
     onAdVideoEnd?: (unitId: string) => void
 }
-
-const ComponentName = 'AdropBannerView'
-
-const BannerView = requireNativeComponent<AdropBannerNativeProp>(ComponentName)
 
 const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
     (
@@ -79,17 +75,28 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             [getViewTag]
         )
 
-        const load = useCallback(() => {
-            UIManager.dispatchViewManagerCommand(getViewTag(), 'load', [])
-        }, [getViewTag])
+        // New Architecture (Fabric): the codegen command is delivered straight
+        // to the component view — no `bridge.uiManager.view(forReactTag:)`.
+        // Old Architecture / Jest: fall back to the legacy UIManager dispatch.
+        const dispatch = useCallback(
+            (command: 'load' | 'play' | 'pause') => {
+                const node = bannerRef.current
+                try {
+                    if (node) {
+                        BannerCommands[command](node as never)
+                        return
+                    }
+                } catch {
+                    // Fabric command unavailable (Old Arch / Jest) — fall through.
+                }
+                UIManager.dispatchViewManagerCommand(getViewTag(), command, [])
+            },
+            [getViewTag]
+        )
 
-        const play = useCallback(() => {
-            UIManager.dispatchViewManagerCommand(getViewTag(), 'play', [])
-        }, [getViewTag])
-
-        const pause = useCallback(() => {
-            UIManager.dispatchViewManagerCommand(getViewTag(), 'pause', [])
-        }, [getViewTag])
+        const load = useCallback(() => dispatch('load'), [dispatch])
+        const play = useCallback(() => dispatch('play'), [dispatch])
+        const pause = useCallback(() => dispatch('pause'), [dispatch])
 
         useImperativeHandle(ref, () => ({ load, play, pause }))
 
@@ -178,58 +185,83 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             [onAdVideoEnd, validateView, unitId]
         )
 
+        const routeBannerEvent = useCallback(
+            (event: any) => {
+                switch (event.method) {
+                    case AdropMethod.didCreatedBanner:
+                        handleCreated(event.tag)
+                        break
+                    case AdropMethod.didClickAd:
+                        handleAdClicked(event)
+                        break
+                    case AdropMethod.didReceiveAd:
+                        handleAdReceived(event)
+                        break
+                    case AdropMethod.didImpression:
+                        handleAdImpression(event)
+                        break
+                    case AdropMethod.didFailToReceiveAd:
+                        handleAdFailedReceive(event)
+                        break
+                    case AdropMethod.didVideoStart:
+                        handleAdVideoStart(event)
+                        break
+                    case AdropMethod.didVideoEnd:
+                        handleAdVideoEnd(event)
+                        break
+                }
+            },
+            [
+                handleCreated,
+                handleAdClicked,
+                handleAdImpression,
+                handleAdReceived,
+                handleAdFailedReceive,
+                handleAdVideoStart,
+                handleAdVideoEnd,
+            ]
+        )
+
+        // Old Architecture: events arrive on the global BannerEventEmitter channel.
+        // On Fabric the bridge module does not exist (NativeModules.BannerEventEmitter
+        // is undefined — constructing NativeEventEmitter with it triggers an RN runtime
+        // warning) and events flow through onAdEvent instead, so skip entirely.
         useEffect(() => {
+            if (isFabricEnabled) return
+
             const eventListener = new NativeEventEmitter(
                 NativeModules.BannerEventEmitter
             ).addListener(
                 AdropChannel.bannerEventListenerChannel,
-                (event: any) => {
-                    switch (event.method) {
-                        case AdropMethod.didCreatedBanner:
-                            handleCreated(event.tag)
-                            break
-                        case AdropMethod.didClickAd:
-                            handleAdClicked(event)
-                            break
-                        case AdropMethod.didReceiveAd:
-                            handleAdReceived(event)
-                            break
-                        case AdropMethod.didImpression:
-                            handleAdImpression(event)
-                            break
-                        case AdropMethod.didFailToReceiveAd:
-                            handleAdFailedReceive(event)
-                            break
-                        case AdropMethod.didVideoStart:
-                            handleAdVideoStart(event)
-                            break
-                        case AdropMethod.didVideoEnd:
-                            handleAdVideoEnd(event)
-                            break
-                    }
-                }
+                routeBannerEvent
             )
 
             return () => {
                 eventListener.remove()
             }
-        }, [
-            handleCreated,
-            handleAdClicked,
-            handleAdImpression,
-            handleAdReceived,
-            handleAdFailedReceive,
-            handleAdVideoStart,
-            handleAdVideoEnd,
-        ])
+        }, [routeBannerEvent])
+
+        // New Architecture (Fabric): events arrive as a direct component event
+        // (no bridge emitter). The event is already scoped to this view, so stamp
+        // our own tag so the per-view validation passes.
+        const onFabricAdEvent = useCallback(
+            (e: { nativeEvent: any }) => {
+                routeBannerEvent({ ...e.nativeEvent, tag: getViewTag() })
+            },
+            [routeBannerEvent, getViewTag]
+        )
 
         return (
             <BannerView
                 ref={bannerRef}
-                style={style}
+                // The public `style` keeps the legacy loose shape
+                // ({ width: number | string }); the codegen component expects a
+                // strict ViewStyle, so cast at the boundary.
+                style={style as unknown as StyleProp<ViewStyle>}
                 unitId={unitId}
                 useCustomClick={useCustomClick}
-                adSize={adSize}
+                adSize={adSize ?? undefined}
+                onAdEvent={onFabricAdEvent}
             />
         )
     }

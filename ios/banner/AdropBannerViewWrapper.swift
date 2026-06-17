@@ -2,9 +2,13 @@ import UIKit
 import React
 import AdropAds
 
-@objc
+@objc(AdropBannerViewWrapper)
 class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
-    private var bridge: RCTBridge
+    // Old Architecture delivers events through the bridge-backed
+    // `BannerEventEmitter`. New Architecture (Fabric) has no bridge, so the
+    // component view injects `onFabricEvent` and events flow through it instead.
+    private var bridge: RCTBridge?
+    @objc var onFabricEvent: (([String: Any]) -> Void)?
     private var banner: AdropBanner?
 
     func onAdReceived(_ banner: AdropBanner) {
@@ -31,7 +35,7 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         sendEvent(ad: banner, method: AdropMethod.DID_VIDEO_END)
     }
 
-    init (bridge: RCTBridge) {
+    @objc init (bridge: RCTBridge? = nil) {
         self.bridge = bridge
         super.init(frame: .zero)
     }
@@ -59,34 +63,44 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         self.banner?.useCustomClick = useCustomClick
     }
 
+    @objc
     func load() {
         self.banner?.load()
     }
 
+    @objc
     func play() {
         self.banner?.play()
     }
 
+    @objc
     func pause() {
         self.banner?.pause()
     }
 
     private func sendEvent(ad: AdropBanner, method: String, errorCode: String? = nil) {
+        let tag = self.reactTag ?? 0
+        let body: [String: Any] = [
+            "method": method,
+            "errorCode": errorCode ?? "",
+            "tag": tag,
+            "creativeId": ad.creativeId,
+            "destinationURL": ad.destinationURL,
+            "txId": ad.txId,
+            "campaignId": ad.campaignId,
+            "browserTarget": ad.browserTargetValue.rawValue,
+            "creativeType": ad.creativeType
+        ]
 
-        if let eventEmitter = bridge.module(for: BannerEventEmitter.self) as? BannerEventEmitter {
-            let tag = self.reactTag ?? 0
-            eventEmitter.sendEvent(withName: AdropChannel.invokeBannerChannel,
-                                   body: [
-                                       "method": method,
-                                       "errorCode": errorCode ?? "",
-                                       "tag": tag,
-                                       "creativeId": ad.creativeId,
-                                       "destinationURL": ad.destinationURL,
-                                       "txId": ad.txId,
-                                       "campaignId": ad.campaignId,
-                                       "browserTarget": ad.browserTargetValue.rawValue,
-                                       "creativeType": ad.creativeType
-                                   ])
+        // New Architecture (Fabric): no bridge — emit via the injected callback.
+        if let onFabricEvent = onFabricEvent {
+            onFabricEvent(body)
+            return
+        }
+
+        // Old Architecture: emit through the bridge-backed event emitter.
+        if let eventEmitter = bridge?.module(for: BannerEventEmitter.self) as? BannerEventEmitter {
+            eventEmitter.sendEvent(withName: AdropChannel.invokeBannerChannel, body: body)
         }
     }
 }

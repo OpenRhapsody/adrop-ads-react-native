@@ -7,14 +7,16 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
 
     override var methodQueue: DispatchQueue! { DispatchQueue.main }
 
+    // `preferredAdChoicesPosition` is `Double` to match the codegen spec
+    // (Int32 → double); converted back to Int for the SDK.
     @objc(create:requestId:useCustomClick:preferredAdChoicesPosition:)
-    func create(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false, _ preferredAdChoicesPosition: Int = AdropAdChoicesPosition.topRight.rawValue) {
-        AdropAdsNativeAdManager.instance.create(unitId, requestId, delegate: self, useCustomClick: useCustomClick, preferredAdChoicesPosition: preferredAdChoicesPosition)
+    func create(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false, _ preferredAdChoicesPosition: Double = Double(AdropAdChoicesPosition.topRight.rawValue)) {
+        AdropAdsNativeAdManager.instance.create(unitId, requestId, delegate: self, useCustomClick: useCustomClick, preferredAdChoicesPosition: Int(preferredAdChoicesPosition))
     }
 
     @objc(load:requestId:useCustomClick:preferredAdChoicesPosition:)
-    func load(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false, _ preferredAdChoicesPosition: Int = AdropAdChoicesPosition.topRight.rawValue) {
-        AdropAdsNativeAdManager.instance.load(unitId, requestId, delegate: self, useCustomClick: useCustomClick, preferredAdChoicesPosition: preferredAdChoicesPosition)
+    func load(_ unitId: String, _ requestId: String, _ useCustomClick: Bool = false, _ preferredAdChoicesPosition: Double = Double(AdropAdChoicesPosition.topRight.rawValue)) {
+        AdropAdsNativeAdManager.instance.load(unitId, requestId, delegate: self, useCustomClick: useCustomClick, preferredAdChoicesPosition: Int(preferredAdChoicesPosition))
     }
 
     @objc(destroy:)

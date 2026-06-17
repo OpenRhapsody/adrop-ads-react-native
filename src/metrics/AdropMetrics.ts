@@ -1,21 +1,23 @@
-import { NativeModules } from 'react-native'
+import { getNativeModule } from '../specs'
+
+const AdropMetricsModule = () => getNativeModule('AdropMetrics')
 
 class AdropMetrics {
     static setProperty = (key: string, value: any) => {
-        NativeModules.AdropMetrics.setProperty(key, [value])
+        AdropMetricsModule().setProperty(key, [value])
     }
 
     static sendEvent = (name: string, params?: Record<string, any>) => {
-        NativeModules.AdropMetrics.sendEvent(name, params ?? null)
+        AdropMetricsModule().sendEvent(name, params ?? null)
     }
 
     /** @deprecated Use sendEvent instead */
     static logEvent = (name: string, params?: Record<string, any>) => {
-        NativeModules.AdropMetrics.sendEvent(name, params ?? null)
+        AdropMetricsModule().sendEvent(name, params ?? null)
     }
 
     static properties = async (): Promise<Record<string, any>> => {
-        const properties = await NativeModules.AdropMetrics.properties()
+        const properties = await AdropMetricsModule().properties()
 
         if (
             typeof properties === 'object' &&

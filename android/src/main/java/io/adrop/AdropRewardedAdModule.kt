@@ -4,10 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.rewardedAd.AdropRewardedAd
@@ -18,7 +16,7 @@ import io.adrop.bridge.AdropMethod
 import java.util.concurrent.ConcurrentHashMap
 
 class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), AdropRewardedAdListener {
+    AdropRewardedAdModuleSpec(reactContext), AdropRewardedAdListener {
 
     private val handler = Handler(Looper.getMainLooper())
     private val _rewardedAds = ConcurrentHashMap<String, AdropRewardedAd>()
@@ -26,7 +24,7 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     override fun getName(): String = NAME
 
     @ReactMethod
-    fun create(unitId: String, requestId: String) {
+    override fun create(unitId: String, requestId: String) {
         handler.post {
             _rewardedAds[requestId] ?: let {
                 val rewardedAd = AdropRewardedAd(reactApplicationContext, unitId)
@@ -36,28 +34,31 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
         }
     }
 
+    // ⚠️ BUILD-VERIFY: codegen maps the spec's `userId`/`customData` (string) to
+    // non-null String; the previous impl accepted String?. The JS layer sends ""
+    // for "unset", so empty == cleared.
     @ReactMethod
-    fun setServerSideVerificationOptions(requestId: String, userId: String?, customData: String?) {
+    override fun setServerSideVerificationOptions(requestId: String, userId: String, customData: String) {
         handler.post {
             _rewardedAds[requestId]?.let { ad ->
-                if (userId != null || customData != null) {
-                    ad.serverSideVerificationOptions = ServerSideVerificationOptions(userId, customData)
+                ad.serverSideVerificationOptions = if (userId.isNotEmpty() || customData.isNotEmpty()) {
+                    ServerSideVerificationOptions(userId, customData)
                 } else {
-                    ad.serverSideVerificationOptions = null
+                    null
                 }
             }
         }
     }
 
     @ReactMethod
-    fun load(unitId: String, requestId: String) {
+    override fun load(unitId: String, requestId: String) {
         handler.post {
             _rewardedAds[requestId]?.load()
         }
     }
 
     @ReactMethod
-    fun show(unitId: String, requestId: String) {
+    override fun show(unitId: String, requestId: String) {
         handler.post {
             _rewardedAds[requestId]?.let { ad ->
                 reactApplicationContext.currentActivity?.let { fromActivity ->
@@ -79,11 +80,17 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
     fun customize(requestId: String, data: ReadableMap? = null) {}
 
     @ReactMethod
-    fun destroy(requestId: String) {
+    override fun destroy(requestId: String) {
         handler.post {
             _rewardedAds.remove(requestId)?.destroy()
         }
     }
+
+    @ReactMethod
+    override fun addListener(eventName: String) {}
+
+    @ReactMethod
+    override fun removeListeners(count: Double) {}
 
     private fun requestIdFor(ad: AdropRewardedAd?): String {
         _rewardedAds.entries.find { it.value == ad }?.let { return it.key }

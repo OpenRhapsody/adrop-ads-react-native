@@ -1,47 +1,46 @@
 package io.adrop
 
-import android.os.Handler
-import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
-import io.adrop.ads.nativeAd.AdropAdChoicesPosition
 import io.adrop.ads.nativeAd.AdropNativeAd
 import io.adrop.ads.nativeAd.AdropNativeAdListener
 import io.adrop.bridge.AdropChannel
 import io.adrop.bridge.AdropMethod
-import java.io.BufferedInputStream
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 import org.json.JSONObject
 import io.adrop.native.AdropNativeAdManager
 
 
 class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), AdropNativeAdListener {
+    AdropNativeAdModuleSpec(reactContext), AdropNativeAdListener {
 
     override fun getName(): String = NAME
 
+    // ⚠️ BUILD-VERIFY: `preferredAdChoicesPosition` is `Double` to match codegen;
+    // converted with `.toInt()` for the core SDK manager. Overrides cannot carry
+    // Kotlin default values, so the JS layer must pass all four arguments.
     @ReactMethod
-    fun create(unitId: String, requestId: String, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
-        AdropNativeAdManager.create(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition)
+    override fun create(unitId: String, requestId: String, useCustomClick: Boolean, preferredAdChoicesPosition: Double) {
+        AdropNativeAdManager.create(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition.toInt())
     }
 
     @ReactMethod
-    fun load(unitId: String, requestId: String, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
-        AdropNativeAdManager.load(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition)
+    override fun load(unitId: String, requestId: String, useCustomClick: Boolean, preferredAdChoicesPosition: Double) {
+        AdropNativeAdManager.load(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition.toInt())
     }
 
     @ReactMethod
-    fun destroy(requestId: String) {
+    override fun destroy(requestId: String) {
         AdropNativeAdManager.destroy(requestId)
     }
+
+    @ReactMethod
+    override fun addListener(eventName: String) {}
+
+    @ReactMethod
+    override fun removeListeners(count: Double) {}
 
 
     private fun sendEvent(

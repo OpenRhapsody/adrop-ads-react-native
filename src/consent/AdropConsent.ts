@@ -1,9 +1,9 @@
-import { NativeModules } from 'react-native'
 import type { AdropConsentResult } from './AdropConsentResult'
 import type { AdropConsentStatus } from './AdropConsentStatus'
 import type { AdropConsentDebugGeography } from './AdropConsentDebugGeography'
+import { getNativeModule } from '../specs'
 
-const { AdropConsent: NativeAdropConsent } = NativeModules
+const NativeAdropConsent = () => getNativeModule('AdropConsent')
 
 class AdropConsent {
     /**
@@ -11,7 +11,7 @@ class AdropConsent {
      * @returns Consent result
      */
     static requestConsentInfoUpdate = (): Promise<AdropConsentResult> => {
-        return NativeAdropConsent.requestConsentInfoUpdate()
+        return NativeAdropConsent().requestConsentInfoUpdate()
     }
 
     /**
@@ -19,7 +19,7 @@ class AdropConsent {
      * @returns Consent status value
      */
     static getConsentStatus = (): Promise<AdropConsentStatus> => {
-        return NativeAdropConsent.getConsentStatus()
+        return NativeAdropConsent().getConsentStatus()
     }
 
     /**
@@ -27,14 +27,14 @@ class AdropConsent {
      * @returns Whether ads can be requested
      */
     static canRequestAds = (): Promise<boolean> => {
-        return NativeAdropConsent.canRequestAds()
+        return NativeAdropConsent().canRequestAds()
     }
 
     /**
      * Reset consent settings (for testing/debugging)
      */
     static reset = (): void => {
-        NativeAdropConsent.reset()
+        NativeAdropConsent().reset()
     }
 
     /**
@@ -42,7 +42,7 @@ class AdropConsent {
      * @param geography Geography to test
      */
     static setDebugSettings = (geography: AdropConsentDebugGeography): void => {
-        NativeAdropConsent.setDebugSettings(geography)
+        NativeAdropConsent().setDebugSettings(geography)
     }
 }
 

@@ -4,8 +4,14 @@ import Foundation
 import AdropAds
 
 
-class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
-    private var bridge: RCTBridge
+// @objc so the class is emitted into `adrop_ads_react_native-Swift.h` and the
+// Fabric component view (AdropNativeAdComponentView.mm) can reference it.
+@objc(RNAdropNativeAdView) class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
+    // Old Architecture binds asset views by reactTag via `bridge.uiManager`.
+    // New Architecture (Fabric) has no bridge — the Fabric component view
+    // (AdropNativeAdComponentView) collects asset views via mountChildComponentView
+    // and binds them directly, so `bridge` is optional there.
+    private var bridge: RCTBridge?
     var adView: AdropNativeAdView
     private var webView: UIView?
     private var webViewFrame: CGRect?
@@ -15,8 +21,13 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
     private var pendingSetNativeAdWorkItem: DispatchWorkItem?
     private var lastSetRequestId: String?
     private var isBackfillAd: Bool = false
+    // The core ad's tap gesture (added in init). Disabled for useCustomClick ads so
+    // the JS <Pressable> receives the tap (onCustomClick → performClick); kept enabled
+    // for default-click ads so the gesture opens the destination natively.
+    private var clickGesture: UIGestureRecognizer?
+    private var isCustomClickAd = false
 
-    init (bridge: RCTBridge) {
+    @objc init (bridge: RCTBridge? = nil) {
         self.bridge = bridge
         adView = AdropNativeAdView()
         adView.setIsEntireClick(true)
@@ -29,6 +40,8 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
 
         if let gesture = adView.gestureRecognizers?.first {
             gesture.delegate = self
+            gesture.cancelsTouchesInView = false
+            clickGesture = gesture
             addGestureRecognizer(gesture)
         }
     }
@@ -52,7 +65,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let headlineView = self?.bridge.uiManager.view(forReactTag: viewTag) {
+            if let headlineView = self?.bridge?.uiManager.view(forReactTag: viewTag) {
                 self?.adView.setHeadLineView(headlineView)
                 self?.setNativeAd(requestId as String)
             }
@@ -66,7 +79,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let bodyView = self?.bridge.uiManager.view(forReactTag: viewTag) {
+            if let bodyView = self?.bridge?.uiManager.view(forReactTag: viewTag) {
                 self?.adView.setBodyView(bodyView)
                 self?.setNativeAd(requestId as String)
             }
@@ -80,7 +93,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let iconView = self?.bridge.uiManager.view(forReactTag: viewTag) {
+            if let iconView = self?.bridge?.uiManager.view(forReactTag: viewTag) {
                 self?.adView.setIconView(iconView)
                 self?.setNativeAd(requestId as String)
             }
@@ -95,7 +108,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
 
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            if let mediaViewView = self.bridge.uiManager.view(forReactTag: viewTag) {
+            if let mediaViewView = self.bridge?.uiManager.view(forReactTag: viewTag) {
                 if let rnMediaView = mediaViewView as? RNAdropMediaView {
                     self.mediaView = rnMediaView
                 }
@@ -112,7 +125,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let advertiserView = self?.bridge.uiManager.view(forReactTag: viewTag) {
+            if let advertiserView = self?.bridge?.uiManager.view(forReactTag: viewTag) {
                 self?.adView.setAdvertiserView(advertiserView)
                 self?.setNativeAd(requestId as String)
             }
@@ -126,7 +139,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let callToActionView = self?.bridge.uiManager.view(forReactTag: viewTag) {
+            if let callToActionView = self?.bridge?.uiManager.view(forReactTag: viewTag) {
                 self?.adView.setCallToActionView(callToActionView)
                 self?.setNativeAd(requestId as String)
             }
@@ -140,7 +153,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let profileLogoView = self?.bridge.uiManager.view(forReactTag: viewTag) {
+            if let profileLogoView = self?.bridge?.uiManager.view(forReactTag: viewTag) {
                 self?.adView.setProfileLogoView(profileLogoView)
                 self?.setNativeAd(requestId as String)
             }
@@ -154,7 +167,7 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            if let profileNameView = self?.bridge.uiManager.view(forReactTag: viewTag) {
+            if let profileNameView = self?.bridge?.uiManager.view(forReactTag: viewTag) {
                 self?.adView.setProfileNameView(profileNameView)
                 self?.setNativeAd(requestId as String)
             }
@@ -166,6 +179,41 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
     @objc func setNativeAdRequestId(_ requestId: String?) {
         guard let requestId = requestId, !requestId.isEmpty else { return }
         setNativeAd(requestId)
+    }
+
+    // MARK: - Fabric Asset Binding (New Architecture)
+
+    /// Binds an asset view collected by the Fabric container
+    /// (AdropNativeAdComponentView) to the core SDK ad view — the New
+    /// Architecture replacement for the reactTag setters above. Reuses the same
+    /// SDK API, so behaviour matches the Old Architecture path.
+    @objc func bindAsset(_ view: UIView, role: NSString) {
+        switch role as String {
+        // mediaView is a native AdropMediaView surface the core SDK populates
+        // (video/image creative), so it must be bound.
+        case "mediaView":
+            if let media = RNAdropNativeAdView.findMediaView(in: view) {
+                self.mediaView = media
+                adView.setMediaView(media)
+            } else {
+                adView.setMediaView(view)
+            }
+        // Other assets (icon/headline/body/advertiser/cta/profile*) are rendered by
+        // JS. The core SDK injects content into bound asset views via setImage:/text
+        // setters (e.g. AdropNativeAdView.downloadAndSetImage → [view setImage:]),
+        // which Fabric component views don't implement → "unrecognized selector".
+        // So under the New Architecture we don't bind those for content injection;
+        // the container's setNativeAd still handles impression + whole-ad click.
+        default: break
+        }
+    }
+
+    private static func findMediaView(in view: UIView) -> RNAdropMediaView? {
+        if let media = view as? RNAdropMediaView { return media }
+        for sub in view.subviews {
+            if let found = findMediaView(in: sub) { return found }
+        }
+        return nil
     }
 
     // MARK: - Click Handling
@@ -206,6 +254,13 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
 
             self.isEntireClick = false
             self.isBackfillAd = ad.isBackfilled
+
+            // useCustomClick: the JS <Pressable> drives the click (onCustomClick →
+            // performClick), so disable the native tap gesture which would otherwise
+            // intercept the tap under Fabric and the Pressable would never fire.
+            // Default-click ads keep the gesture so it opens the destination natively.
+            self.clickGesture?.isEnabled = !ad.useCustomClick
+            self.isCustomClickAd = ad.useCustomClick
 
             if ad.isBackfilled {
                 if self.mediaView == nil {
@@ -290,6 +345,21 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         lastTouchPoint = point
+
+        // useCustomClick: the JS <Pressable> drives the click (onCustomClick →
+        // performClick). Under the New Architecture the JS content is a SIBLING of
+        // this wrapper — the full-size wrapper sits on top and would swallow every
+        // tap — so when a tap lands on the wrapper or the core ad view, pass it
+        // through (return nil) and let the container route it to the JS Pressable
+        // behind. Under the Old Architecture the JS content is a child here, so
+        // hitTest returns it (not the core/self) and this branch is skipped.
+        if isCustomClickAd {
+            let hit = super.hitTest(point, with: event)
+            if hit === self || hit === adView || (hit?.isDescendant(of: adView) ?? false) {
+                return nil
+            }
+            return hit
+        }
 
         if isEntireClick {
             return super.hitTest(point, with: event)

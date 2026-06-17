@@ -4,10 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.interstitial.AdropInterstitialAd
 import io.adrop.ads.interstitial.AdropInterstitialAdCloseListener
@@ -18,14 +16,14 @@ import io.adrop.bridge.AdropMethod
 import java.util.concurrent.ConcurrentHashMap
 
 class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), AdropInterstitialAdListener, AdropInterstitialAdCloseListener {
+    AdropInterstitialAdModuleSpec(reactContext), AdropInterstitialAdListener, AdropInterstitialAdCloseListener {
     private val handler = Handler(Looper.getMainLooper())
     private val _interstitialAds = ConcurrentHashMap<String, AdropInterstitialAd>()
 
     override fun getName(): String = NAME
 
     @ReactMethod
-    fun create(unitId: String, requestId: String) {
+    override fun create(unitId: String, requestId: String) {
         handler.post {
             _interstitialAds[requestId] ?: let {
                 val interstitialAd = AdropInterstitialAd(reactApplicationContext, unitId)
@@ -37,14 +35,14 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun load(unitId: String, requestId: String) {
+    override fun load(unitId: String, requestId: String) {
         handler.post {
             _interstitialAds[requestId]?.load()
         }
     }
 
     @ReactMethod
-    fun show(unitId: String, requestId: String) {
+    override fun show(unitId: String, requestId: String) {
         handler.post {
             _interstitialAds[requestId]?.let { ad ->
                 reactApplicationContext.currentActivity?.let { fromActivity ->
@@ -71,11 +69,19 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun destroy(requestId: String) {
+    override fun destroy(requestId: String) {
         handler.post {
             _interstitialAds.remove(requestId)?.destroy()
         }
     }
+
+    // Required by NativeEventEmitter (JS) / codegen spec. The actual emission
+    // uses the global RCTNativeAppEventEmitter, so these are no-op book-keeping.
+    @ReactMethod
+    override fun addListener(eventName: String) {}
+
+    @ReactMethod
+    override fun removeListeners(count: Double) {}
 
     private fun requestIdFor(ad: AdropInterstitialAd?): String {
         _interstitialAds.entries.find { it.value == ad }?.let { return it.key }

@@ -1,12 +1,12 @@
 import {
     NativeEventEmitter,
-    NativeModules,
     Platform,
     type EmitterSubscription,
 } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { nanoid } from '../utils/id'
 import { AdropErrorCode } from '../AdropErrorCode'
+import { getNativeModule } from '../specs'
 
 export enum AdType {
     adropInterstitialAd = 'AdropInterstitialAd',
@@ -248,11 +248,11 @@ export abstract class AdropAd {
     }
 
     protected getNativeModule(): any {
-        return NativeModules[this._adType]
+        return getNativeModule(this._adType)
     }
 
     private getEventEmitter(): any {
-        if (Platform.OS === 'android') return NativeModules.EventEmitter
+        if (Platform.OS === 'android') return getNativeModule('EventEmitter')
 
         return this.getNativeModule()
     }

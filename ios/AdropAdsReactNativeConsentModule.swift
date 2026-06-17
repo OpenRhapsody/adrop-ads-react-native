@@ -81,14 +81,16 @@ class AdropConsentModule: NSObject {
         consentManager.reset()
     }
 
+    // `geography` is `Double` to match the codegen spec (Int32 → double); the
+    // switch converts back. Old Architecture passes a bridge-coerced number.
     @objc
-    func setDebugSettings(_ geography: Int) {
+    func setDebugSettings(_ geography: Double) {
         guard let consentManager = Adrop.consentManager else {
             return
         }
 
         let debugGeography: AdropConsentDebugGeography
-        switch geography {
+        switch Int(geography) {
         case 0:
             debugGeography = .disabled
         case 1:

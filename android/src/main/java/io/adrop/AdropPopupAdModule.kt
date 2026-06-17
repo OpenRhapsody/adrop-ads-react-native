@@ -4,10 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.popupAd.AdropPopupAd
@@ -17,7 +15,7 @@ import io.adrop.bridge.AdropMethod
 import java.util.concurrent.ConcurrentHashMap
 
 class AdropPopupAdModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), AdropPopupAdListener {
+    AdropPopupAdModuleSpec(reactContext), AdropPopupAdListener {
 
     private val handler = Handler(Looper.getMainLooper())
     private val _popupAds = ConcurrentHashMap<String, AdropPopupAd>()
@@ -25,7 +23,7 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     override fun getName(): String = NAME
 
     @ReactMethod
-    fun create(unitId: String, requestId: String) {
+    override fun create(unitId: String, requestId: String) {
         handler.post {
             _popupAds[requestId] ?: let {
                 val popupAd = AdropPopupAd(reactApplicationContext, unitId)
@@ -36,14 +34,14 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun load(unitId: String, requestId: String) {
+    override fun load(unitId: String, requestId: String) {
         handler.post {
             _popupAds[requestId]?.load()
         }
     }
 
     @ReactMethod
-    fun show(unitId: String, requestId: String) {
+    override fun show(unitId: String, requestId: String) {
         handler.post {
             _popupAds[requestId]?.let { ad ->
                 reactApplicationContext.currentActivity?.let { fromActivity ->
@@ -60,7 +58,7 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun customize(requestId: String, data: ReadableMap? = null) {
+    override fun customize(requestId: String, data: ReadableMap?) {
         handler.post {
             _popupAds[requestId]?.let { ad ->
                 data?.entryIterator?.forEach {
@@ -87,7 +85,7 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun setUseCustomClick(requestId: String, useCustomClick: Boolean) {
+    override fun setUseCustomClick(requestId: String, useCustomClick: Boolean) {
         handler.post {
             _popupAds[requestId]?.let { ad ->
                 ad.useCustomClick = useCustomClick
@@ -96,18 +94,24 @@ class AdropPopupAdModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun close(requestId: String) {
+    override fun close(requestId: String) {
         handler.post {
             _popupAds[requestId]?.close()
         }
     }
 
     @ReactMethod
-    fun destroy(requestId: String) {
+    override fun destroy(requestId: String) {
         handler.post {
             _popupAds.remove(requestId)?.destroy()
         }
     }
+
+    @ReactMethod
+    override fun addListener(eventName: String) {}
+
+    @ReactMethod
+    override fun removeListeners(count: Double) {}
 
     private fun hexStringToColorInt(hexString: String): Int {
         var hex = hexString.substring(1)

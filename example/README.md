@@ -1,79 +1,61 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Adrop Ads — React Native Example
 
-# Getting Started
+Demo app for `adrop-ads-react-native`. It also serves as the **New Architecture
+(Fabric / TurboModule / bridgeless) harness**: one example runs on either
+architecture via a build flag, so you can verify the SDK on both and reproduce
+the publisher banner-freeze case.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+- **React Native** 0.78 · **React** 19
+- Runs on **both architectures** — pick one with the flags in [Running per architecture](#running-per-architecture).
 
-## Step 1: Start the Metro Server
+## What it demonstrates
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+| Screen | Contents |
+|--------|----------|
+| **Guide** | Overview of every ad format (banner · native · interstitial · rewarded · popup · splash) |
+| **Developer** | Load / show each ad type, native-ad asset binding, consent (UMP), metrics |
+| **Splash** | App-launch splash ad (the Android launch activity) |
 
-To start Metro, run the following command from the _root_ of your React Native project:
+## Setup
 
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
+The example is a Yarn workspace of the `react-native/` package. All commands below
+run from `react-native/`.
 
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+yarn install              # install workspace deps (once)
+yarn example start        # Metro bundler
 ```
 
-### For iOS
+## Running per architecture
 
-```bash
-# using npm
-npm run ios
+The active architecture is whatever you build with — set the flag explicitly for
+the arch you want to test.
 
-# OR using Yarn
-yarn ios
-```
+### iOS
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+Reinstall Pods with the matching flag, then run `yarn example ios`:
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+| Arch | Pod install |
+|------|-------------|
+| **New Arch (Fabric)** | `cd example/ios && RCT_NEW_ARCH_ENABLED=1 bundle exec pod install` |
+| **Old Arch (interop)** | `cd example/ios && RCT_NEW_ARCH_ENABLED=0 bundle exec pod install` |
 
-## Step 3: Modifying your App
+> After switching arch: reinstall Pods, then **Xcode → Clean Build Folder (⇧⌘K)**.
 
-Now that you have successfully run the app, let's modify it.
+### Android
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+Set `newArchEnabled` in `example/android/gradle.properties` (ships as `false`),
+then run `yarn example android`:
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+| Arch | Setting |
+|------|---------|
+| **New Arch (Fabric)** | `newArchEnabled=true` |
+| **Old Arch** | `newArchEnabled=false` |
 
-## Congratulations! :tada:
+> After switching arch: `cd example/android && ./gradlew clean`.
 
-You've successfully run and modified your React Native App. :partying_face:
+## Notes
 
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- Test unit IDs live in [`src/TestUnitIds.ts`](src/TestUnitIds.ts) and
+  [`src/constants/AdropUnitId.ts`](src/constants/AdropUnitId.ts).
+- Reload the JS bundle: Android `Ctrl/Cmd + M` → Reload · iOS `Cmd + R`.

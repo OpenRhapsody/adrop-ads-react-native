@@ -1,8 +1,6 @@
 #import "SceneDelegate.h"
-#import <React/RCTBridge.h>
-#import <React/RCTRootView.h>
-#import <React/RCTBundleURLProvider.h>
-
+#import "AdropAdsReactNativeExample-Swift.h"
+@import React_RCTAppDelegate;
 
 @implementation SceneDelegate
 
@@ -15,8 +13,16 @@
 
     UIWindowScene *windowScene = (UIWindowScene *)scene;
 
-    RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:nil];
-    RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"AdropAdsReactNativeExample" initialProperties:nil];
+    // Build the React root from the shared factory (bridgeless / New Architecture),
+    // NOT the legacy RCTBridge/RCTRootView. The RN 0.78 New Arch JS bundle requires
+    // the bridgeless host (TurboModules); a legacy bridge here fails at bundle eval
+    // with "TurboModuleRegistry.getEnforcing('PlatformConstants') could not be found"
+    // → white screen.
+    AppDelegate *appDelegate = (AppDelegate *)UIApplication.sharedApplication.delegate;
+    UIView *rootView = [appDelegate.reactNativeFactory.rootViewFactory
+        viewWithModuleName:@"AdropAdsReactNativeExample"
+         initialProperties:nil
+             launchOptions:nil];
 
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
 
@@ -26,13 +32,13 @@
     rootViewController.view = rootView;
 
     AdropSplashAdViewController *splashViewController = [[AdropSplashAdViewController alloc] initWithUnitId:@"PUBLIC_TEST_UNIT_ID_SPLASH" adRequestTimeout:1];
-   splashViewController.backgroundColor = [UIColor colorWithWhite:1.0 alpha:1.0];
-   splashViewController.logoImage = [UIImage imageNamed:@"splashLogo"];
-   splashViewController.mainViewController = rootViewController;
-   splashViewController.timeout = 0.5;
-   splashViewController.delegate = self;
+    splashViewController.backgroundColor = [UIColor colorWithWhite:1.0 alpha:1.0];
+    splashViewController.logoImage = [UIImage imageNamed:@"splashLogo"];
+    splashViewController.mainViewController = rootViewController;
+    splashViewController.timeout = 0.5;
+    splashViewController.delegate = self;
 
-   self.window.rootViewController = splashViewController;
+    self.window.rootViewController = splashViewController;
     [self.window makeKeyAndVisible];
 }
 
@@ -58,16 +64,6 @@
 
 - (void)onAdImpression:(AdropSplashAd *)ad {
    NSLog(@"onAdImpression: %@", ad.unitId);
-}
-
-#pragma mark - RCTBridgeDelegate
-
-- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge {
-#if DEBUG
-    return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
-#else
-    return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-#endif
 }
 
 @end

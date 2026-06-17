@@ -45,7 +45,7 @@ const GuideScreen: React.FC = () => {
                     개발자 가이드
                 </Text>
 
-                {/* SDK 초기화 */}
+                {/* SDK initialization */}
                 <Text style={[Typography.sectionTitle, styles.mb12]}>
                     SDK 초기화
                 </Text>
@@ -61,7 +61,7 @@ const GuideScreen: React.FC = () => {
 
                 <View style={CommonStyles.divider} />
 
-                {/* 광고 포맷 */}
+                {/* Ad formats */}
                 <Text style={[Typography.sectionTitle, styles.mb12]}>
                     광고 포맷
                 </Text>
@@ -83,7 +83,7 @@ const GuideScreen: React.FC = () => {
 
                 <View style={CommonStyles.divider} />
 
-                {/* 속성 설정 */}
+                {/* Property settings */}
                 <Text style={[Typography.sectionTitle, styles.mb12]}>
                     속성 설정
                 </Text>
@@ -102,7 +102,7 @@ const GuideScreen: React.FC = () => {
 
                 <View style={CommonStyles.divider} />
 
-                {/* 동의 관리 */}
+                {/* Consent management */}
                 <Text style={[Typography.sectionTitle, styles.mb12]}>
                     동의 관리
                 </Text>

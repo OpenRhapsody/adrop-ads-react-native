@@ -1,11 +1,11 @@
 import {
     NativeEventEmitter,
-    NativeModules,
     Platform,
     type EmitterSubscription,
 } from 'react-native'
 
 import { nanoid } from '../utils/id'
+import { getNativeModule } from '../specs'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { AdType, BrowserTarget } from './AdropAd'
 import { AdropAdChoicesPosition } from './AdropAdChoicesPosition'
@@ -250,11 +250,11 @@ export default class AdropNativeAd {
     }
 
     private eventEmitter() {
-        if (Platform.OS === 'android') return NativeModules.EventEmitter
+        if (Platform.OS === 'android') return getNativeModule('EventEmitter')
         return this.getNativeModule()
     }
 
     private getNativeModule(): any {
-        return NativeModules[AdType.adropNativeAd]
+        return getNativeModule(AdType.adropNativeAd)
     }
 }

@@ -4,7 +4,6 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
@@ -17,10 +16,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class AdropMetricsModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext) {
+    AdropMetricsModuleSpec(reactContext) {
 
     @ReactMethod
-    fun setProperty(key: String, value: ReadableArray) {
+    override fun setProperty(key: String, value: ReadableArray) {
         if (value.size() == 0) return
 
         when (value.getType(0)) {
@@ -40,7 +39,7 @@ class AdropMetricsModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun logEvent(name: String, params: ReadableMap? = null) {
+    override fun logEvent(name: String, params: ReadableMap?) {
         val builder = AdropEventParam.Builder()
         params?.entryIterator?.forEach {
             val dataKey = it.key
@@ -57,7 +56,7 @@ class AdropMetricsModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun sendEvent(name: String, params: ReadableMap? = null) {
+    override fun sendEvent(name: String, params: ReadableMap?) {
         try {
             if (params == null) {
                 AdropMetrics.sendEvent(name)
@@ -103,13 +102,19 @@ class AdropMetricsModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun properties(promise: Promise) {
+    override fun properties(promise: Promise) {
         try {
             promise.resolve(AdropMetrics.properties.toWritableMap())
         } catch (e: Exception) {
             promise.resolve(JSONObject().toWritableMap())
         }
     }
+
+    @ReactMethod
+    override fun addListener(eventName: String) {}
+
+    @ReactMethod
+    override fun removeListeners(count: Double) {}
 
     private fun JSONObject.toWritableMap(): WritableMap {
         val writableMap = Arguments.createMap()
@@ -148,6 +153,10 @@ class AdropMetricsModule(reactContext: ReactApplicationContext) :
     }
 
     override fun getName(): String {
-        return "AdropMetrics"
+        return NAME
+    }
+
+    companion object {
+        const val NAME = "AdropMetrics"
     }
 }

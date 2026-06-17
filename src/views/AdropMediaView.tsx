@@ -5,6 +5,7 @@ import {
     AdropNativeContext,
     nativeAdRequestIds,
 } from '../contexts/AdropNativeContext'
+import AdropAssetWrapper from './AdropAssetWrapper'
 
 const MediaView = requireNativeComponent<ViewProps>('MediaView')
 
@@ -29,7 +30,11 @@ const AdropMediaView: React.FC<ViewProps> = (props) => {
         onLayout()
     }, [onLayout, nativeAdView, nativeAd])
 
-    return <MediaView ref={mediaRef} {...props} />
+    return (
+        <AdropAssetWrapper role="mediaView">
+            <MediaView ref={mediaRef} {...props} />
+        </AdropAssetWrapper>
+    )
 }
 
 export default AdropMediaView

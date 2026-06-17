@@ -7,15 +7,25 @@ class AdropAds: NSObject {
 
     @objc weak var bridge: RCTBridge?
 
-    @objc(initialize:targetCountries:useInAppBrowser:withResolver:withRejecter:)
-    func initialize(_ production: Bool, targetCountries: [String], useInAppBrowser: Bool, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    // Injected by RN on BOTH architectures (RCTModuleData / RCTTurboModuleManager
+    // call the setter when the module declares it). On bridgeless (New
+    // Architecture) `bridge` is nil, so this registry is the only way to resolve
+    // a view from a react tag.
+    @objc var viewRegistry_DEPRECATED: RCTViewRegistry?
+
+    // Signatures aligned to the codegen `NativeAdropAdsSpec` (TurboModule):
+    // initialize/setUID/setTheme are `void` (fire-and-forget; JS does not await),
+    // registerWebView uses `resolve:reject:` + a `double` tag. Old Architecture is
+    // unaffected (these were never awaited and numbers are bridge-coerced).
+    @objc(initialize:targetCountries:useInAppBrowser:)
+    func initialize(_ production: Bool, targetCountries: [String], useInAppBrowser: Bool) -> Void {
         DispatchQueue.main.async {
             Adrop.initialize(production: production, useInAppBrowser: useInAppBrowser, targetCountries: targetCountries)
         }
     }
 
-    @objc(setUID:withResolver:withRejecter:)
-    func setUID(_ uid: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    @objc(setUID:)
+    func setUID(_ uid: String) -> Void {
         DispatchQueue.main.async {
             if (uid.isEmpty) {
                 return
@@ -25,8 +35,8 @@ class AdropAds: NSObject {
         }
     }
 
-    @objc(setTheme:withResolver:withRejecter:)
-    func setTheme(_ theme: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    @objc(setTheme:)
+    func setTheme(_ theme: String) -> Void {
         DispatchQueue.main.async {
             let converted: AdropTheme
             switch theme.lowercased() {
@@ -49,16 +59,28 @@ class AdropAds: NSObject {
         }
     }
 
-    @objc(registerWebView:withResolver:withRejecter:)
-    func registerWebView(_ viewTag: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+    @objc(registerWebView:resolve:reject:)
+    func registerWebView(_ viewTag: Double, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         DispatchQueue.main.async { [weak self] in
-            guard let bridge = self?.bridge,
-                  let view = bridge.uiManager.view(forReactTag: viewTag) else {
+            guard let self = self else {
                 resolve(nil)
                 return
             }
 
-            if let webView = self?.findWKWebView(in: view) {
+            // New Architecture (bridgeless): bridge is nil — resolve the view via
+            // the injected view registry. Old Architecture: bridge.uiManager.
+            // Not-found stays a silent resolve(nil), matching Android and the
+            // documented "silently ignored" contract.
+            let tag = NSNumber(value: viewTag)
+            let view = self.viewRegistry_DEPRECATED?.view(forReactTag: tag)
+                ?? self.bridge?.uiManager.view(forReactTag: tag)
+
+            guard let view = view else {
+                resolve(nil)
+                return
+            }
+
+            if let webView = self.findWKWebView(in: view) {
                 Adrop.registerWebView(webView)
             }
             resolve(nil)

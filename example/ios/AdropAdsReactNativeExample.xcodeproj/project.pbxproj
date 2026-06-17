@@ -8,11 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* AdropAdsReactNativeExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* AdropAdsReactNativeExampleTests.m */; };
-		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
-		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		30A3DB83C6C52632FE004532 /* Pods_AdropAdsReactNativeExample_AdropAdsReactNativeExampleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6262B81CB0D1395808E2E20C /* Pods_AdropAdsReactNativeExample_AdropAdsReactNativeExampleTests.framework */; };
-		429D1004366215553671E9D0 /* Pods_AdropAdsReactNativeExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32090572323F89F596CCDD56 /* Pods_AdropAdsReactNativeExample.framework */; };
+		2AB6FF878C04209B13D61547 /* libPods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F7F9705784407C8A60314078 /* libPods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		C08D5DF003B8229A65720A47 /* libPods-AdropAdsReactNativeExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C5840B215D0AFE9B9B3D3C8B /* libPods-AdropAdsReactNativeExample.a */; };
+		D86599A02FD8EB8800F1C8A9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D865999F2FD8EB8800F1C8A9 /* AppDelegate.swift */; };
 		D86D55862C046A61002CBFBA /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = D86D55852C046A61002CBFBA /* main.jsbundle */; };
 		D885292B2AEF6D6600954BA6 /* adrop_service.json in Resources */ = {isa = PBXBuildFile; fileRef = D885292A2AEF6D6600954BA6 /* adrop_service.json */; };
 		D8D5DB5A2C095DD300E17A1F /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D8D5DB592C095DD300E17A1F /* SceneDelegate.m */; };
@@ -34,25 +33,24 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* AdropAdsReactNativeExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AdropAdsReactNativeExampleTests.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* AdropAdsReactNativeExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AdropAdsReactNativeExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = AdropAdsReactNativeExample/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = AdropAdsReactNativeExample/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AdropAdsReactNativeExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AdropAdsReactNativeExample/Info.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AdropAdsReactNativeExample/main.m; sourceTree = "<group>"; };
-		32090572323F89F596CCDD56 /* Pods_AdropAdsReactNativeExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AdropAdsReactNativeExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6262B81CB0D1395808E2E20C /* Pods_AdropAdsReactNativeExample_AdropAdsReactNativeExampleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AdropAdsReactNativeExample_AdropAdsReactNativeExampleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AdropAdsReactNativeExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		96D62AF4F35C72A003B3818D /* Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests/Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A5F6E57B281A5710D1BF1FEE /* Pods-AdropAdsReactNativeExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdropAdsReactNativeExample.release.xcconfig"; path = "Target Support Files/Pods-AdropAdsReactNativeExample/Pods-AdropAdsReactNativeExample.release.xcconfig"; sourceTree = "<group>"; };
+		C5840B215D0AFE9B9B3D3C8B /* libPods-AdropAdsReactNativeExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AdropAdsReactNativeExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7957656EBA57A0B815C96ED /* Pods-AdropAdsReactNativeExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdropAdsReactNativeExample.debug.xcconfig"; path = "Target Support Files/Pods-AdropAdsReactNativeExample/Pods-AdropAdsReactNativeExample.debug.xcconfig"; sourceTree = "<group>"; };
+		D865999E2FD816E300F1C8A9 /* AdropAdsReactNativeExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AdropAdsReactNativeExample-Bridging-Header.h"; sourceTree = "<group>"; };
+		D865999F2FD8EB8800F1C8A9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = AdropAdsReactNativeExample/AppDelegate.swift; sourceTree = "<group>"; };
 		D86D55832C046876002CBFBA /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		D86D55852C046A61002CBFBA /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		D885292A2AEF6D6600954BA6 /* adrop_service.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = adrop_service.json; path = AdropAdsReactNativeExample/adrop_service.json; sourceTree = "<group>"; };
 		D8D5DB592C095DD300E17A1F /* SceneDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SceneDelegate.m; path = AdropAdsReactNativeExample/SceneDelegate.m; sourceTree = "<group>"; };
 		D8D5DB5B2C095DDD00E17A1F /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SceneDelegate.h; path = AdropAdsReactNativeExample/SceneDelegate.h; sourceTree = "<group>"; };
-		E4AE5328EDD8DCC078FD7A2B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = AdropAdsReactNativeExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		E4AE5328EDD8DCC078FD7A2B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = AdropAdsReactNativeExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E77CECECCD370DADD0D7E62F /* Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.release.xcconfig"; path = "Target Support Files/Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests/Pods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F7F9705784407C8A60314078 /* libPods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30A3DB83C6C52632FE004532 /* Pods_AdropAdsReactNativeExample_AdropAdsReactNativeExampleTests.framework in Frameworks */,
+				2AB6FF878C04209B13D61547 /* libPods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,7 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				429D1004366215553671E9D0 /* Pods_AdropAdsReactNativeExample.framework in Frameworks */,
+				C08D5DF003B8229A65720A47 /* libPods-AdropAdsReactNativeExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,16 +93,15 @@
 		13B07FAE1A68108700A75B9A /* AdropAdsReactNativeExample */ = {
 			isa = PBXGroup;
 			children = (
+				D865999F2FD8EB8800F1C8A9 /* AppDelegate.swift */,
 				D8D5DB5B2C095DDD00E17A1F /* SceneDelegate.h */,
 				D8D5DB592C095DD300E17A1F /* SceneDelegate.m */,
 				D885292A2AEF6D6600954BA6 /* adrop_service.json */,
-				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
-				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
-				13B07FB71A68108700A75B9A /* main.m */,
 				E4AE5328EDD8DCC078FD7A2B /* PrivacyInfo.xcprivacy */,
+				D865999E2FD816E300F1C8A9 /* AdropAdsReactNativeExample-Bridging-Header.h */,
 			);
 			name = AdropAdsReactNativeExample;
 			sourceTree = "<group>";
@@ -113,8 +110,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				32090572323F89F596CCDD56 /* Pods_AdropAdsReactNativeExample.framework */,
-				6262B81CB0D1395808E2E20C /* Pods_AdropAdsReactNativeExample_AdropAdsReactNativeExampleTests.framework */,
+				C5840B215D0AFE9B9B3D3C8B /* libPods-AdropAdsReactNativeExample.a */,
+				F7F9705784407C8A60314078 /* libPods-AdropAdsReactNativeExample-AdropAdsReactNativeExampleTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -222,7 +219,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1520;
+						LastSwiftMigration = 2610;
 					};
 				};
 			};
@@ -429,9 +426,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				D86599A02FD8EB8800F1C8A9 /* AppDelegate.swift in Sources */,
 				D8D5DB5A2C095DD300E17A1F /* SceneDelegate.m in Sources */,
-				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,6 +517,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AdropAdsReactNativeExample;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "AdropAdsReactNativeExample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -550,6 +547,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AdropAdsReactNativeExample;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
+				SWIFT_OBJC_BRIDGING_HEADER = "AdropAdsReactNativeExample-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -560,7 +558,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -612,12 +610,12 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -641,6 +639,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				USE_HERMES = true;
 			};
 			name = Debug;
@@ -650,7 +649,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -698,12 +697,12 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
