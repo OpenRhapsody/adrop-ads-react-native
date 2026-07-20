@@ -82,10 +82,9 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
         banner.post { forceLayoutRecursive(banner) }
     }
 
-    private fun forceLayoutRecursive(view: android.view.View, depth: Int = 0) {
+    private fun forceLayoutRecursive(view: android.view.View) {
         val width = view.width
         val height = view.height
-        val indent = "  ".repeat(depth)
 
         if (width > 0 && height > 0) {
             view.measure(
@@ -114,12 +113,22 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
                     child.layout(0, 0, parentWidth, parentHeight)
                 }
 
-                forceLayoutRecursive(child, depth + 1)
+                forceLayoutRecursive(child)
             }
         }
 
-        // Trigger global layout listeners
-        view.viewTreeObserver.dispatchOnGlobalLayout()
+        // Do NOT call viewTreeObserver.dispatchOnGlobalLayout() here. ViewTreeObserver
+        // is a single instance shared at the window level
+        // (ViewRootImpl.mAttachInfo.mTreeObserver), so there is no such thing as a
+        // "subtree scoped" dispatch — calling it on any child View synchronously fires
+        // every listener registered on the window from the main thread. Being at the
+        // tail of this recursion, it ran once per view in the subtree and collided
+        // with listeners registered by react-native-screens' ScreenContainer
+        // (Fragment commit flow), which was the root cause of ANRs on low-end devices
+        // (dispatch accounted for 95-98% of this method's time; see
+        // react-native/docs/banner_anr_global_layout_plan.md). Same fix as RNAdropNativeView.
+        // The explicit measure/layout above is what actually sizes the backfill
+        // AdView under RN's Yoga layout — that part stays.
     }
 
     override fun onAdImpression(banner: AdropBanner) {

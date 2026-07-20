@@ -27,6 +27,9 @@ object AdropNativeAdManager {
     val handler = Handler(Looper.getMainLooper())
     private val _nativeAds = ConcurrentHashMap<String, AdropNativeAd>()
 
+    // The core SDK's AdropAdChoicesPosition.fromValue is stripped by proguard
+    // in release AARs (only public methods are kept), so we map values directly
+    // inside the wrapper.
     private fun toAdChoicesPosition(value: Int): AdropAdChoicesPosition = when (value) {
         AdropAdChoicesPosition.TOP_LEFT.value -> AdropAdChoicesPosition.TOP_LEFT
         AdropAdChoicesPosition.BOTTOM_LEFT.value -> AdropAdChoicesPosition.BOTTOM_LEFT
@@ -55,6 +58,7 @@ object AdropNativeAdManager {
                 nativeAd.listener = listener
                 _nativeAds[requestId] = nativeAd
             } else {
+                // Update the preferred position on the existing instance if the publisher specified a new one.
                 _nativeAds[requestId]?.preferredAdChoicesPosition =
                     toAdChoicesPosition(preferredAdChoicesPosition)
             }
