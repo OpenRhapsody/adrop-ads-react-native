@@ -31,6 +31,19 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
         return banner
     }
 
+    /**
+     * RN unmount cleanup — without this, a JS unmount never calls destroy() so the WebView
+     * (and any embedded backfill AdView) leaks. Mirrors AdropNativeAdViewManager: super first,
+     * then release. destroy() is idempotent, so overlapping with a media company's explicit
+     * destroy() is safe. tagByUnitId is keyed by unitId (unknown here) so remove by value == view.id.
+     */
+    override fun onDropViewInstance(view: AdropBanner) {
+        super.onDropViewInstance(view)
+        view.listener = null
+        view.destroy()
+        tagByUnitId.entries.removeAll { it.value == view.id }
+    }
+
     override fun receiveCommand(banner: AdropBanner, command: String?, args: ReadableArray?) {
         super.receiveCommand(banner, command, args)
 
@@ -79,7 +92,19 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
     }
 
     private fun triggerBackfillViewability(banner: AdropBanner) {
-        banner.post { forceLayoutRecursive(banner) }
+        banner.post {
+            forceLayoutRecursive(banner)
+            // Nudge AdMob's viewability check so the backfill impression fires: the AdView is
+            // injected into RN's layout and doesn't receive the scroll/draw events AdMob's
+            // viewability observers rely on, so a momentary scroll (±1px, net 0) triggers
+            // OnScrollChangedListener without touching the global-layout path.
+            // Rationale, limits, and the root-cause alternative:
+            // docs/decisions/banner-backfill-impression-viewability.md
+            val sx = banner.scrollX
+            val sy = banner.scrollY
+            banner.scrollTo(sx, sy + 1)
+            banner.scrollTo(sx, sy)
+        }
     }
 
     private fun forceLayoutRecursive(view: android.view.View) {
