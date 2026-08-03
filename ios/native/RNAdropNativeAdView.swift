@@ -333,7 +333,15 @@ class RNAdropNativeAdView: RCTView, UIGestureRecognizerDelegate {
         return true
     }
 
+    // Do not recognize simultaneously with pan/swipe gestures outside the ad view hierarchy
+    // (RN ScrollView/FlatList scrolling) — allowing it lets a scroll drag also register as a tap,
+    // which over-counts clicks (same fix as the core AdropNativeAdView).
+    // Limited to pan/swipe because the RN touch pipeline (RCTTouchHandler and other plain
+    // UIGestureRecognizers) must keep coexisting as before, or JS touches and ad clicks break.
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if otherGestureRecognizer is UIPanGestureRecognizer || otherGestureRecognizer is UISwipeGestureRecognizer {
+            return otherGestureRecognizer.view?.isDescendant(of: self) == true
+        }
         return true
     }
 }

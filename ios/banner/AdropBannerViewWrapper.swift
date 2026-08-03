@@ -4,7 +4,9 @@ import AdropAds
 
 @objc
 class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
-    private var bridge: RCTBridge
+    // Optional so the layout behaviour can be unit-tested without standing up an RCTBridge.
+    // sendEvent already tolerates a missing emitter, so a nil bridge only means "no JS events".
+    private var bridge: RCTBridge?
     private var banner: AdropBanner?
 
     func onAdReceived(_ banner: AdropBanner) {
@@ -31,7 +33,8 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         sendEvent(ad: banner, method: AdropMethod.DID_VIDEO_END)
     }
 
-    init (bridge: RCTBridge) {
+    @objc
+    init (bridge: RCTBridge?) {
         self.bridge = bridge
         super.init(frame: .zero)
     }
@@ -42,7 +45,16 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.banner?.frame = frame
+        // `bounds`, not `frame`: frame is this wrapper's rect in its superview's coordinate
+        // space, so assigning it to a child offsets the banner by the wrapper's own origin.
+        // Whenever RN lays the wrapper out at a non-zero origin (margins, padding, siblings)
+        // the banner was pushed out of place. That also silently kills impressions: the core
+        // SDK's viewability math (ViewVisibilityUtils) intersects the banner against *every*
+        // superview's bounds regardless of clipsToBounds, so the offset alone shrinks the
+        // measured visible area, and VisibilityTracker needs >50% to report an impression.
+        // AdMob backfill viewability is penalised the same way.
+        // Matches RNAdropNativeAdView (`adView.frame = bounds`) and the Flutter iOS banner.
+        self.banner?.frame = bounds
     }
 
     @objc
@@ -73,7 +85,7 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
 
     private func sendEvent(ad: AdropBanner, method: String, errorCode: String? = nil) {
 
-        if let eventEmitter = bridge.module(for: BannerEventEmitter.self) as? BannerEventEmitter {
+        if let eventEmitter = bridge?.module(for: BannerEventEmitter.self) as? BannerEventEmitter {
             let tag = self.reactTag ?? 0
             eventEmitter.sendEvent(withName: AdropChannel.invokeBannerChannel,
                                    body: [
