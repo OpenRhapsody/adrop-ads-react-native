@@ -15,6 +15,12 @@ RCT_EXTERN_METHOD(load:(NSString *)unitId
 
 RCT_EXTERN_METHOD(destroy:(NSString) requestId)
 
+RCT_EXTERN_METHOD(loads:(NSString *)unitId
+                  requestIds:(NSArray<NSString *> *) requestIds
+                  useCustomClick:(BOOL) useCustomClick
+                  resolver:(RCTPromiseResolveBlock) resolve
+                  rejecter:(RCTPromiseRejectBlock) reject)
+
 
 + (BOOL)requiresMainQueueSetup
 {

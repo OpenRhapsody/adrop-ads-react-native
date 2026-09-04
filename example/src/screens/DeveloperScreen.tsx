@@ -68,6 +68,7 @@ const DeveloperScreen: React.FC = () => {
                 {[
                     'BannerExample',
                     'NativeAdExample',
+                    'LoadsExample',
                     'RewardedAdClassExample',
                     'InterstitialAdClassExample',
                 ].map((screen) => {

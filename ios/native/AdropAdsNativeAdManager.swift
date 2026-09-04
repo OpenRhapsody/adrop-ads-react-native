@@ -7,6 +7,29 @@ public class AdropAdsNativeAdManager: NSObject {
     private var _nativeAds =  [String: AdropNativeAd]()
     private var _nativeAdViews = NSMapTable<NSString, RNAdropNativeAdView>.strongToWeakObjects()
 
+    /// Keys of ads delivered by the batch `loads()` path — swept on JS reload
+    /// (each dev reload would otherwise stack up to 5 orphaned WebViews).
+    private var _preloadedIds: Set<String> = []
+
+    /// Registers an already-loaded ad delivered by `AdropNativeAd.loads()`
+    /// under the JS-minted requestId (the create/load paths build their own
+    /// instance, so batch adoption needs this insert seam). Main-thread only.
+    func registerPreloaded(_ requestId: String, _ ad: AdropNativeAd) {
+        _nativeAds[requestId] = ad
+        _preloadedIds.insert(requestId)
+    }
+
+    func destroyAllPreloaded() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            for requestId in self._preloadedIds {
+                self._nativeAds.removeValue(forKey: requestId)
+                self._nativeAdViews.removeObject(forKey: requestId as NSString)
+            }
+            self._preloadedIds.removeAll()
+        }
+    }
+
     func create(_ unitId: String, _ requestId: String, delegate: AdropNativeAdDelegate, useCustomClick: Bool, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.topRight.rawValue) {
         if self._nativeAds[requestId] == nil {
             let nativeAd = AdropNativeAd(unitId: unitId)
@@ -34,6 +57,7 @@ public class AdropAdsNativeAdManager: NSObject {
         DispatchQueue.main.async { [weak self] in
             self?._nativeAds.removeValue(forKey: requestId)
             self?._nativeAdViews.removeObject(forKey: requestId as NSString)
+            self?._preloadedIds.remove(requestId)
         }
     }
 

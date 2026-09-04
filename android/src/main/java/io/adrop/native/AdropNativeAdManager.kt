@@ -66,9 +66,34 @@ object AdropNativeAdManager {
         }
     }
 
+    /**
+     * Keys of ads delivered by the batch `loads()` path — swept on JS reload
+     * (each dev reload would otherwise stack up to 5 orphaned WebViews).
+     */
+    private val preloadedIds = mutableSetOf<String>()
+
+    /**
+     * Registers an already-loaded ad delivered by `AdropNativeAd.loads()`
+     * under the JS-minted requestId (the create/load paths build their own
+     * instance, so batch adoption needs this insert seam).
+     * Must be called on the main thread (batch callbacks arrive there).
+     */
+    fun registerPreloaded(requestId: String, ad: AdropNativeAd) {
+        _nativeAds[requestId] = ad
+        preloadedIds.add(requestId)
+    }
+
+    fun destroyAllPreloaded() {
+        handler.post {
+            preloadedIds.toList().forEach { _nativeAds.remove(it)?.destroy() }
+            preloadedIds.clear()
+        }
+    }
+
     fun destroy(requestId: String) {
         handler.post {
             _nativeAds.remove(requestId)?.destroy()
+            preloadedIds.remove(requestId)
         }
     }
 

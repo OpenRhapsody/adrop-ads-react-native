@@ -5,6 +5,7 @@ import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
 import io.adrop.banner.AdropBannerViewManager
+import io.adrop.banner.AdropPreloadedBannerViewManager
 import io.adrop.webview.AdropWebViewManager
 import io.adrop.native.AdropNativeAdViewManager
 import io.adrop.native.AdropMediaViewManager
@@ -18,6 +19,7 @@ class AdropAdsPackage : ReactPackage {
             AdropMetricsModule(reactContext),
             AdropPopupAdModule(reactContext),
             AdropNativeAdModule(reactContext),
+            AdropBannerModule(reactContext),
             AdropConsentModule(reactContext)
         )
     }
@@ -25,6 +27,7 @@ class AdropAdsPackage : ReactPackage {
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
         return listOf(
             AdropBannerViewManager(reactContext),
+            AdropPreloadedBannerViewManager(reactContext),
             AdropWebViewManager(),
             AdropNativeAdViewManager(),
             AdropMediaViewManager(reactContext)

@@ -19,6 +19,7 @@ import {
     WebViewExample,
 } from './views'
 import NativeAdExample from './views/NativeAdExample'
+import LoadsExample from './views/LoadsExample'
 import { ShoppingAdExampleScreen, ShoppingAdDetailScreen } from './shopping'
 
 const Stack = createStackNavigator()
@@ -76,6 +77,7 @@ export default function App() {
                     name="NativeAdExample"
                     component={NativeAdExample}
                 />
+                <Stack.Screen name="LoadsExample" component={LoadsExample} />
                 <Stack.Screen
                     name="PropertyExample"
                     component={PropertyExample}

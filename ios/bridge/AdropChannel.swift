@@ -4,6 +4,10 @@ struct AdropChannel {
     static let METHOD_CHANNEL = "io.adrop.adrop-ads"
     static let invokeBannerChannel = "\(METHOD_CHANNEL)/banner"
     static let invokeNativeChannel = "\(METHOD_CHANNEL)/native"
+
+    /// Batch-loaded (preloaded) banner events — requestId-keyed, separate from
+    /// the tag-matched banner channel (same unitId can fill several slots).
+    static let invokePreloadedBannerChannel = "\(METHOD_CHANNEL)/preloaded_banner"
     
     static func invokeInterstitialChannel(id: String) -> String {
         return "\(METHOD_CHANNEL)/interstitial_\(id)"
