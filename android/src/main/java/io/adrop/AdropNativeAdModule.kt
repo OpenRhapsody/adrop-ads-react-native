@@ -14,8 +14,11 @@ import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.nativeAd.AdropAdChoicesPosition
 import io.adrop.ads.nativeAd.AdropNativeAd
+import io.adrop.ads.model.AdropAdValue
+import io.adrop.ads.model.AdropPaidEventListener
 import io.adrop.ads.nativeAd.AdropNativeAdListener
 import io.adrop.bridge.AdropChannel
+import io.adrop.bridge.toWritableMap
 import io.adrop.bridge.AdropMethod
 import java.io.BufferedInputStream
 import java.io.BufferedReader
@@ -33,12 +36,12 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun create(unitId: String, requestId: String, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
-        AdropNativeAdManager.create(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition)
+        AdropNativeAdManager.create(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition, AdropPaidEventListener(::onNativePaidEvent))
     }
 
     @ReactMethod
     fun load(unitId: String, requestId: String, useCustomClick: Boolean = false, preferredAdChoicesPosition: Int = AdropAdChoicesPosition.TOP_RIGHT.value) {
-        AdropNativeAdManager.load(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition)
+        AdropNativeAdManager.load(reactContext, unitId, requestId, this, useCustomClick, preferredAdChoicesPosition, AdropPaidEventListener(::onNativePaidEvent))
     }
 
     @ReactMethod
@@ -156,6 +159,8 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
+
+
     private fun sendEvent(
         ad: AdropNativeAd,
         method: String,
@@ -194,6 +199,24 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
 
     override fun onAdVideoEnd(ad: AdropNativeAd) {
         sendEvent(ad, AdropMethod.DID_VIDEO_END)
+    }
+
+    @Suppress("unused")
+    fun onNativePaidEvent(ad: AdropNativeAd, value: AdropAdValue) {
+        AdropNativeAdManager.handler.post {
+            val requestId = AdropNativeAdManager.requestIdFor(ad)
+            if (requestId.isEmpty()) return@post
+            reactContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeNativeChannel, Arguments.createMap().apply {
+                    putString("unitId", ad.unitId)
+                    putString("requestId", requestId)
+                    putString("method", AdropMethod.DID_PAID_EVENT)
+                    putString("creativeId", ad.creativeId)
+                    putString("txId", ad.txId)
+                    putString("campaignId", ad.campaignId)
+                    putMap("value", value.toWritableMap())
+                })
+        }
     }
 
     companion object {

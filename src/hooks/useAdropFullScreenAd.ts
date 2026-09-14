@@ -6,6 +6,7 @@ import {
     useReducer,
 } from 'react'
 import { AdropInterstitialAd, AdropRewardedAd, BrowserTarget } from '../ads'
+import type { AdropAdValue } from '../ads/AdropAdValue'
 
 interface AdHookReturns {
     load: () => void
@@ -25,6 +26,13 @@ interface AdStates {
     errorCode?: string
     reward?: { type: number; amount: number }
     browserTarget?: BrowserTarget
+    /**
+     * Revenue of the most recent AdMob backfill impression, if any.
+     *
+     * The hook owns `ad.listener`, so this is how a hook user reaches `onPaidEvent`.
+     * Stays undefined for Adrop direct ads, which never report revenue.
+     */
+    adValue?: AdropAdValue
 }
 
 const initState: AdStates = {
@@ -38,6 +46,7 @@ const initState: AdStates = {
     errorCode: undefined,
     reward: undefined,
     browserTarget: undefined,
+    adValue: undefined,
 }
 
 function useAdropFullScreenAd<
@@ -98,6 +107,9 @@ function useAdropFullScreenAd<
                 },
                 onAdBackButtonPressed: (_) => {
                     setStates({ isBackPressed: true })
+                },
+                onPaidEvent: (_, value) => {
+                    setStates({ adValue: value })
                 },
             }
         } else {

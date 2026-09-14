@@ -120,6 +120,20 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
         sendAdEvent(ad, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: errorCode))
     }
 
+    func onPaidEvent(_ ad: AdropRewardedAd, _ value: AdropAdValue) {
+        let requestId = requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
+        sendEvent(withName: AdropChannel.invokeRewardedChannel(id: requestId),
+                  body: [ "unitId": ad.unitId,
+                          "method": AdropMethod.DID_PAID_EVENT,
+                          "creativeId": ad.creativeId,
+                          "txId": ad.txId,
+                          "campaignId": ad.campaignId,
+                          "browserTarget": ad.browserTargetValue.rawValue,
+                          "value": value.toDictionary()
+                        ])
+    }
+
     override class func requiresMainQueueSetup() -> Bool {
         return true
     }
@@ -127,4 +141,5 @@ class AdropRewardedAdAdModule: RCTEventEmitter, AdropRewardedAdDelegate {
     override func supportedEvents() -> [String]! {
         return self._rewardedAds.keys.map {AdropChannel.invokeRewardedChannel(id: $0) }
     }
+
 }

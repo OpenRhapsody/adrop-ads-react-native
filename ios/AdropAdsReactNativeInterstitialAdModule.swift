@@ -109,6 +109,20 @@ class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
         sendEvent(ad, method: AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode: AdropErrorCodeToString(code: errorCode))
     }
 
+    func onPaidEvent(_ ad: AdropInterstitialAd, _ value: AdropAdValue) {
+        let requestId = requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
+        sendEvent(withName: AdropChannel.invokeInterstitialChannel(id: requestId),
+                  body: [ "unitId": ad.unitId,
+                          "method": AdropMethod.DID_PAID_EVENT,
+                          "creativeId": ad.creativeId,
+                          "txId": ad.txId,
+                          "campaignId": ad.campaignId,
+                          "browserTarget": ad.browserTargetValue.rawValue,
+                          "value": value.toDictionary()
+                        ])
+    }
+
     override class func requiresMainQueueSetup() -> Bool {
         return true
     }
@@ -116,5 +130,6 @@ class AdropInterstitialAdModule: RCTEventEmitter, AdropInterstitialAdDelegate {
     override func supportedEvents() -> [String]! {
         return self._interstitialAds.keys.map {AdropChannel.invokeInterstitialChannel(id: $0) }
     }
+
 
 }

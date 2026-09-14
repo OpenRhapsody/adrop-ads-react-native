@@ -13,8 +13,11 @@ import com.facebook.react.uimanager.annotations.ReactProp
 import io.adrop.ads.banner.AdropBanner
 import io.adrop.ads.banner.AdropBannerListener
 import io.adrop.ads.model.AdropErrorCode
+import io.adrop.ads.model.AdropAdValue
+import io.adrop.ads.model.AdropPaidEventListener
 import io.adrop.ads.model.CreativeSize
 import io.adrop.bridge.AdropChannel
+import io.adrop.bridge.toWritableMap
 import io.adrop.bridge.AdropMethod
 
 
@@ -28,6 +31,7 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
     override fun createViewInstance(context: ThemedReactContext): AdropBanner {
         val banner = AdropBanner(context, null)
         banner.listener = this
+            banner.paidEventListener = AdropPaidEventListener(::onBannerPaidEvent)
         return banner
     }
 
@@ -166,6 +170,16 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
 
     override fun onAdVideoEnd(banner: AdropBanner) {
         sendEvent(banner, AdropMethod.DID_VIDEO_END)
+    }
+
+    private fun onBannerPaidEvent(banner: AdropBanner, value: AdropAdValue) {
+        context.getJSModule(RCTNativeAppEventEmitter::class.java)
+            .emit(AdropChannel.invokeBannerChannel, Arguments.createMap().apply {
+                putString("method", AdropMethod.DID_PAID_EVENT)
+                putInt("tag", banner.id)
+                putString("unitId", banner.getUnitId())
+                putMap("value", value.toWritableMap())
+            })
     }
 
     private fun sendEvent(banner: AdropBanner, method: String, errorCode: String? = null) {

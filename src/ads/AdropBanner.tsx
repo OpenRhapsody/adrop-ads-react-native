@@ -14,6 +14,7 @@ import {
 } from 'react-native'
 import { AdropChannel, AdropMethod } from '../bridge'
 import { BrowserTarget } from './AdropAd'
+import type { AdropAdValue } from './AdropAdValue'
 
 type AdropBannerNativeProp = {
     style: { height: number; width: number | string }
@@ -39,6 +40,7 @@ type AdropBannerProp = AdropBannerNativeProp & {
     onAdFailedToReceive?: (unitId: string, errorCode?: any) => void
     onAdVideoStart?: (unitId: string) => void
     onAdVideoEnd?: (unitId: string) => void
+    onPaidEvent?: (unitId: string, value: AdropAdValue) => void
 }
 
 const ComponentName = 'AdropBannerView'
@@ -57,6 +59,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             onAdReceived,
             onAdVideoStart,
             onAdVideoEnd,
+            onPaidEvent,
             style,
         },
         ref
@@ -136,6 +139,15 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             [onAdReceived, validateView, unitId]
         )
 
+        const handlePaidEvent = useCallback(
+            (event: any) => {
+                if (!validateView(event.tag)) return
+                if (!event.value) return
+                onPaidEvent?.(unitId, event.value)
+            },
+            [onPaidEvent, validateView, unitId]
+        )
+
         const handleAdImpression = useCallback(
             (event: any) => {
                 if (!validateView(event.tag)) return
@@ -206,6 +218,9 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
                         case AdropMethod.didVideoEnd:
                             handleAdVideoEnd(event)
                             break
+                        case AdropMethod.didPaidEvent:
+                            handlePaidEvent(event)
+                            break
                     }
                 }
             )
@@ -221,6 +236,7 @@ const AdropBanner = forwardRef<HTMLDivElement, AdropBannerProp>(
             handleAdFailedReceive,
             handleAdVideoStart,
             handleAdVideoEnd,
+            handlePaidEvent,
         ])
 
         return (

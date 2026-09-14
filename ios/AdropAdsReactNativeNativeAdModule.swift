@@ -148,6 +148,20 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
         sendEvent(ad, method: AdropMethod.DID_VIDEO_END)
     }
 
+    func onPaidEvent(_ ad: AdropNativeAd, _ value: AdropAdValue) {
+        let requestId = AdropAdsNativeAdManager.instance.requestIdFor(ad)
+        guard !requestId.isEmpty else { return }
+        sendEvent(withName: AdropChannel.invokeNativeChannel,
+                  body: [ "unitId": ad.unitId,
+                          "requestId": requestId,
+                          "method": AdropMethod.DID_PAID_EVENT,
+                          "creativeId": ad.creativeId,
+                          "txId": ad.txId,
+                          "campaignId": ad.campaignId,
+                          "value": value.toDictionary()
+                        ])
+    }
+
     override class func requiresMainQueueSetup() -> Bool {
         return true
     }
@@ -169,6 +183,7 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
             return "{}"
         }
     }
+
 }
 
 /// Per-call delegate for `AdropNativeAd.loads`. Captures the promise

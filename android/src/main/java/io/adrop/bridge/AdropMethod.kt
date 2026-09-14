@@ -16,4 +16,5 @@ object AdropMethod {
     const val ON_AD_BACK_BUTTON_PRESSED = "onAdBackButtonPressed"
     const val DID_VIDEO_START = "onAdVideoStart"
     const val DID_VIDEO_END = "onAdVideoEnd"
+    const val DID_PAID_EVENT = "onPaidEvent"
 }

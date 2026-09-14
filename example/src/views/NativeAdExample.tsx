@@ -75,6 +75,15 @@ const NativeAdExample: React.FC = () => {
                 console.log(
                     `nativeAd impressed ${ad.unitId}, browserTarget: ${ad.browserTarget}`
                 ),
+            // Callback: Ad revenue for a single impression (impression-level ad revenue).
+            // Fires ONLY for AdMob backfill ads — Adrop direct ads never fire it, so
+            // seeing no callback on a direct ad is expected, not a bug.
+            // `value.valueMicros` is 1/1,000,000 units of `value.currencyCode` and is
+            // the ad provider's own gross estimate, not a settlement figure.
+            onPaidEvent: (ad, value) =>
+                console.log(
+                    `nativeAd onPaidEvent ${ad.unitId}, ${value.valueMicros} ${value.currencyCode}, precision: ${value.precision}, network: ${value.network}, source: ${value.adSourceName}`
+                ),
         }),
         []
     )

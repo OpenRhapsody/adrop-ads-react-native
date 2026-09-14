@@ -11,9 +11,12 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.ads.rewardedAd.AdropRewardedAd
+import io.adrop.ads.model.AdropAdValue
+import io.adrop.ads.model.AdropPaidEventListener
 import io.adrop.ads.rewardedAd.AdropRewardedAdListener
 import io.adrop.ads.rewardedAd.ServerSideVerificationOptions
 import io.adrop.bridge.AdropChannel
+import io.adrop.bridge.toWritableMap
 import io.adrop.bridge.AdropMethod
 import java.util.concurrent.ConcurrentHashMap
 
@@ -31,6 +34,7 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
             _rewardedAds[requestId] ?: let {
                 val rewardedAd = AdropRewardedAd(reactApplicationContext, unitId)
                 rewardedAd.rewardedAdListener = this
+                rewardedAd.paidEventListener = AdropPaidEventListener(::onPaidEvent)
                 _rewardedAds[requestId] = rewardedAd
             }
         }
@@ -151,6 +155,24 @@ class AdropRewardedAdModule(reactContext: ReactApplicationContext) :
 
     override fun onAdFailedToShowFullScreen(ad: AdropRewardedAd, errorCode: AdropErrorCode) {
         sendEvent(ad, AdropMethod.DID_FAIL_TO_SHOW_FULL_SCREEN, errorCode = errorCode.name)
+    }
+
+    @Suppress("unused")
+    fun onPaidEvent(ad: AdropRewardedAd, value: AdropAdValue) {
+        handler.post {
+            val requestId = requestIdFor(ad)
+            if (requestId.isEmpty()) return@post
+            reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeRewardedChannelOf(requestId), Arguments.createMap().apply {
+                    putString("unitId", ad.unitId)
+                    putString("method", AdropMethod.DID_PAID_EVENT)
+                    putString("creativeId", ad.creativeId)
+                    putString("txId", ad.txId)
+                    putString("campaignId", ad.campaignId)
+                    putInt("browserTarget", ad.browserTarget)
+                    putMap("value", value.toWritableMap())
+                })
+        }
     }
 
     companion object {

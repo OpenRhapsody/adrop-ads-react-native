@@ -256,4 +256,41 @@ describe('AdropNativeAdTest', () => {
         expect(nativeAd.isVideoAd).toBe(true)
         expect(nativeAd.browserTarget).toBe(BrowserTarget.INTERNAL)
     })
+
+    test('onPaidEvent delivers revenue without wiping the loaded ad', () => {
+        // The native bridge sends only revenue data with a paid event. Caching that
+        // payload as the ad would blank out the headline/media the publisher renders,
+        // and flip isBackfilled — which changes how the view handles clicks.
+        const onPaidEvent = jest.fn()
+        nativeAd.listener = { onPaidEvent }
+
+        sendEvent(AdropMethod.didReceiveAd, 'test_request_id', {
+            headline: 'Test Ad',
+            body: 'Test body',
+            cover: 'https://cover.png',
+            creativeId: 'cr_1',
+            txId: 'tx_1',
+            isBackfilled: true,
+        })
+
+        sendEvent(AdropMethod.didPaidEvent, 'test_request_id', {
+            txId: 'tx_1',
+            campaignId: 'camp_1',
+            value: {
+                network: 'admob',
+                adSourceName: 'AppLovin',
+                valueMicros: 5000,
+                currencyCode: 'USD',
+                precision: 'precise',
+            },
+        })
+
+        expect(onPaidEvent).toHaveBeenCalledTimes(1)
+        expect(onPaidEvent.mock.calls[0][1].valueMicros).toBe(5000)
+
+        expect(nativeAd.properties.headline).toBe('Test Ad')
+        expect(nativeAd.properties.body).toBe('Test body')
+        expect(nativeAd.isBackfilled).toBe(true)
+        expect(nativeAd.isLoaded).toBe(true)
+    })
 })

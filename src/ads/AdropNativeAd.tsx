@@ -8,6 +8,7 @@ import {
 import { nanoid } from '../utils/id'
 import { maxLoadsBatch } from '../utils/loadsBatch'
 import { AdropChannel, AdropMethod } from '../bridge'
+import type { AdropAdValue } from './AdropAdValue'
 import { AdType, BrowserTarget } from './AdropAd'
 import { AdropAdChoicesPosition } from './AdropAdChoicesPosition'
 import { AdropErrorCode } from '../AdropErrorCode'
@@ -40,6 +41,7 @@ export type AdropNativeProperties = {
 }
 
 interface AdropNativeEvent extends AdropNativeProperties {
+    value?: AdropAdValue
     unitId: string
     method: string
     creativeId?: string
@@ -67,6 +69,7 @@ export interface AdropNativeAdListener {
     onAdFailedToReceive?: (ad: AdropNativeAd, errorCode?: any) => void
     onAdVideoStart?: (ad: AdropNativeAd) => void
     onAdVideoEnd?: (ad: AdropNativeAd) => void
+    onPaidEvent?: (ad: AdropNativeAd, value: AdropAdValue) => void
 }
 
 export default class AdropNativeAd {
@@ -312,7 +315,11 @@ export default class AdropNativeAd {
     private _handleEvent(event: AdropNativeEvent) {
         if (event.requestId !== this._requestId) return
 
-        this._event = event
+        // A paid event only carries revenue data, so caching it would wipe the ad's
+        // headline/body/media and flip isBackfilled — the ad would render blank.
+        if (event.method !== AdropMethod.didPaidEvent) {
+            this._event = event
+        }
 
         switch (event.method) {
             case AdropMethod.didReceiveAd:
@@ -334,6 +341,11 @@ export default class AdropNativeAd {
                 break
             case AdropMethod.didVideoEnd:
                 this.listener?.onAdVideoEnd?.(this)
+                break
+            case AdropMethod.didPaidEvent:
+                if (event.value) {
+                    this.listener?.onPaidEvent?.(this, event.value)
+                }
                 break
         }
     }

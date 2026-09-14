@@ -20,6 +20,7 @@ import type {
     AdropNativeAdListener,
     AdropNativeAdLoadsOptions,
 } from './AdropNativeAd'
+import type { AdropAdValue, AdropAdValuePrecision } from './AdropAdValue'
 
 /**
  * `<AdropBanner>` component with the batch statics attached:
@@ -51,4 +52,5 @@ export type {
     AdropNativeAdListener,
     AdropNativeAdLoadsOptions,
 }
+export type { AdropAdValue, AdropAdValuePrecision }
 export type { ServerSideVerificationOptions } from './AdropRewardedAd'

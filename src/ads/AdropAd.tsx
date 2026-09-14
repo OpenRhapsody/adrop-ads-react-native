@@ -7,6 +7,7 @@ import {
 import { AdropChannel, AdropMethod } from '../bridge'
 import { nanoid } from '../utils/id'
 import { AdropErrorCode } from '../AdropErrorCode'
+import type { AdropAdValue } from './AdropAdValue'
 
 export enum AdType {
     adropInterstitialAd = 'AdropInterstitialAd',
@@ -32,6 +33,7 @@ type AdropEvent = {
     destinationURL?: string
     browserTarget?: BrowserTarget
     creativeType?: 'display' | 'video'
+    value?: AdropAdValue
 }
 
 export type AdropListener = {
@@ -48,6 +50,7 @@ export type AdropListener = {
     onAdBackButtonPressed?: (ad: AdropAd) => void
     onAdVideoStart?: (ad: AdropAd) => void
     onAdVideoEnd?: (ad: AdropAd) => void
+    onPaidEvent?: (ad: AdropAd, value: AdropAdValue) => void
 }
 
 export abstract class AdropAd {
@@ -243,6 +246,11 @@ export abstract class AdropAd {
                 break
             case AdropMethod.didVideoEnd:
                 this.listener?.onAdVideoEnd?.(this)
+                break
+            case AdropMethod.didPaidEvent:
+                if (event.value) {
+                    this.listener?.onPaidEvent?.(this, event.value)
+                }
                 break
         }
     }

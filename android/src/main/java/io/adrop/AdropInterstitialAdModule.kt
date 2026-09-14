@@ -10,10 +10,13 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter
 import io.adrop.ads.interstitial.AdropInterstitialAd
+import io.adrop.ads.model.AdropAdValue
+import io.adrop.ads.model.AdropPaidEventListener
 import io.adrop.ads.interstitial.AdropInterstitialAdCloseListener
 import io.adrop.ads.interstitial.AdropInterstitialAdListener
 import io.adrop.ads.model.AdropErrorCode
 import io.adrop.bridge.AdropChannel
+import io.adrop.bridge.toWritableMap
 import io.adrop.bridge.AdropMethod
 import java.util.concurrent.ConcurrentHashMap
 
@@ -31,6 +34,7 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
                 val interstitialAd = AdropInterstitialAd(reactApplicationContext, unitId)
                 interstitialAd.interstitialAdListener = this
                 interstitialAd.closeListener = this
+                interstitialAd.paidEventListener = AdropPaidEventListener(::onPaidEvent)
                 _interstitialAds[requestId] = interstitialAd
             }
         }
@@ -134,6 +138,25 @@ class AdropInterstitialAdModule(reactContext: ReactApplicationContext) :
     override fun onBackPressed(ad: AdropInterstitialAd) {
         sendEvent(ad, AdropMethod.ON_AD_BACK_BUTTON_PRESSED)
     }
+
+    @Suppress("unused")
+    fun onPaidEvent(ad: AdropInterstitialAd, value: AdropAdValue) {
+        handler.post {
+            val requestId = requestIdFor(ad)
+            if (requestId.isEmpty()) return@post
+            reactApplicationContext.getJSModule(RCTNativeAppEventEmitter::class.java)
+                .emit(AdropChannel.invokeInterstitialChannel(requestId), Arguments.createMap().apply {
+                    putString("unitId", ad.unitId)
+                    putString("method", AdropMethod.DID_PAID_EVENT)
+                    putString("creativeId", ad.creativeId)
+                    putString("txId", ad.txId)
+                    putString("campaignId", ad.campaignId)
+                    putInt("browserTarget", ad.browserTarget)
+                    putMap("value", value.toWritableMap())
+                })
+        }
+    }
+
 
     companion object {
         const val NAME = "AdropInterstitialAd"

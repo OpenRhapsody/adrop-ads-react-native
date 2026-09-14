@@ -33,6 +33,10 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         sendEvent(ad: banner, method: AdropMethod.DID_VIDEO_END)
     }
 
+    func onPaidEvent(_ banner: AdropBanner, _ value: AdropAdValue) {
+        sendEvent(ad: banner, method: AdropMethod.DID_PAID_EVENT, adValue: value)
+    }
+
     @objc
     init (bridge: RCTBridge?) {
         self.bridge = bridge
@@ -83,22 +87,26 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         self.banner?.pause()
     }
 
-    private func sendEvent(ad: AdropBanner, method: String, errorCode: String? = nil) {
+    private func sendEvent(ad: AdropBanner, method: String, errorCode: String? = nil, adValue: AdropAdValue? = nil) {
 
         if let eventEmitter = bridge?.module(for: BannerEventEmitter.self) as? BannerEventEmitter {
             let tag = self.reactTag ?? 0
-            eventEmitter.sendEvent(withName: AdropChannel.invokeBannerChannel,
-                                   body: [
-                                       "method": method,
-                                       "errorCode": errorCode ?? "",
-                                       "tag": tag,
-                                       "creativeId": ad.creativeId,
-                                       "destinationURL": ad.destinationURL,
-                                       "txId": ad.txId,
-                                       "campaignId": ad.campaignId,
-                                       "browserTarget": ad.browserTargetValue.rawValue,
-                                       "creativeType": ad.creativeType
-                                   ])
+            var body: [String: Any] = [
+                "method": method,
+                "errorCode": errorCode ?? "",
+                "tag": tag,
+                "unitId": ad.unitId,
+                "creativeId": ad.creativeId,
+                "destinationURL": ad.destinationURL,
+                "txId": ad.txId,
+                "campaignId": ad.campaignId,
+                "browserTarget": ad.browserTargetValue.rawValue,
+                "creativeType": ad.creativeType
+            ]
+            if let adValue = adValue {
+                body["value"] = adValue.toDictionary()
+            }
+            eventEmitter.sendEvent(withName: AdropChannel.invokeBannerChannel, body: body)
         }
     }
 }
