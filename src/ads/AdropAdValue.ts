@@ -27,4 +27,14 @@ export type AdropAdValue = {
     currencyCode: string
     /** How accurate `valueMicros` is. */
     precision: AdropAdValuePrecision
+    /**
+     * The original, pre-hash UID passed to `Adrop.setUID`, absent when it was never set.
+     *
+     * Use it to attribute this impression's revenue to a user in your own analytics or MMP.
+     * It is the value you supplied: Adrop keeps a SHA-256 hash of it as its internal user id,
+     * and already sends the raw value to Adrop's own servers in its remote-config sync
+     * (`RemoteConfigInput.externalUid` — not the ad request). Reading it here sends it nowhere
+     * new, and the ad provider never receives it.
+     */
+    externalUid?: string
 }

@@ -119,8 +119,10 @@ class AdropAdsReactNativeBannerModule: RCTEventEmitter, AdropBannerDelegate {
     // Swap-target delegate — full override set (a missed method silently drops
     // that event for every preloaded banner).
     func onAdReceived(_ banner: AdropBanner) {
-        // The batch path never re-fires the singular onAdReceived (native
-        // contract); nothing to emit.
+        // Native re-fires the singular onAdReceived on AdMob's internal creative
+        // swap (BackfillBannerAdapter txId rotation). The batch path drops that
+        // re-fire on purpose: the batch contract is one receive per requestId,
+        // and a re-fire has no requestIds mapping to ride on.
     }
 
     func onAdFailedToReceive(_ banner: AdropBanner, _ errorCode: AdropErrorCode) {

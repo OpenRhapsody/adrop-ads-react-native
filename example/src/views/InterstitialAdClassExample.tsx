@@ -22,7 +22,7 @@ const InterstitialAdClassExample: React.FC = () => {
             // the ad provider's own gross estimate, not a settlement figure.
             onPaidEvent: (ad: AdropInterstitialAd, value) =>
                 console.log(
-                    `interstitialAd onPaidEvent ${ad.unitId}, ${value.valueMicros} ${value.currencyCode}, precision: ${value.precision}, network: ${value.network}, source: ${value.adSourceName}`
+                    `interstitialAd onPaidEvent ${ad.unitId}, ${value.valueMicros} ${value.currencyCode}, precision: ${value.precision}, network: ${value.network}, source: ${value.adSourceName}, externalUid: ${value.externalUid}`
                 ),
 
             // Callback: Called when the ad is clicked

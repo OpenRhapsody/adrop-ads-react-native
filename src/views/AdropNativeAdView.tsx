@@ -87,7 +87,6 @@ const AdropNativeAdView: React.FC<Props> = ({
         nativeAdView.setNativeProps({ nativeAdRequestId: requestId })
         // revision is bumped by the nativeAdDataListeners callback; it must be in the
         // deps so the effect re-runs on a same-instance reload.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [revision, nativeAd, nativeAdView])
 
     const contextValue = useMemo(

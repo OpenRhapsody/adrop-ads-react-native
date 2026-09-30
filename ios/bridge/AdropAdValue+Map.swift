@@ -19,6 +19,9 @@ extension AdropAdValue {
         if let adSourceName = adSourceName {
             dict["adSourceName"] = adSourceName
         }
+        if let externalUid = externalUid {
+            dict["externalUid"] = externalUid
+        }
         return dict
     }
 }

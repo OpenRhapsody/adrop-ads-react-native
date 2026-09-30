@@ -39,6 +39,27 @@ type AdropEvent = {
 export type AdropListener = {
     onAdReceived?: (ad: AdropAd) => void
     onAdClicked?: (ad: AdropAd) => void
+    /**
+     * For interstitial/rewarded ads, invoked once the ad has been displayed
+     * in the foreground for 500ms continuously (not on the immediate
+     * `onAdDidPresentFullScreen`). Not invoked if the ad is closed before
+     * that.
+     *
+     * "Still displaying" below means after `onAdDidPresentFullScreen` has
+     * fired. If `destroy()` is called while the ad is still displaying
+     * (e.g. on unmount, since hooks like `useAdropInterstitialAd`/
+     * `useAdropRewardedAd` call it automatically), the ad stays on screen
+     * until the user closes it and the impression is still reported to the
+     * server, but this callback will not fire since the underlying native
+     * ad instance is already gone.
+     *
+     * On Android specifically, calling `destroy()` *before*
+     * `onAdDidPresentFullScreen` fires (i.e. between `show()` and the ad
+     * actually appearing) is different: the ad does not display and
+     * closes — rarely, a blank screen may remain until the user dismisses
+     * it with back. On iOS, the ad displays normally even if `destroy()`
+     * is called in that same window.
+     */
     onAdImpression?: (ad: AdropAd) => void
     onAdFailedToReceive?: (ad: AdropAd, errorCode?: any) => void
     onAdDidPresentFullScreen?: (ad: AdropAd) => void
@@ -183,6 +204,22 @@ export abstract class AdropAd {
         this.getNativeModule()?.close?.(this._requestId)
     }
 
+    /**
+     * Releases native resources for this ad. If called while an
+     * interstitial/rewarded ad is still displaying (after
+     * `onAdDidPresentFullScreen` has fired — e.g. via the automatic cleanup
+     * in `useAdropInterstitialAd`/`useAdropRewardedAd` on unmount), the ad
+     * stays on screen until the user closes it and the impression already
+     * accruing on screen is still reported to the server, but
+     * `onAdImpression` will not fire on this instance afterward since the
+     * underlying native ad instance is already gone.
+     *
+     * On Android, calling this *before* `onAdDidPresentFullScreen` fires
+     * (between `show()` and the ad actually appearing) is different: the
+     * ad does not display and closes — rarely, a blank screen may remain
+     * until the user dismisses it with back. On iOS, the ad displays
+     * normally even if this is called in that same window.
+     */
     public destroy() {
         this._subscription?.remove()
         this._subscription = undefined

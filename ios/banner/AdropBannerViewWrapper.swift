@@ -55,7 +55,7 @@ class AdropBannerViewWrapper: RCTView, AdropBannerDelegate {
         // the banner was pushed out of place. That also silently kills impressions: the core
         // SDK's viewability math (ViewVisibilityUtils) intersects the banner against *every*
         // superview's bounds regardless of clipsToBounds, so the offset alone shrinks the
-        // measured visible area, and VisibilityTracker needs >50% to report an impression.
+        // measured visible area, and VisibilityTracker needs ≥50% to report an impression.
         // AdMob backfill viewability is penalised the same way.
         // Matches RNAdropNativeAdView (`adView.frame = bounds`) and the Flutter iOS banner.
         self.banner?.frame = bounds

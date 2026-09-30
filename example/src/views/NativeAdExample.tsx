@@ -82,7 +82,7 @@ const NativeAdExample: React.FC = () => {
             // the ad provider's own gross estimate, not a settlement figure.
             onPaidEvent: (ad, value) =>
                 console.log(
-                    `nativeAd onPaidEvent ${ad.unitId}, ${value.valueMicros} ${value.currencyCode}, precision: ${value.precision}, network: ${value.network}, source: ${value.adSourceName}`
+                    `nativeAd onPaidEvent ${ad.unitId}, ${value.valueMicros} ${value.currencyCode}, precision: ${value.precision}, network: ${value.network}, source: ${value.adSourceName}, externalUid: ${value.externalUid}`
                 ),
         }),
         []

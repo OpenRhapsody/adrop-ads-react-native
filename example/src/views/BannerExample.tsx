@@ -96,7 +96,8 @@ const BannerExample: React.FC = () => {
             `${value.valueMicros} ${value.currencyCode}`,
             `precision: ${value.precision}`,
             `network: ${value.network}`,
-            `source: ${value.adSourceName}`
+            `source: ${value.adSourceName}`,
+            `externalUid: ${value.externalUid}`
         )
 
     return (

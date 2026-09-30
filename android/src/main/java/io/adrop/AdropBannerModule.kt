@@ -153,8 +153,11 @@ class AdropBannerModule(private val reactContext: ReactApplicationContext) :
     // Swap-target listener — full override set (a missed override silently
     // drops that event for every preloaded banner).
     override fun onAdReceived(banner: AdropBanner) {
-        // The batch path never re-fires the singular onAdReceived (native
-        // contract); nothing to emit.
+        // Native re-fires singular onAdReceived when AdMob swaps its creative internally
+        // (the txId rotation point in BackfillBannerAdapter). The batch path does not
+        // forward that re-fire to JS — the batch contract is a single first receipt, and
+        // forwarding it would emit an event with no requestIds mapping. Dropping it
+        // silently is intentional.
     }
 
     override fun onAdClicked(banner: AdropBanner) {

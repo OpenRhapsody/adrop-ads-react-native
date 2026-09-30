@@ -22,6 +22,7 @@ fun AdropAdValue.toWritableMap(): WritableMap = Arguments.createMap().apply {
     putDouble("valueMicros", valueMicros.toDouble())
     putString("currencyCode", currencyCode)
     putString("precision", precision.jsName)
+    externalUid?.let { putString("externalUid", it) }
 }
 
 /** Stable wire name; never `name.lowercase()`, which would emit `publisher_provided`. */

@@ -60,6 +60,31 @@ describe('onPaidEvent routing', () => {
         expect(onPaidEvent).toHaveBeenCalledWith(ad, paidValue)
     })
 
+    test('carries the original pre-hash uid the publisher set', () => {
+        // Core hashes the uid before it sends it anywhere, so the hash is useless for a
+        // publisher joining their own analytics. This is the value they handed us.
+        const { ad, emitEvent } = createAdAndChannel()
+        const onPaidEvent = jest.fn()
+        ad.listener = { onPaidEvent }
+
+        const withUid: AdropAdValue = { ...paidValue, externalUid: 'user-123' }
+        emitEvent(AdropMethod.didPaidEvent, { value: withUid })
+
+        expect(onPaidEvent).toHaveBeenCalledWith(ad, withUid)
+        expect(onPaidEvent.mock.calls[0][1].externalUid).toBe('user-123')
+    })
+
+    test('externalUid is absent when setUID was never called', () => {
+        // Both bridges omit the key rather than sending an empty string.
+        const { ad, emitEvent } = createAdAndChannel()
+        const onPaidEvent = jest.fn()
+        ad.listener = { onPaidEvent }
+
+        emitEvent(AdropMethod.didPaidEvent, { value: paidValue })
+
+        expect(onPaidEvent.mock.calls[0][1].externalUid).toBeUndefined()
+    })
+
     test('a paid event does not blank out the ad metadata', () => {
         const { ad, emitEvent } = createAdAndChannel()
         ad.listener = {}

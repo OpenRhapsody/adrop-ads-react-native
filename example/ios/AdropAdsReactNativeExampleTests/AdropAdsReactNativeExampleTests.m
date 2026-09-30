@@ -85,7 +85,7 @@
  * wrapper's own origin. RN lays banners out at a non-zero origin whenever there are margins,
  * padding or siblings. That is not only cosmetic: the core SDK's ViewVisibilityUtils intersects
  * the banner against every superview's bounds regardless of clipsToBounds, and VisibilityTracker
- * needs >50% to report an impression — so the offset alone can silently suppress impressions on
+ * needs ≥50% to report an impression — so the offset alone can silently suppress impressions on
  * direct ads, with AdMob backfill viewability penalised the same way.
  */
 - (void)testBannerFillsWrapperBoundsWhenLaidOutAtNonZeroOrigin
