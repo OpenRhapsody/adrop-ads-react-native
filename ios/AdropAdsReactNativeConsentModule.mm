@@ -11,6 +11,12 @@ RCT_EXTERN_METHOD(getConsentStatus:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(canRequestAds:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getPrivacyOptionsRequirementStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(showPrivacyOptionsForm:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(reset)
 
 RCT_EXTERN_METHOD(setDebugSettings:(int)geography)

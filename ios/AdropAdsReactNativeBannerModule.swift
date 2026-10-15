@@ -8,7 +8,7 @@ import React
 /// to the JS-minted requestIds. A per-call delegate handles only the terminal
 /// batch callbacks; after registration each banner's delegate is swapped to
 /// this module so per-instance events are emitted on the requestId-keyed
-/// preloaded channel (docs/decisions/batch-loads-api.md §2).
+/// preloaded channel.
 @objc(AdropBanner)
 class AdropAdsReactNativeBannerModule: RCTEventEmitter, AdropBannerDelegate {
 

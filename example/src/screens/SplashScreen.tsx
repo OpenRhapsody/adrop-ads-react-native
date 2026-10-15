@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { View, Text, StyleSheet, Animated } from 'react-native'
-import { AdropConsent, AdropConsentStatus } from 'adrop-ads-react-native'
+import { AdropConsent } from 'adrop-ads-react-native'
 import { Colors } from '../theme/colors'
 
 interface Props {
@@ -19,13 +19,12 @@ const SplashScreen: React.FC<Props> = ({ onComplete }) => {
 
         const timer = setTimeout(async () => {
             try {
-                const status = await AdropConsent.getConsentStatus()
-                if (
-                    status === AdropConsentStatus.UNKNOWN ||
-                    status === AdropConsentStatus.REQUIRED
-                ) {
-                    await AdropConsent.requestConsentInfoUpdate()
-                }
+                // Update on every launch regardless of status. Users who already
+                // consented need this session's update too, otherwise
+                // getPrivacyOptionsRequirementStatus() stays UNKNOWN and the
+                // "Privacy settings" entry point never shows. The form only
+                // appears when it is required.
+                await AdropConsent.requestConsentInfoUpdate()
             } catch (e) {
                 console.log('Consent check failed:', e)
             }

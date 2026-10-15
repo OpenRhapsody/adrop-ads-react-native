@@ -54,7 +54,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
      * 5 pre-loaded ads bound positionally to the JS-minted [requestIds]. A
      * per-call listener handles only the terminal batch callbacks; each ad's
      * listener is then swapped to this module so per-instance events route
-     * exactly like the singular path (docs/decisions/batch-loads-api.md §2).
+     * exactly like the singular path.
      */
     @ReactMethod
     fun loads(unitId: String, requestIds: ReadableArray, useCustomClick: Boolean, promise: Promise) {
@@ -95,7 +95,7 @@ class AdropNativeAdModule(private val reactContext: ReactApplicationContext) :
             override fun onAdFailedToReceive(ad: AdropNativeAd, errorCode: AdropErrorCode) {}
         }
 
-        // Main-thread entry per the module thread-safety decision.
+        // Enter on the main thread, like every other bridge method.
         AdropNativeAdManager.handler.post {
             AdropNativeAd.loads(reactContext, unitId, null, batchListener)
         }

@@ -19,16 +19,42 @@ class AdropConsentModule: NSObject {
             let viewController = self.topViewController()
 
             consentManager.requestConsentInfoUpdate(from: viewController) { result in
-                var map: [String: Any] = [
-                    "status": result.status.rawValue,
-                    "canRequestAds": result.canRequestAds,
-                    "canShowPersonalizedAds": result.canShowPersonalizedAds
-                ]
-                if let error = result.error {
-                    map["error"] = error.localizedDescription
-                }
-                resolve(map)
+                resolve(result.toDictionary())
             }
+        }
+    }
+
+    @objc
+    func showPrivacyOptionsForm(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        // This module does not set methodQueue, so it is called on a background queue. UMP is main-thread only.
+        DispatchQueue.main.async {
+            guard let consentManager = Adrop.consentManager else {
+                reject("ERROR", "ConsentManager is not available. Make sure adrop-ads-backfill is installed.", nil)
+                return
+            }
+
+            // Pass nil instead of picking a presenting screen — UMP presents from the topmost screen of the main window.
+            // This form is opened from a settings screen, which is often a native-stack modal, so
+            // presenting from rootViewController is rejected by UIKit.
+            consentManager.showPrivacyOptionsForm(from: nil) { result in
+                resolve(result.toDictionary())
+            }
+        }
+    }
+
+    // Unlike the other consent getters, this resolves UNKNOWN instead of rejecting when there is no manager,
+    // so a settings screen can decide whether to show the entry point without try/catch.
+    @objc
+    func getPrivacyOptionsRequirementStatus(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        reject: @escaping RCTPromiseRejectBlock
+    ) {
+        DispatchQueue.main.async {
+            let status = Adrop.consentManager?.getPrivacyOptionsRequirementStatus() ?? .unknown
+            resolve(status.rawValue)
         }
     }
 

@@ -32,7 +32,7 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
     /// to 5 pre-loaded ads bound positionally to the JS-minted requestIds. A
     /// per-call delegate handles only the terminal batch callbacks; each ad's
     /// delegate is then swapped to this module so per-instance events route
-    /// exactly like the singular path (docs/decisions/batch-loads-api.md §2).
+    /// exactly like the singular path.
     @objc(loads:requestIds:useCustomClick:resolver:rejecter:)
     func loads(
         _ unitId: String,
@@ -190,7 +190,7 @@ class AdropAdsReactNativeNativeAdModule: RCTEventEmitter, AdropNativeAdDelegate 
 /// closures; the module keeps a strong reference until the terminal callback
 /// (the core holds delegates weakly). Separate class from any banner batch
 /// delegate — the two @objc protocols share selector names and cannot be
-/// adopted by one NSObject (ios-sdk.md §2).
+/// adopted by one NSObject.
 private class RNNativeAdLoadsDelegate: NSObject, AdropNativeAdDelegate {
     private let onBatchReceived: ([AdropNativeAd]) -> Void
     private let onBatchFailed: (AdropErrorCode) -> Void

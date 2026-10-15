@@ -24,7 +24,7 @@ import io.adrop.bridge.AdropMethod
  * to the JS-minted requestIds. A per-call listener handles only the terminal
  * batch callbacks; after registration each banner's listener is swapped to
  * this module so per-instance events (click/impression/video) are emitted on
- * the requestId-keyed preloaded channel (docs/decisions/batch-loads-api.md §2).
+ * the requestId-keyed preloaded channel.
  */
 class AdropBannerModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), AdropBannerListener {
@@ -78,7 +78,7 @@ class AdropBannerModule(private val reactContext: ReactApplicationContext) :
             override fun onAdFailedToReceive(banner: AdropBanner, error: AdropErrorCode) {}
         }
 
-        // Main-thread entry per the module thread-safety decision.
+        // Enter on the main thread, like every other bridge method.
         handler.post {
             AdropBanner.loads(reactContext, unitId, null, batchListener)
         }

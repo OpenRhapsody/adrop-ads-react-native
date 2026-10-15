@@ -14,12 +14,13 @@
  * - OBTAINED: User has provided consent
  */
 
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, StyleSheet, Text, View, ScrollView } from 'react-native'
 import {
     AdropConsent,
     AdropConsentDebugGeography,
     AdropConsentStatus,
+    AdropPrivacyOptionsRequirementStatus,
 } from 'adrop-ads-react-native'
 import type { AdropConsentResult } from 'adrop-ads-react-native'
 
@@ -28,6 +29,26 @@ const ConsentExample: React.FC = () => {
     const [status, setStatus] = useState<AdropConsentStatus | null>(null)
     const [canRequest, setCanRequest] = useState<boolean | null>(null)
     const [error, setError] = useState<string | null>(null)
+    const [privacyOptionsRequired, setPrivacyOptionsRequired] = useState(false)
+
+    /**
+     * Show the "Privacy Settings" entry point only when it is required.
+     *
+     * Re-check whenever the settings screen is shown — the status reflects
+     * this session's requestConsentInfoUpdate. Resolves UNKNOWN (never
+     * rejects) when the consent manager is not available.
+     */
+    const refreshPrivacyOptions = useCallback(async () => {
+        const privacyOptions =
+            await AdropConsent.getPrivacyOptionsRequirementStatus()
+        setPrivacyOptionsRequired(
+            privacyOptions === AdropPrivacyOptionsRequirementStatus.REQUIRED
+        )
+    }, [])
+
+    useEffect(() => {
+        refreshPrivacyOptions()
+    }, [refreshPrivacyOptions])
 
     const getStatusText = (statusValue: AdropConsentStatus): string => {
         switch (statusValue) {
@@ -59,6 +80,26 @@ const ConsentExample: React.FC = () => {
             const consentResult = await AdropConsent.requestConsentInfoUpdate()
             setResult(consentResult)
             console.log('Consent Result:', consentResult)
+            refreshPrivacyOptions()
+        } catch (e: any) {
+            setError(e.message)
+            console.error('Error:', e)
+        }
+    }
+
+    /**
+     * Show the privacy options form ("Privacy Settings" entry point).
+     *
+     * Lets the user change the choice they made in the consent form. The
+     * change is applied to Adrop and mediation networks before this resolves.
+     */
+    const handleShowPrivacyOptionsForm = async () => {
+        try {
+            setError(null)
+            const consentResult = await AdropConsent.showPrivacyOptionsForm()
+            setResult(consentResult)
+            console.log('Privacy Options Result:', consentResult)
+            refreshPrivacyOptions()
         } catch (e: any) {
             setError(e.message)
             console.error('Error:', e)
@@ -127,7 +168,8 @@ const ConsentExample: React.FC = () => {
     /**
      * Reset all consent information.
      *
-     * Use this for testing to clear stored consent and start fresh.
+     * Testing only — never call this in production code. To let users change
+     * their consent, use showPrivacyOptionsForm().
      * After reset, requestConsentInfoUpdate will show the consent form again.
      */
     const handleReset = () => {
@@ -136,6 +178,7 @@ const ConsentExample: React.FC = () => {
         setStatus(null)
         setCanRequest(null)
         setError(null)
+        refreshPrivacyOptions()
         console.log('Consent reset')
     }
 
@@ -163,6 +206,14 @@ const ConsentExample: React.FC = () => {
                         onPress={handleCanRequestAds}
                     />
                 </View>
+                {privacyOptionsRequired && (
+                    <View style={styles.button}>
+                        <Button
+                            title="Privacy Settings"
+                            onPress={handleShowPrivacyOptionsForm}
+                        />
+                    </View>
+                )}
             </View>
 
             <View style={styles.section}>
@@ -180,7 +231,10 @@ const ConsentExample: React.FC = () => {
                     />
                 </View>
                 <View style={styles.button}>
-                    <Button title="Reset Consent" onPress={handleReset} />
+                    <Button
+                        title="Reset Consent (Testing Only)"
+                        onPress={handleReset}
+                    />
                 </View>
             </View>
 
@@ -190,9 +244,7 @@ const ConsentExample: React.FC = () => {
 
                 {result && (
                     <View style={styles.resultBox}>
-                        <Text style={styles.resultTitle}>
-                            requestConsentInfoUpdate Result:
-                        </Text>
+                        <Text style={styles.resultTitle}>Consent Result:</Text>
                         <Text style={styles.resultText}>
                             Status: {getStatusText(result.status)}
                         </Text>

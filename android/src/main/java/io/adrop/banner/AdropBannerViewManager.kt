@@ -102,8 +102,6 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
             // injected into RN's layout and doesn't receive the scroll/draw events AdMob's
             // viewability observers rely on, so a momentary scroll (±1px, net 0) triggers
             // OnScrollChangedListener without touching the global-layout path.
-            // Rationale, limits, and the root-cause alternative:
-            // docs/decisions/banner-backfill-impression-viewability.md
             val sx = banner.scrollX
             val sy = banner.scrollY
             banner.scrollTo(sx, sy + 1)
@@ -154,8 +152,7 @@ class AdropBannerViewManager(private val context: ReactApplicationContext) :
         // tail of this recursion, it ran once per view in the subtree and collided
         // with listeners registered by react-native-screens' ScreenContainer
         // (Fragment commit flow), which was the root cause of ANRs on low-end devices
-        // (dispatch accounted for 95-98% of this method's time; see
-        // react-native/docs/banner_anr_global_layout_plan.md). Same fix as RNAdropNativeView.
+        // (dispatch accounted for 95-98% of this method's time). Same fix as RNAdropNativeView.
         // The explicit measure/layout above is what actually sizes the backfill
         // AdView under RN's Yoga layout — that part stays.
     }

@@ -1,6 +1,7 @@
 import { AdropConsent } from '../src'
 import { AdropConsentStatus } from '../src/consent/AdropConsentStatus'
 import { AdropConsentDebugGeography } from '../src/consent/AdropConsentDebugGeography'
+import { AdropPrivacyOptionsRequirementStatus } from '../src/consent/AdropPrivacyOptionsRequirementStatus'
 import { NativeModules } from 'react-native'
 
 jest.mock('react-native', () => {
@@ -9,6 +10,8 @@ jest.mock('react-native', () => {
         requestConsentInfoUpdate: jest.fn(),
         getConsentStatus: jest.fn(),
         canRequestAds: jest.fn(),
+        getPrivacyOptionsRequirementStatus: jest.fn(),
+        showPrivacyOptionsForm: jest.fn(),
         reset: jest.fn(),
         setDebugSettings: jest.fn(),
     }
@@ -83,6 +86,40 @@ describe('AdropConsent Test', () => {
         const canRequest = await AdropConsent.canRequestAds()
 
         expect(canRequest).toEqual(false)
+    })
+
+    test('getPrivacyOptionsRequirementStatus returns status value', async () => {
+        NativeModules.AdropConsent.getPrivacyOptionsRequirementStatus.mockResolvedValue(
+            AdropPrivacyOptionsRequirementStatus.REQUIRED
+        )
+
+        const status = await AdropConsent.getPrivacyOptionsRequirementStatus()
+
+        expect(
+            NativeModules.AdropConsent.getPrivacyOptionsRequirementStatus
+        ).toHaveBeenCalled()
+        expect(status).toEqual(AdropPrivacyOptionsRequirementStatus.REQUIRED)
+    })
+
+    test('showPrivacyOptionsForm returns the result after the form closes', async () => {
+        const mockResult = {
+            status: AdropConsentStatus.OBTAINED,
+            canRequestAds: true,
+            canShowPersonalizedAds: false,
+        }
+        NativeModules.AdropConsent.showPrivacyOptionsForm.mockResolvedValue(
+            mockResult
+        )
+
+        const result = await AdropConsent.showPrivacyOptionsForm()
+
+        expect(
+            NativeModules.AdropConsent.showPrivacyOptionsForm
+        ).toHaveBeenCalled()
+        expect(
+            NativeModules.AdropConsent.requestConsentInfoUpdate
+        ).not.toHaveBeenCalled()
+        expect(result.canShowPersonalizedAds).toEqual(false)
     })
 
     test('reset calls native module', () => {

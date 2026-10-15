@@ -13,7 +13,7 @@ import com.facebook.react.uimanager.annotations.ReactProp
  * Host for a banner pre-loaded by `AdropBanner.loads()`. RN lays out only the
  * views it creates, so children added natively need a manual measure/layout
  * pass ([requestLayout] override — the standard RN wrapper pattern; never use
- * dispatchOnGlobalLayout, see react-native/docs/banner_anr_global_layout_plan.md).
+ * dispatchOnGlobalLayout — it caused ANRs on low-end devices).
  */
 class AdropPreloadedBannerHostView(context: Context) : FrameLayout(context) {
 

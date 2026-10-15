@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap
  * (which fills and destroys entries) and [AdropPreloadedBannerViewManager]
  * (which looks entries up on mount).
  *
- * ConcurrentHashMap + main-thread mutation follows the module thread-safety
- * decision (react-native/docs/decisions/native-module-thread-safety.md).
+ * ConcurrentHashMap + main-thread mutation, like the other modules: the map
+ * survives concurrent access, and the main thread orders destroy against events.
  */
 object AdropPreloadedBannerStore {
     val banners = ConcurrentHashMap<String, AdropBanner>()
