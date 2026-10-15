@@ -87,6 +87,36 @@ describe('Adrop Test', () => {
         expect(NativeModules.AdropAds.registerWebView).toHaveBeenCalledWith(42)
     })
 
+    describe('registerWebView dev warning', () => {
+        let warn: jest.SpyInstance
+
+        beforeEach(() => {
+            warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
+        })
+
+        afterEach(() => {
+            warn.mockRestore()
+        })
+
+        test('warns once when native reports no WebView was registered', async () => {
+            NativeModules.AdropAds.registerWebView.mockResolvedValueOnce(false)
+            await expect(Adrop.registerWebView(42)).resolves.toBeUndefined()
+            expect(warn).toHaveBeenCalledTimes(1)
+            expect(warn.mock.calls[0][0]).toContain('collapsable={false}')
+        })
+
+        test.each([true, undefined, null])(
+            'does not warn when native resolves %p',
+            async (value) => {
+                NativeModules.AdropAds.registerWebView.mockResolvedValueOnce(
+                    value
+                )
+                await Adrop.registerWebView(42)
+                expect(warn).not.toHaveBeenCalled()
+            }
+        )
+    })
+
     test('setMarketingConsent forwards true to native module', () => {
         Adrop.setMarketingConsent(true)
         expect(NativeModules.AdropAds.setMarketingConsent).toHaveBeenCalledWith(

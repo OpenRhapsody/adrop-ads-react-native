@@ -57,7 +57,9 @@ android {
         disable "GradleCompatible"
     }
 
-    // RN 0.71-0.81: JVM 11, RN 0.82+: JVM 17
+    // Match the React Native Gradle Plugin (JdkConfiguratorUtils): RN 0.73+ forces Java 17 and a Kotlin
+    // jvmToolchain(17) on every module, so jvmTarget must be 17 there too — 11 fails the Kotlin
+    // JVM-target validation (an error since 0.73; 0.72 forced Java 11 and downgraded it to a warning).
     def reactNativeVersion = 0
     try {
         def jsonSlurper = new groovy.json.JsonSlurper()
@@ -80,7 +82,7 @@ android {
         println "[AdropAds] Warning: Could not detect React Native version, defaulting to JVM 11"
     }
 
-    def javaVersion = reactNativeVersion >= 82 ? JavaVersion.VERSION_17 : JavaVersion.VERSION_11
+    def javaVersion = reactNativeVersion >= 73 ? JavaVersion.VERSION_17 : JavaVersion.VERSION_11
 
     compileOptions {
         sourceCompatibility javaVersion

@@ -51,37 +51,59 @@ class Adrop {
      * Requires AdropAdsBackfill to be installed for actual registration.
      * If not installed, this call is silently ignored.
      *
+     * Prefer the {@link useAdropWebView} hook, which handles the timing below for you.
+     *
+     * The returned promise always resolves (never rejects). In development, a warning is logged
+     * when no WebView could be registered for the tag.
+     *
      * @param viewTag - The native view tag obtained via findNodeHandle() for the View wrapping the WebView.
      *                  Since react-native-webview's ref is an imperative handle and findNodeHandle does not work with it,
      *                  wrap the WebView in a View and use that View's ref instead.
+     *                  Give that View `collapsable={false}`: on the New Architecture a View without it can be
+     *                  flattened away, leaving no native view for the tag.
      *
      * @example
      * ```tsx
+     * import React, { useEffect, useRef, useState } from 'react';
      * import { findNodeHandle, View } from 'react-native';
      * import { WebView } from 'react-native-webview';
      * import { Adrop } from 'adrop-ads-react-native';
      *
-     * const containerRef = useRef<View>(null);
+     * const AdWebView = () => {
+     *   const containerRef = useRef<View>(null);
+     *   const [ready, setReady] = useState(false);
      *
-     * useEffect(() => {
-     *   if (containerRef.current) {
+     *   useEffect(() => {
      *     const tag = findNodeHandle(containerRef.current);
-     *     if (tag != null) await Adrop.registerWebView(tag);
-     *   }
-     * }, []);
+     *     // Register before loading any URL.
+     *     (tag != null ? Adrop.registerWebView(tag) : Promise.resolve()).then(() => setReady(true));
+     *   }, []);
      *
-     * <View ref={containerRef}>
-     *   <WebView
-     *     source={{ uri: 'https://your-website.com' }}
-     *     javaScriptEnabled={true}
-     *     thirdPartyCookiesEnabled={true}
-     *     mediaPlaybackRequiresUserAction={false}
-     *   />
-     * </View>
+     *   return (
+     *     <View ref={containerRef} style={{ flex: 1 }} collapsable={false}>
+     *       <WebView
+     *         source={ready ? { uri: 'https://your-website.com' } : { html: '' }}
+     *         javaScriptEnabled={true}
+     *         thirdPartyCookiesEnabled={true}
+     *         mediaPlaybackRequiresUserAction={false}
+     *         allowsInlineMediaPlayback={true}
+     *       />
+     *     </View>
+     *   );
+     * };
      * ```
      */
-    static registerWebView(viewTag: number): Promise<void> {
-        return NativeModules.AdropAds.registerWebView(viewTag)
+    static async registerWebView(viewTag: number): Promise<void> {
+        // Native resolves false when no WebView was found (or the core call failed); the reason is
+        // in the native log. Surfaced here because native logs never reach Metro/LogBox.
+        const registered = await NativeModules.AdropAds.registerWebView(viewTag)
+        if (__DEV__ && registered === false) {
+            console.warn(
+                `[Adrop] registerWebView(${viewTag}): WebView was not registered. ` +
+                    'On the New Architecture, add collapsable={false} to the View wrapping the WebView. ' +
+                    'Details: native log tag "AdropAds".'
+            )
+        }
     }
 }
 

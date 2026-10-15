@@ -24,7 +24,13 @@ const WebViewExample: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
-            <View ref={containerRef} style={styles.webView} onLayout={onLayout}>
+            {/* collapsable={false}: New Architecture flattens a plain View away, leaving no native view to register */}
+            <View
+                ref={containerRef}
+                style={styles.webView}
+                onLayout={onLayout}
+                collapsable={false}
+            >
                 <WebView
                     ref={webViewRef}
                     source={isReady ? { uri: TEST_URL } : { html: '' }}
